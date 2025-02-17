@@ -1,0 +1,33 @@
+name: Generate Index and Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Change this to your default branch if different
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Run Index Generation Script
+        run: |
+          chmod +x github_post_build.sh
+          ./github_post_build.sh
+
+      - name: Commit Updated Index File
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@github.com"
+          git add index.html
+          git commit -m "Auto-updated index.html"
+          git push
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages  # Ensure GitHub Pages is using this branch
+          folder: .         # Deploy from the root folder
