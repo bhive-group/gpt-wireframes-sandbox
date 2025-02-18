@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Room Booking</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
+        .input-field { margin-bottom: 10px; width: 100%; padding: 8px; }
+        .button { background-color: blue; color: white; padding: 10px; border: none; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Book a Meeting Room</h2>
+        <label for="room">Select a Meeting Room:</label>
+        <select id="room" class="input-field">
+            <option value="Room A">Room A</option>
+            <option value="Room B">Room B</option>
+            <option value="Room C">Room C</option>
+        </select>
+
+        <label for="date">Select Date:</label>
+        <input type="date" id="date" class="input-field">
+
+        <label for="time">Select Time:</label>
+        <input type="time" id="time" class="input-field">
+
+        <label for="duration">Select Duration:</label>
+        <select id="duration" class="input-field">
+            <option value="30">30 mins</option>
+            <option value="60">1 hour</option>
+            <option value="90">1.5 hours</option>
+            <option value="120">2 hours</option>
+            <option value="150">2.5 hours</option>
+            <option value="180">3 hours</option>
+            <option value="240">4 hours</option>
+        </select>
+
+        <label for="title">Booking Title:</label>
+        <input type="text" id="title" class="input-field">
+
+        <label for="description">Description:</label>
+        <textarea id="description" class="input-field"></textarea>
+
+        <button class="button" id="bookButton">Book Now</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const bookButton = document.getElementById("bookButton");
+            const roomField = document.getElementById('room');
+            const dateField = document.getElementById('date');
+            const timeField = document.getElementById('time');
+            const durationField = document.getElementById('duration');
+            const titleField = document.getElementById('title');
+            const descriptionField = document.getElementById('description');
+
+            bookButton.addEventListener("click", function() {
+                const room = roomField.value;
+                const date = dateField.value;
+                const time = timeField.value;
+                const duration = durationField.value;
+                const title = titleField.value;
+                const description = descriptionField.value;
+                
+                if (!room || !date || !time || !duration || !title || !description) {
+                    alert("Please fill in all required fields.");
+                    return;
+                }
+
+                const currentDateTime = new Date();
+                const selectedDateTime = new Date(`${date}T${time}`);
+                if (selectedDateTime < currentDateTime) {
+                    alert("You cannot book a meeting in the past.");
+                    return;
+                }
+
+                alert(`Meeting Room: ${room}\nDate: ${date}\nTime: ${time}\nDuration: ${duration} mins\nTitle: ${title}\nDescription: ${description}`);
+            });
+        });
+    </script>
+</body>
+</html>
