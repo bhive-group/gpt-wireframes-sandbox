@@ -27,7 +27,7 @@ EOL
 # Find all HTML files except index.html and append to the index.html file
 find . -type f -name "*.html" ! -name "index.html" | sort | while read file; do
     filename=$(basename "$file")
-    echo "<div class='card' style='width: 18rem;'> <iframe src='./$filename'></iframe>" >> $OUTPUT_FILE
+    echo "<div class='card' style='width: 18rem; margin: 20px;'> <iframe src='./$filename'></iframe>" >> $OUTPUT_FILE
     echo "<div class='card-body'><p><a class='card-link' href='./$filename' target='_blank'>$filename</a></p></div>" >> $OUTPUT_FILE
     echo "</div>" >> $OUTPUT_FILE
 done
