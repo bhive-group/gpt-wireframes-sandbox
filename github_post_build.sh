@@ -15,11 +15,12 @@ cat > $OUTPUT_FILE <<EOL
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>GPT WireFrames!</title>
   </head>
   <body>
-    <h1>Hello, world!</h1>
-    <h1 class="mb-4">Repository Files</h1>
+    <h1>GPT WireFrames</h1>
+    <div class="container">
+    <h1 class="mb-4">Repository HTML Files</h1>
     <ul class="list-group">
     <ul class="list-group list-group-flush">
 EOL
@@ -33,6 +34,7 @@ done
 # Close the HTML file
 cat >> $OUTPUT_FILE <<EOL
     </ul>
+    </div>
 
     <!-- Optional JavaScript; choose one of the two! -->
 
