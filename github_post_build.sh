@@ -15,13 +15,15 @@ cat > $OUTPUT_FILE <<EOL
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-    <title>GPT WireFrames!</title>
+    <title>GPT Wireframes!</title>
   </head>
   <body>
-    <h1>GPT WireFrames</h1>
+    <h1>GPT Wireframes</h1>
     <div class="container">
-    <h1 class="mb-4">Repository HTML Files</h1>
-    <ul class="list-group">
+    <div class="card" style="width: 18rem;">
+  <div class="card-body">
+    <h5 class="card-title">List of HTML Wireframes</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Links will open in new tab</h6>
     <ul class="list-group list-group-flush">
 EOL
 
@@ -34,7 +36,12 @@ done
 # Close the HTML file
 cat >> $OUTPUT_FILE <<EOL
     </ul>
+    <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
+    <!-- <a href="#" class="card-link">Card link</a> -->
+    <!-- <a href="#" class="card-link">Another link</a> -->
     </div>
+  </div>
+</div>
 
     <!-- Optional JavaScript; choose one of the two! -->
 
