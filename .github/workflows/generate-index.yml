@@ -3,7 +3,10 @@ name: Generate Index and Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # Change this to your default branch if different
+      - main  # Change this if your default branch is different
+
+permissions:
+  contents: write  # Grant permission to push changes
 
 jobs:
   build:
@@ -12,22 +15,21 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false  # Disable default GitHub token
 
       - name: Run Index Generation Script
         run: |
           chmod +x github_post_build.sh
           ./github_post_build.sh
 
-      - name: Commit Updated Index File
+      - name: Commit and Push Changes
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use the GitHub-provided token
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions@github.com"
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "imgg.gauravgandhi@gmail.com"
           git add index.html
-          git commit -m "Auto-updated index.html"
+          git commit -m "Auto-updated index.html" || echo "No changes to commit"
           git push
-
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: gh-pages  # Ensure GitHub Pages is using this branch
-          folder: .         # Deploy from the root folder
+          # git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
