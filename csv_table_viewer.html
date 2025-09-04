@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Table Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .file-name {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #007AFF;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0051D0;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #FF3B30;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #D70015;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            background: white;
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .row-number {
+            background: #f8f9fa;
+            color: #666;
+            text-align: center;
+            font-weight: 500;
+            width: 60px;
+            min-width: 60px;
+            border-right: 2px solid #e0e0e0;
+            user-select: none;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+        }
+
+        th {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 8px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            resize: horizontal;
+            overflow: hidden;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            cursor: pointer;
+        }
+
+        th:hover {
+            background: #f0f0f0;
+        }
+
+        th.sortable::after {
+            content: ' ↕';
+            color: #999;
+            font-size: 10px;
+        }
+
+        th.sort-asc::after {
+            content: ' ↑';
+            color: #007AFF;
+        }
+
+        th.sort-desc::after {
+            content: ' ↓';
+            color: #007AFF;
+        }
+
+        .row-number.sticky-header {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            left: 0;
+            z-index: 4;
+        }
+
+        td {
+            border: 1px solid #e0e0e0;
+            padding: 6px 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+            min-width: 80px;
+        }
+
+        td:focus {
+            outline: 2px solid #007AFF;
+            background: #f0f8ff;
+        }
+
+        .selected-cell {
+            background: #e3f2fd !important;
+            outline: 2px solid #007AFF;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007AFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .modal {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal p {
+            margin-bottom: 20px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #999;
+        }
+
+        .empty-state h2 {
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .resizer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            cursor: col-resize;
+            background: transparent;
+        }
+
+        .resizer:hover {
+            background: #007AFF;
+        }
+
+        th {
+            position: relative;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px 20px;
+            border-left: 4px solid #f44336;
+            margin: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="file-name" id="fileName">No file loaded</div>
+        <div class="buttons">
+            <input type="file" id="fileInput" class="file-input" accept=".csv" />
+            <button class="btn-primary" onclick="document.getElementById('fileInput').click()">Upload</button>
+            <button class="btn-secondary" onclick="downloadCSV()" id="downloadBtn" disabled>Download</button>
+            <button class="btn-danger" onclick="resetTable()">Reset</button>
+        </div>
+    </div>
+
+    <div class="table-container" id="tableContainer">
+        <div class="empty-state">
+            <h2>CSV Table Viewer</h2>
+            <p>Upload a CSV file to get started</p>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div id="selectionInfo">Selected: None</div>
+        <div id="totalInfo">Total: 0 × 0</div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div id="loadingText">Loading...</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3>Unsaved Changes</h3>
+            <p>You have uploaded data that hasn't been downloaded yet. Are you sure you want to close?</p>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmClose()">Close Anyway</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = [];
+        let currentFileName = '';
+        let hasUnsavedChanges = false;
+        let selectedCell = null;
+        let sortColumn = -1;
+        let sortDirection = 'asc';
+
+        // IndexedDB setup
+        let db;
+        const initDB = () => {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('CSVViewer', 1);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains('csvData')) {
+                        db.createObjectStore('csvData', { keyPath: 'id' });
+                    }
+                };
+            });
+        };
+
+        const saveToIndexedDB = async (data, fileName) => {
+            if (!db) return;
+            
+            const transaction = db.transaction(['csvData'], 'readwrite');
+            const store = transaction.objectStore('csvData');
+            await store.put({ id: 'current', data, fileName, timestamp: Date.now() });
+        };
+
+        const loadFromIndexedDB = async () => {
+            if (!db) return null;
+            
+            const transaction = db.transaction(['csvData'], 'readonly');
+            const store = transaction.objectStore('csvData');
+            const result = await store.get('current');
+            return result ? result : null;
+        };
+
+        const clearIndexedDB = async () => {
+            if (!db) return;
+            
+            const transaction = db.transaction(['csvData'], 'readwrite');
+            const store = transaction.objectStore('csvData');
+            await store.delete('current');
+        };
+
+        const showLoading = (text = 'Loading...') => {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        };
+
+        const hideLoading = () => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        };
+
+        const showError = (message) => {
+            // Remove any existing error messages
+            const existingError = document.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            document.body.insertBefore(errorDiv, document.querySelector('.table-container'));
+            
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.remove();
+                }
+            }, 5000);
+        };
+
+        const validateCSV = (results) => {
+            if (results.errors.length > 0) {
+                throw new Error(`CSV parsing error: ${results.errors[0].message}`);
+            }
+            
+            if (!results.data || results.data.length === 0) {
+                throw new Error('CSV file is empty');
+            }
+            
+            // Check if all rows have the same number of columns
+            const firstRowLength = Object.keys(results.data[0]).length;
+            for (let i = 0; i < results.data.length; i++) {
+                if (Object.keys(results.data[i]).length !== firstRowLength) {
+                    throw new Error(`Inconsistent number of columns at row ${i + 1}`);
+                }
+            }
+        };
+
+        const createTable = (data) => {
+            if (!data || data.length === 0) {
+                document.getElementById('tableContainer').innerHTML = `
+                    <div class="empty-state">
+                        <h2>CSV Table Viewer</h2>
+                        <p>Upload a CSV file to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const headers = Object.keys(data[0]);
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="row-number sticky-header">#</th>
+                            ${headers.map((header, index) => `
+                                <th class="sortable" data-column="${index}" onclick="sortTable(${index})">
+                                    <div style="position: relative;">
+                                        ${header}
+                                        <div class="resizer" onmousedown="startResize(event, ${index})"></div>
+                                    </div>
+                                </th>
+                            `).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map((row, rowIndex) => `
+                            <tr>
+                                <td class="row-number">${rowIndex + 1}</td>
+                                ${headers.map((header, colIndex) => `
+                                    <td onclick="selectCell(${rowIndex}, ${colIndex})" 
+                                        data-row="${rowIndex}" data-col="${colIndex}"
+                                        contenteditable="true" 
+                                        onblur="handleCellBlur(this, ${rowIndex}, ${colIndex})">
+                                        ${row[header] || ''}
+                                    </td>
+                                `).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('tableContainer').innerHTML = html;
+            updateStatusBar();
+            
+            // Apply sorting if active
+            if (sortColumn >= 0) {
+                applySortIndicator();
+            }
+        };
+
+        const selectCell = (row, col) => {
+            // Remove previous selection
+            const prevSelected = document.querySelector('.selected-cell');
+            if (prevSelected) {
+                prevSelected.classList.remove('selected-cell');
+            }
+            
+            // Add new selection
+            const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            if (cell) {
+                cell.classList.add('selected-cell');
+                selectedCell = { row, col };
+                updateStatusBar();
+            }
+        };
+
+        const handleCellBlur = async (cell, row, col) => {
+            const newValue = cell.textContent.trim();
+            const headers = Object.keys(currentData[0]);
+            const header = headers[col];
+            
+            if (currentData[row][header] !== newValue) {
+                currentData[row][header] = newValue;
+                hasUnsavedChanges = true;
+                
+                showLoading('Saving...');
+                await saveToIndexedDB(currentData, currentFileName);
+                hideLoading();
+            }
+        };
+
+        const updateStatusBar = () => {
+            const headers = currentData.length > 0 ? Object.keys(currentData[0]) : [];
+            const totalCols = headers.length;
+            const totalRows = currentData.length;
+            
+            document.getElementById('totalInfo').textContent = `Total: ${totalCols} × ${totalRows}`;
+            
+            if (selectedCell) {
+                document.getElementById('selectionInfo').textContent = 
+                    `Selected: ${selectedCell.col + 1} × ${selectedCell.row + 1}`;
+            } else {
+                document.getElementById('selectionInfo').textContent = 'Selected: None';
+            }
+        };
+
+        const sortTable = (columnIndex) => {
+            if (currentData.length === 0) return;
+            
+            const headers = Object.keys(currentData[0]);
+            const header = headers[columnIndex];
+            
+            // Toggle sort direction
+            if (sortColumn === columnIndex) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = columnIndex;
+                sortDirection = 'asc';
+            }
+            
+            // Sort data
+            currentData.sort((a, b) => {
+                const aVal = a[header];
+                const bVal = b[header];
+                
+                // Handle numbers
+                const aNum = parseFloat(aVal);
+                const bNum = parseFloat(bVal);
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    return sortDirection === 'asc' ? aNum - bNum : bNum - aNum;
+                }
+                
+                // Handle strings
+                const aStr = String(aVal || '');
+                const bStr = String(bVal || '');
+                return sortDirection === 'asc' 
+                    ? aStr.localeCompare(bStr)
+                    : bStr.localeCompare(aStr);
+            });
+            
+            createTable(currentData);
+        };
+
+        const applySortIndicator = () => {
+            // Remove all sort indicators
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            
+            // Add current sort indicator
+            const th = document.querySelector(`th[data-column="${sortColumn}"]`);
+            if (th) {
+                th.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+        };
+
+        // Column resizing
+        let isResizing = false;
+        let startX = 0;
+        let startWidth = 0;
+        let targetColumn = null;
+
+        const startResize = (e, columnIndex) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            isResizing = true;
+            startX = e.clientX;
+            targetColumn = columnIndex + 1; // +1 because of row number column
+            
+            const th = document.querySelector(`th[data-column="${columnIndex}"]`);
+            startWidth = th.offsetWidth;
+            
+            document.addEventListener('mousemove', doResize);
+            document.addEventListener('mouseup', stopResize);
+        };
+
+        const doResize = (e) => {
+            if (!isResizing) return;
+            
+            const diff = e.clientX - startX;
+            const newWidth = Math.max(60, startWidth + diff);
+            
+            // Apply width to all cells in the column
+            const style = document.createElement('style');
+            style.textContent = `
+                table th:nth-child(${targetColumn + 1}),
+                table td:nth-child(${targetColumn + 1}) {
+                    width: ${newWidth}px;
+                    min-width: ${newWidth}px;
+                    max-width: ${newWidth}px;
+                }
+            `;
+            document.head.appendChild(style);
+        };
+
+        const stopResize = () => {
+            isResizing = false;
+            document.removeEventListener('mousemove', doResize);
+            document.removeEventListener('mouseup', stopResize);
+        };
+
+        document.getElementById('fileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            try {
+                showLoading('Uploading and parsing CSV...');
+                
+                const text = await file.text();
+                
+                Papa.parse(text, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: async (results) => {
+                        try {
+                            validateCSV(results);
+                            
+                            currentData = results.data;
+                            currentFileName = file.name;
+                            hasUnsavedChanges = true;
+                            
+                            document.getElementById('fileName').textContent = currentFileName;
+                            document.getElementById('downloadBtn').disabled = false;
+                            
+                            createTable(currentData);
+                            
+                            await saveToIndexedDB(currentData, currentFileName);
+                            
+                            hideLoading();
+                        } catch (error) {
+                            hideLoading();
+                            showError(error.message);
+                        }
+                    },
+                    error: (error) => {
+                        hideLoading();
+                        showError(`Failed to parse CSV: ${error.message}`);
+                    }
+                });
+                
+            } catch (error) {
+                hideLoading();
+                showError(`Failed to read file: ${error.message}`);
+            }
+            
+            // Reset input
+            e.target.value = '';
+        });
+
+        const downloadCSV = async () => {
+            if (currentData.length === 0) return;
+            
+            try {
+                showLoading('Preparing download...');
+                
+                const csv = Papa.unparse(currentData);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                
+                link.href = URL.createObjectURL(blob);
+                link.download = currentFileName || 'data.csv';
+                link.click();
+                
+                // Clear IndexedDB after successful download
+                await clearIndexedDB();
+                hasUnsavedChanges = false;
+                
+                hideLoading();
+                
+                // Reset view after download
+                setTimeout(resetTable, 500);
+                
+            } catch (error) {
+                hideLoading();
+                showError(`Failed to download: ${error.message}`);
+            }
+        };
+
+        const resetTable = async () => {
+            currentData = [];
+            currentFileName = '';
+            hasUnsavedChanges = false;
+            selectedCell = null;
+            sortColumn = -1;
+            sortDirection = 'asc';
+            
+            document.getElementById('fileName').textContent = 'No file loaded';
+            document.getElementById('downloadBtn').disabled = true;
+            document.getElementById('tableContainer').innerHTML = `
+                <div class="empty-state">
+                    <h2>CSV Table Viewer</h2>
+                    <p>Upload a CSV file to get started</p>
+                </div>
+            `;
+            
+            updateStatusBar();
+            await clearIndexedDB();
+        };
+
+        const showModal = () => {
+            document.getElementById('modalOverlay').style.display = 'flex';
+        };
+
+        const closeModal = () => {
+            document.getElementById('modalOverlay').style.display = 'none';
+        };
+
+        let allowClose = false;
+        const confirmClose = () => {
+            allowClose = true;
+            closeModal();
+            window.close();
+        };
+
+        // Prevent closing if there are unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedChanges && !allowClose) {
+                e.preventDefault();
+                showModal();
+                return false;
+            }
+        });
+
+        // Load data from IndexedDB on page load
+        const loadSavedData = async () => {
+            try {
+                const saved = await loadFromIndexedDB();
+                if (saved && saved.data && saved.data.length > 0) {
+                    currentData = saved.data;
+                    currentFileName = saved.fileName || 'Restored Data';
+                    hasUnsavedChanges = true;
+                    
+                    document.getElementById('fileName').textContent = currentFileName + ' (restored)';
+                    document.getElementById('downloadBtn').disabled = false;
+                    
+                    createTable(currentData);
+                }
+            } catch (error) {
+                console.error('Failed to load saved data:', error);
+            }
+        };
+
+        // Initialize
+        initDB().then(() => {
+            loadSavedData();
+        }).catch(error => {
+            console.error('Failed to initialize database:', error);
+            showError('Failed to initialize local storage');
+        });
+
+        // Handle keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!selectedCell) return;
+            
+            const { row, col } = selectedCell;
+            const headers = currentData.length > 0 ? Object.keys(currentData[0]) : [];
+            let newRow = row;
+            let newCol = col;
+            
+            switch (e.key) {
+                case 'ArrowUp':
+                    e.preventDefault();
+                    newRow = Math.max(0, row - 1);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    newRow = Math.min(currentData.length - 1, row + 1);
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    newCol = Math.max(0, col - 1);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    newCol = Math.min(headers.length - 1, col + 1);
+                    break;
+            }
+            
+            if (newRow !== row || newCol !== col) {
+                selectCell(newRow, newCol);
+            }
+        });
+
+        // Click outside to deselect
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('td[data-row]')) {
+                if (selectedCell) {
+                    const prevSelected = document.querySelector('.selected-cell');
+                    if (prevSelected) {
+                        prevSelected.classList.remove('selected-cell');
+                    }
+                    selectedCell = null;
+                    updateStatusBar();
+                }
+            }
+        });
+
+        // Initial status bar update
+        updateStatusBar();
+    </script>
+</body>
+</html>
