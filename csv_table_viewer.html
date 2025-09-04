@@ -40,6 +40,7 @@
         .buttons {
             display: flex;
             gap: 10px;
+            align-items: center;
         }
 
         button {
@@ -84,12 +85,14 @@
             overflow: auto;
             background: white;
             margin: 0;
+            position: relative;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
+            table-layout: fixed;
         }
 
         .row-number {
@@ -104,6 +107,16 @@
             position: sticky;
             left: 0;
             z-index: 2;
+            cursor: pointer;
+        }
+
+        .row-number:hover {
+            background: #e8f4fd;
+        }
+
+        .row-number.selected {
+            background: #007AFF;
+            color: white;
         }
 
         th {
@@ -113,13 +126,14 @@
             text-align: left;
             font-weight: 600;
             color: #333;
-            resize: horizontal;
             overflow: hidden;
             white-space: nowrap;
             position: sticky;
             top: 0;
             z-index: 3;
             cursor: pointer;
+            position: relative;
+            min-width: 100px;
         }
 
         th:hover {
@@ -149,6 +163,7 @@
             top: 0;
             left: 0;
             z-index: 4;
+            cursor: default;
         }
 
         td {
@@ -157,8 +172,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 200px;
-            min-width: 80px;
+            min-width: 100px;
         }
 
         td:focus {
@@ -169,6 +183,10 @@
         .selected-cell {
             background: #e3f2fd !important;
             outline: 2px solid #007AFF;
+        }
+
+        .selected-row {
+            background: #f0f8ff !important;
         }
 
         .status-bar {
@@ -277,18 +295,19 @@
             position: absolute;
             top: 0;
             right: 0;
-            width: 5px;
+            width: 4px;
             height: 100%;
             cursor: col-resize;
             background: transparent;
+            z-index: 10;
         }
 
         .resizer:hover {
             background: #007AFF;
         }
 
-        th {
-            position: relative;
+        .resizing {
+            user-select: none;
         }
 
         .error-message {
@@ -300,6 +319,67 @@
             border-radius: 4px;
             font-size: 14px;
         }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Context Menu Styles */
+        .context-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 4px;
+            min-width: 160px;
+            z-index: 2000;
+            display: none;
+        }
+
+        .context-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .context-menu-item:hover {
+            background: #f0f0f0;
+        }
+
+        .context-menu-item.disabled {
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .context-menu-item.disabled:hover {
+            background: transparent;
+        }
+
+        .context-menu-divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 4px 0;
+        }
+
+        .context-menu-item.danger {
+            color: #FF3B30;
+        }
+
+        .context-menu-item.danger:hover {
+            background: #ffebee;
+        }
+
+        .context-menu-icon {
+            width: 12px;
+            font-size: 11px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -307,9 +387,9 @@
         <div class="file-name" id="fileName">No file loaded</div>
         <div class="buttons">
             <input type="file" id="fileInput" class="file-input" accept=".csv" />
-            <button class="btn-primary" onclick="document.getElementById('fileInput').click()">Upload</button>
-            <button class="btn-secondary" onclick="downloadCSV()" id="downloadBtn" disabled>Download</button>
-            <button class="btn-danger" onclick="resetTable()">Reset</button>
+            <button class="btn-primary" onclick="document.getElementById('fileInput').click()" id="uploadBtn">Upload</button>
+            <button class="btn-secondary hidden" onclick="downloadCSV()" id="downloadBtn">Download</button>
+            <button class="btn-danger" onclick="showResetConfirm()">Reset</button>
         </div>
     </div>
 
@@ -325,6 +405,40 @@
         <div id="totalInfo">Total: 0 × 0</div>
     </div>
 
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="addRowAbove()">
+            <span class="context-menu-icon">↑</span>
+            Add Row Above
+        </div>
+        <div class="context-menu-item" onclick="addRowBelow()">
+            <span class="context-menu-icon">↓</span>
+            Add Row Below
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="cutRow()">
+            <span class="context-menu-icon">✂</span>
+            Cut Row
+        </div>
+        <div class="context-menu-item" onclick="copyRow()">
+            <span class="context-menu-icon">⧉</span>
+            Copy Row
+        </div>
+        <div class="context-menu-item" onclick="pasteRow()" id="pasteMenuItem">
+            <span class="context-menu-icon">📋</span>
+            Paste Row
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="clearRow()">
+            <span class="context-menu-icon">⌫</span>
+            Clear Row
+        </div>
+        <div class="context-menu-item danger" onclick="showDeleteRowConfirm()">
+            <span class="context-menu-icon">🗑</span>
+            Delete Row
+        </div>
+    </div>
+
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="spinner"></div>
@@ -332,6 +446,7 @@
         </div>
     </div>
 
+    <!-- Unsaved Changes Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <h3>Unsaved Changes</h3>
@@ -343,13 +458,40 @@
         </div>
     </div>
 
+    <!-- Delete Row Confirmation Modal -->
+    <div class="modal-overlay" id="deleteRowModal">
+        <div class="modal">
+            <h3>Delete Row</h3>
+            <p>Are you sure you want to delete row <span id="deleteRowNumber"></span>?</p>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeDeleteRowModal()">Cancel</button>
+                <button class="btn-danger" onclick="confirmDeleteRow()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div class="modal-overlay" id="resetModal">
+        <div class="modal">
+            <h3>Reset Table</h3>
+            <p>Are you sure you want to reset the table? This will clear all data and cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeResetModal()">Cancel</button>
+                <button class="btn-danger" onclick="confirmReset()">Reset</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentData = [];
         let currentFileName = '';
         let hasUnsavedChanges = false;
         let selectedCell = null;
+        let selectedRow = null;
         let sortColumn = -1;
         let sortDirection = 'asc';
+        let columnWidths = {};
+        let clipboardRow = null; // For cut/copy/paste operations
 
         // IndexedDB setup
         let db;
@@ -377,7 +519,7 @@
             
             const transaction = db.transaction(['csvData'], 'readwrite');
             const store = transaction.objectStore('csvData');
-            await store.put({ id: 'current', data, fileName, timestamp: Date.now() });
+            await store.put({ id: 'current', data, fileName, timestamp: Date.now(), columnWidths });
         };
 
         const loadFromIndexedDB = async () => {
@@ -397,6 +539,22 @@
             await store.delete('current');
         };
 
+        const writeToFileSystem = async () => {
+            if (currentData.length === 0) return;
+            
+            try {
+                const csv = Papa.unparse(currentData);
+                const fileName = currentFileName || 'data.csv';
+                
+                if (window.fs && window.fs.writeFile) {
+                    await window.fs.writeFile(fileName, csv);
+                    console.log(`File saved to filesystem: ${fileName}`);
+                }
+            } catch (error) {
+                console.error('Failed to write to filesystem:', error);
+            }
+        };
+
         const showLoading = (text = 'Loading...') => {
             document.getElementById('loadingText').textContent = text;
             document.getElementById('loadingOverlay').style.display = 'flex';
@@ -407,7 +565,6 @@
         };
 
         const showError = (message) => {
-            // Remove any existing error messages
             const existingError = document.querySelector('.error-message');
             if (existingError) {
                 existingError.remove();
@@ -434,13 +591,59 @@
                 throw new Error('CSV file is empty');
             }
             
-            // Check if all rows have the same number of columns
             const firstRowLength = Object.keys(results.data[0]).length;
             for (let i = 0; i < results.data.length; i++) {
                 if (Object.keys(results.data[i]).length !== firstRowLength) {
                     throw new Error(`Inconsistent number of columns at row ${i + 1}`);
                 }
             }
+        };
+
+        const updateButtonVisibility = () => {
+            const uploadBtn = document.getElementById('uploadBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            if (currentData.length === 0) {
+                uploadBtn.classList.remove('hidden');
+                downloadBtn.classList.add('hidden');
+            } else {
+                uploadBtn.classList.add('hidden');
+                downloadBtn.classList.remove('hidden');
+            }
+        };
+
+        const updateContextMenu = () => {
+            const pasteMenuItem = document.getElementById('pasteMenuItem');
+            if (clipboardRow) {
+                pasteMenuItem.classList.remove('disabled');
+            } else {
+                pasteMenuItem.classList.add('disabled');
+            }
+        };
+
+        const applyColumnWidths = () => {
+            const headers = currentData.length > 0 ? Object.keys(currentData[0]) : [];
+            let style = document.getElementById('columnWidthStyle');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'columnWidthStyle';
+                document.head.appendChild(style);
+            }
+            
+            let css = '';
+            headers.forEach((header, index) => {
+                const width = columnWidths[header] || 150;
+                css += `
+                    table th:nth-child(${index + 2}),
+                    table td:nth-child(${index + 2}) {
+                        width: ${width}px;
+                        min-width: ${width}px;
+                        max-width: ${width}px;
+                    }
+                `;
+            });
+            
+            style.textContent = css;
         };
 
         const createTable = (data) => {
@@ -451,6 +654,7 @@
                         <p>Upload a CSV file to get started</p>
                     </div>
                 `;
+                updateButtonVisibility();
                 return;
             }
 
@@ -463,20 +667,18 @@
                             <th class="row-number sticky-header">#</th>
                             ${headers.map((header, index) => `
                                 <th class="sortable" data-column="${index}" onclick="sortTable(${index})">
-                                    <div style="position: relative;">
-                                        ${header}
-                                        <div class="resizer" onmousedown="startResize(event, ${index})"></div>
-                                    </div>
+                                    ${header}
+                                    <div class="resizer" data-column="${index}"></div>
                                 </th>
                             `).join('')}
                         </tr>
                     </thead>
                     <tbody>
                         ${data.map((row, rowIndex) => `
-                            <tr>
-                                <td class="row-number">${rowIndex + 1}</td>
+                            <tr data-row="${rowIndex}">
+                                <td class="row-number" onclick="selectRowByNumber(${rowIndex})" oncontextmenu="showContextMenu(event, ${rowIndex})">${rowIndex + 1}</td>
                                 ${headers.map((header, colIndex) => `
-                                    <td onclick="selectCell(${rowIndex}, ${colIndex})" 
+                                    <td onclick="selectCell(event, ${rowIndex}, ${colIndex})" 
                                         data-row="${rowIndex}" data-col="${colIndex}"
                                         contenteditable="true" 
                                         onblur="handleCellBlur(this, ${rowIndex}, ${colIndex})">
@@ -490,28 +692,281 @@
             `;
             
             document.getElementById('tableContainer').innerHTML = html;
+            
+            applyColumnWidths();
+            setupColumnResizers();
+            updateButtonVisibility();
             updateStatusBar();
             
-            // Apply sorting if active
             if (sortColumn >= 0) {
                 applySortIndicator();
             }
         };
 
-        const selectCell = (row, col) => {
-            // Remove previous selection
-            const prevSelected = document.querySelector('.selected-cell');
-            if (prevSelected) {
-                prevSelected.classList.remove('selected-cell');
-            }
+        const setupColumnResizers = () => {
+            const resizers = document.querySelectorAll('.resizer');
+            resizers.forEach(resizer => {
+                resizer.addEventListener('mousedown', startResize);
+            });
+        };
+
+        const selectCell = (event, row, col) => {
+            event.stopPropagation();
+            hideContextMenu();
             
-            // Add new selection
+            // Remove previous selections
+            document.querySelectorAll('.selected-cell').forEach(el => {
+                el.classList.remove('selected-cell');
+            });
+            document.querySelectorAll('.selected-row').forEach(el => {
+                el.classList.remove('selected-row');
+            });
+            document.querySelectorAll('.row-number.selected').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
             const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             if (cell) {
                 cell.classList.add('selected-cell');
                 selectedCell = { row, col };
+                selectedRow = null;
                 updateStatusBar();
             }
+        };
+
+        const selectRowByNumber = (rowIndex) => {
+            hideContextMenu();
+            
+            // Remove previous selections
+            document.querySelectorAll('.selected-cell').forEach(el => {
+                el.classList.remove('selected-cell');
+            });
+            document.querySelectorAll('.selected-row').forEach(el => {
+                el.classList.remove('selected-row');
+            });
+            document.querySelectorAll('.row-number.selected').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Select the entire row
+            const row = document.querySelector(`tr[data-row="${rowIndex}"]`);
+            const rowNumberCell = row.querySelector('.row-number');
+            
+            if (row && rowNumberCell) {
+                row.classList.add('selected-row');
+                rowNumberCell.classList.add('selected');
+                selectedRow = rowIndex;
+                selectedCell = null;
+                updateStatusBar();
+            }
+        };
+
+        // Context Menu Functions
+        const showContextMenu = (event, rowIndex) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            selectRowByNumber(rowIndex);
+            
+            const contextMenu = document.getElementById('contextMenu');
+            updateContextMenu();
+            
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = event.pageX + 'px';
+            contextMenu.style.top = event.pageY + 'px';
+            
+            // Adjust position if menu would go off screen
+            const rect = contextMenu.getBoundingClientRect();
+            if (rect.right > window.innerWidth) {
+                contextMenu.style.left = (event.pageX - rect.width) + 'px';
+            }
+            if (rect.bottom > window.innerHeight) {
+                contextMenu.style.top = (event.pageY - rect.height) + 'px';
+            }
+        };
+
+        const hideContextMenu = () => {
+            document.getElementById('contextMenu').style.display = 'none';
+        };
+
+        const addRowAbove = async () => {
+            hideContextMenu();
+            if (selectedRow === null || currentData.length === 0) return;
+            
+            const headers = Object.keys(currentData[0]);
+            const newRow = {};
+            headers.forEach(header => {
+                newRow[header] = '';
+            });
+            
+            currentData.splice(selectedRow, 0, newRow);
+            hasUnsavedChanges = true;
+            
+            createTable(currentData);
+            selectRowByNumber(selectedRow); // Keep the same visual row selected
+            
+            showLoading('Saving...');
+            await saveToIndexedDB(currentData, currentFileName);
+            await writeToFileSystem();
+            hideLoading();
+        };
+
+        const addRowBelow = async () => {
+            hideContextMenu();
+            if (selectedRow === null || currentData.length === 0) return;
+            
+            const headers = Object.keys(currentData[0]);
+            const newRow = {};
+            headers.forEach(header => {
+                newRow[header] = '';
+            });
+            
+            currentData.splice(selectedRow + 1, 0, newRow);
+            hasUnsavedChanges = true;
+            
+            createTable(currentData);
+            selectRowByNumber(selectedRow + 1); // Select the new row
+            
+            showLoading('Saving...');
+            await saveToIndexedDB(currentData, currentFileName);
+            await writeToFileSystem();
+            hideLoading();
+        };
+
+        const copyRow = () => {
+            hideContextMenu();
+            if (selectedRow === null || currentData.length <= selectedRow) return;
+            
+            clipboardRow = { ...currentData[selectedRow] };
+            updateContextMenu();
+            
+            // Visual feedback
+            showToast('Row copied');
+        };
+
+        const cutRow = () => {
+            hideContextMenu();
+            if (selectedRow === null || currentData.length <= selectedRow) return;
+            
+            clipboardRow = { ...currentData[selectedRow] };
+            showDeleteRowConfirm(); // Show confirmation for cutting (which deletes)
+        };
+
+        const pasteRow = async () => {
+            hideContextMenu();
+            if (!clipboardRow || selectedRow === null) return;
+            
+            const headers = Object.keys(currentData[0]);
+            const newRow = {};
+            headers.forEach(header => {
+                newRow[header] = clipboardRow[header] || '';
+            });
+            
+            currentData.splice(selectedRow + 1, 0, newRow);
+            hasUnsavedChanges = true;
+            
+            createTable(currentData);
+            selectRowByNumber(selectedRow + 1); // Select the pasted row
+            
+            showLoading('Saving...');
+            await saveToIndexedDB(currentData, currentFileName);
+            await writeToFileSystem();
+            hideLoading();
+            
+            showToast('Row pasted');
+        };
+
+        const clearRow = async () => {
+            hideContextMenu();
+            if (selectedRow === null || currentData.length <= selectedRow) return;
+            
+            const headers = Object.keys(currentData[0]);
+            headers.forEach(header => {
+                currentData[selectedRow][header] = '';
+            });
+            
+            hasUnsavedChanges = true;
+            createTable(currentData);
+            selectRowByNumber(selectedRow); // Keep row selected
+            
+            showLoading('Saving...');
+            await saveToIndexedDB(currentData, currentFileName);
+            await writeToFileSystem();
+            hideLoading();
+            
+            showToast('Row cleared');
+        };
+
+        const showToast = (message) => {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #333;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-size: 13px;
+                z-index: 2001;
+                opacity: 0;
+                transition: opacity 0.3s;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.style.opacity = '1', 10);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        };
+
+        const showDeleteRowConfirm = () => {
+            hideContextMenu();
+            if (selectedRow === null) return;
+            
+            document.getElementById('deleteRowNumber').textContent = selectedRow + 1;
+            document.getElementById('deleteRowModal').style.display = 'flex';
+        };
+
+        const closeDeleteRowModal = () => {
+            document.getElementById('deleteRowModal').style.display = 'none';
+        };
+
+        const confirmDeleteRow = async () => {
+            if (selectedRow === null || currentData.length <= selectedRow) {
+                closeDeleteRowModal();
+                return;
+            }
+            
+            closeDeleteRowModal();
+            
+            currentData.splice(selectedRow, 1);
+            hasUnsavedChanges = true;
+            selectedRow = null;
+            selectedCell = null;
+            
+            createTable(currentData);
+            
+            showLoading('Saving...');
+            await saveToIndexedDB(currentData, currentFileName);
+            await writeToFileSystem();
+            hideLoading();
+        };
+
+        const showResetConfirm = () => {
+            document.getElementById('resetModal').style.display = 'flex';
+        };
+
+        const closeResetModal = () => {
+            document.getElementById('resetModal').style.display = 'none';
+        };
+
+        const confirmReset = async () => {
+            closeResetModal();
+            await resetTable();
         };
 
         const handleCellBlur = async (cell, row, col) => {
@@ -525,6 +980,7 @@
                 
                 showLoading('Saving...');
                 await saveToIndexedDB(currentData, currentFileName);
+                await writeToFileSystem();
                 hideLoading();
             }
         };
@@ -539,6 +995,9 @@
             if (selectedCell) {
                 document.getElementById('selectionInfo').textContent = 
                     `Selected: ${selectedCell.col + 1} × ${selectedCell.row + 1}`;
+            } else if (selectedRow !== null) {
+                document.getElementById('selectionInfo').textContent = 
+                    `Selected: Row ${selectedRow + 1}`;
             } else {
                 document.getElementById('selectionInfo').textContent = 'Selected: None';
             }
@@ -550,7 +1009,6 @@
             const headers = Object.keys(currentData[0]);
             const header = headers[columnIndex];
             
-            // Toggle sort direction
             if (sortColumn === columnIndex) {
                 sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
             } else {
@@ -558,19 +1016,16 @@
                 sortDirection = 'asc';
             }
             
-            // Sort data
             currentData.sort((a, b) => {
                 const aVal = a[header];
                 const bVal = b[header];
                 
-                // Handle numbers
                 const aNum = parseFloat(aVal);
                 const bNum = parseFloat(bVal);
                 if (!isNaN(aNum) && !isNaN(bNum)) {
                     return sortDirection === 'asc' ? aNum - bNum : bNum - aNum;
                 }
                 
-                // Handle strings
                 const aStr = String(aVal || '');
                 const bStr = String(bVal || '');
                 return sortDirection === 'asc' 
@@ -582,62 +1037,65 @@
         };
 
         const applySortIndicator = () => {
-            // Remove all sort indicators
             document.querySelectorAll('th').forEach(th => {
                 th.classList.remove('sort-asc', 'sort-desc');
             });
             
-            // Add current sort indicator
             const th = document.querySelector(`th[data-column="${sortColumn}"]`);
             if (th) {
                 th.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
             }
         };
 
-        // Column resizing
+        // Column resizing functionality
         let isResizing = false;
         let startX = 0;
         let startWidth = 0;
-        let targetColumn = null;
+        let currentResizer = null;
 
-        const startResize = (e, columnIndex) => {
+        const startResize = (e) => {
             e.preventDefault();
             e.stopPropagation();
             
             isResizing = true;
             startX = e.clientX;
-            targetColumn = columnIndex + 1; // +1 because of row number column
+            currentResizer = e.target;
             
-            const th = document.querySelector(`th[data-column="${columnIndex}"]`);
+            const columnIndex = parseInt(currentResizer.getAttribute('data-column'));
+            const th = currentResizer.parentElement;
             startWidth = th.offsetWidth;
             
+            document.body.classList.add('resizing');
             document.addEventListener('mousemove', doResize);
             document.addEventListener('mouseup', stopResize);
         };
 
         const doResize = (e) => {
-            if (!isResizing) return;
+            if (!isResizing || !currentResizer) return;
             
             const diff = e.clientX - startX;
             const newWidth = Math.max(60, startWidth + diff);
             
-            // Apply width to all cells in the column
-            const style = document.createElement('style');
-            style.textContent = `
-                table th:nth-child(${targetColumn + 1}),
-                table td:nth-child(${targetColumn + 1}) {
-                    width: ${newWidth}px;
-                    min-width: ${newWidth}px;
-                    max-width: ${newWidth}px;
-                }
-            `;
-            document.head.appendChild(style);
+            const columnIndex = parseInt(currentResizer.getAttribute('data-column'));
+            const headers = Object.keys(currentData[0]);
+            const header = headers[columnIndex];
+            
+            columnWidths[header] = newWidth;
+            applyColumnWidths();
         };
 
-        const stopResize = () => {
+        const stopResize = async () => {
+            if (!isResizing) return;
+            
             isResizing = false;
+            currentResizer = null;
+            document.body.classList.remove('resizing');
             document.removeEventListener('mousemove', doResize);
             document.removeEventListener('mouseup', stopResize);
+            
+            if (currentData.length > 0) {
+                await saveToIndexedDB(currentData, currentFileName);
+            }
         };
 
         document.getElementById('fileInput').addEventListener('change', async (e) => {
@@ -659,13 +1117,14 @@
                             currentData = results.data;
                             currentFileName = file.name;
                             hasUnsavedChanges = true;
+                            columnWidths = {};
                             
                             document.getElementById('fileName').textContent = currentFileName;
-                            document.getElementById('downloadBtn').disabled = false;
                             
                             createTable(currentData);
                             
                             await saveToIndexedDB(currentData, currentFileName);
+                            await writeToFileSystem();
                             
                             hideLoading();
                         } catch (error) {
@@ -684,7 +1143,6 @@
                 showError(`Failed to read file: ${error.message}`);
             }
             
-            // Reset input
             e.target.value = '';
         });
 
@@ -702,13 +1160,11 @@
                 link.download = currentFileName || 'data.csv';
                 link.click();
                 
-                // Clear IndexedDB after successful download
                 await clearIndexedDB();
                 hasUnsavedChanges = false;
                 
                 hideLoading();
                 
-                // Reset view after download
                 setTimeout(resetTable, 500);
                 
             } catch (error) {
@@ -722,11 +1178,13 @@
             currentFileName = '';
             hasUnsavedChanges = false;
             selectedCell = null;
+            selectedRow = null;
             sortColumn = -1;
             sortDirection = 'asc';
+            columnWidths = {};
+            clipboardRow = null;
             
             document.getElementById('fileName').textContent = 'No file loaded';
-            document.getElementById('downloadBtn').disabled = true;
             document.getElementById('tableContainer').innerHTML = `
                 <div class="empty-state">
                     <h2>CSV Table Viewer</h2>
@@ -734,6 +1192,12 @@
                 </div>
             `;
             
+            const style = document.getElementById('columnWidthStyle');
+            if (style) {
+                style.remove();
+            }
+            
+            updateButtonVisibility();
             updateStatusBar();
             await clearIndexedDB();
         };
@@ -753,7 +1217,6 @@
             window.close();
         };
 
-        // Prevent closing if there are unsaved changes
         window.addEventListener('beforeunload', (e) => {
             if (hasUnsavedChanges && !allowClose) {
                 e.preventDefault();
@@ -762,7 +1225,6 @@
             }
         });
 
-        // Load data from IndexedDB on page load
         const loadSavedData = async () => {
             try {
                 const saved = await loadFromIndexedDB();
@@ -770,9 +1232,9 @@
                     currentData = saved.data;
                     currentFileName = saved.fileName || 'Restored Data';
                     hasUnsavedChanges = true;
+                    columnWidths = saved.columnWidths || {};
                     
                     document.getElementById('fileName').textContent = currentFileName + ' (restored)';
-                    document.getElementById('downloadBtn').disabled = false;
                     
                     createTable(currentData);
                 }
@@ -781,16 +1243,9 @@
             }
         };
 
-        // Initialize
-        initDB().then(() => {
-            loadSavedData();
-        }).catch(error => {
-            console.error('Failed to initialize database:', error);
-            showError('Failed to initialize local storage');
-        });
-
-        // Handle keyboard navigation
+        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
+            // Handle arrow key navigation for cells
             if (!selectedCell) return;
             
             const { row, col } = selectedCell;
@@ -818,25 +1273,44 @@
             }
             
             if (newRow !== row || newCol !== col) {
-                selectCell(newRow, newCol);
+                const fakeEvent = { stopPropagation: () => {} };
+                selectCell(fakeEvent, newRow, newCol);
             }
         });
 
-        // Click outside to deselect
+        // Click outside to deselect and hide context menu
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('td[data-row]')) {
-                if (selectedCell) {
-                    const prevSelected = document.querySelector('.selected-cell');
-                    if (prevSelected) {
-                        prevSelected.classList.remove('selected-cell');
-                    }
-                    selectedCell = null;
-                    updateStatusBar();
-                }
+            if (!e.target.closest('td[data-row], .row-number, .context-menu')) {
+                hideContextMenu();
+                document.querySelectorAll('.selected-cell, .selected-row').forEach(el => {
+                    el.classList.remove('selected-cell', 'selected-row');
+                });
+                document.querySelectorAll('.row-number.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                selectedCell = null;
+                selectedRow = null;
+                updateStatusBar();
             }
         });
 
-        // Initial status bar update
+        // Prevent default context menu on right click
+        document.addEventListener('contextmenu', (e) => {
+            if (!e.target.closest('.row-number')) {
+                e.preventDefault();
+                hideContextMenu();
+            }
+        });
+
+        // Initialize
+        initDB().then(() => {
+            loadSavedData();
+        }).catch(error => {
+            console.error('Failed to initialize database:', error);
+            showError('Failed to initialize local storage');
+        });
+
+        updateButtonVisibility();
         updateStatusBar();
     </script>
 </body>
