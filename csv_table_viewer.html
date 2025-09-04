@@ -175,18 +175,35 @@
             min-width: 100px;
         }
 
-        td:focus {
-            outline: 2px solid #007AFF;
-            background: #f0f8ff;
-        }
-
         .selected-cell {
             background: #e3f2fd !important;
             outline: 2px solid #007AFF;
         }
 
+        .selected-cell.edit-mode {
+            background: #ffffff !important;
+            outline: 2px solid #4CAF50;
+            white-space: normal;
+            overflow: visible;
+        }
+
         .selected-row {
             background: #f0f8ff !important;
+        }
+
+        .cut-row {
+            background: #fff8f0 !important;
+            border: 2px dashed #FF9500 !important;
+        }
+
+        .cut-row td {
+            background: #fff8f0 !important;
+            border: 1px solid #FF9500 !important;
+        }
+
+        .cut-row .row-number {
+            background: #FF9500 !important;
+            color: white !important;
         }
 
         .status-bar {
@@ -198,6 +215,29 @@
             border-top: 1px solid #e0e0e0;
             font-size: 12px;
             color: #666;
+        }
+
+        .mode-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mode-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .mode-badge.visual {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .mode-badge.edit {
+            background: #e8f5e8;
+            color: #388e3c;
         }
 
         .loading-overlay {
@@ -401,7 +441,10 @@
     </div>
 
     <div class="status-bar">
-        <div id="selectionInfo">Selected: None</div>
+        <div class="mode-indicator">
+            <div id="selectionInfo">Selected: None</div>
+            <div class="mode-badge visual" id="modeIndicator">VISUAL</div>
+        </div>
         <div id="totalInfo">Total: 0 × 0</div>
     </div>
 
@@ -418,15 +461,15 @@
         <div class="context-menu-divider"></div>
         <div class="context-menu-item" onclick="cutRow()">
             <span class="context-menu-icon">✂</span>
-            Cut Row
+            Cut Row <span style="margin-left: auto; color: #999;">Ctrl+X</span>
         </div>
         <div class="context-menu-item" onclick="copyRow()">
             <span class="context-menu-icon">⧉</span>
-            Copy Row
+            Copy Row <span style="margin-left: auto; color: #999;">Ctrl+C</span>
         </div>
         <div class="context-menu-item" onclick="pasteRow()" id="pasteMenuItem">
             <span class="context-menu-icon">📋</span>
-            Paste Row
+            Paste Row <span style="margin-left: auto; color: #999;">Ctrl+V</span>
         </div>
         <div class="context-menu-divider"></div>
         <div class="context-menu-item" onclick="clearRow()">
@@ -435,7 +478,7 @@
         </div>
         <div class="context-menu-item danger" onclick="showDeleteRowConfirm()">
             <span class="context-menu-icon">🗑</span>
-            Delete Row
+            Delete Row <span style="margin-left: auto; color: #999;">Del</span>
         </div>
     </div>
 
@@ -491,7 +534,12 @@
         let sortColumn = -1;
         let sortDirection = 'asc';
         let columnWidths = {};
-        let clipboardRow = null; // For cut/copy/paste operations
+        let clipboardRow = null;
+        let cutRowIndex = null;
+        
+        // Mode system
+        let isEditMode = false;
+        let editingCell = null;
 
         // IndexedDB setup
         let db;
@@ -612,6 +660,59 @@
             }
         };
 
+        const updateModeIndicator = () => {
+            const modeIndicator = document.getElementById('modeIndicator');
+            if (isEditMode) {
+                modeIndicator.textContent = 'EDIT';
+                modeIndicator.className = 'mode-badge edit';
+            } else {
+                modeIndicator.textContent = 'VISUAL';
+                modeIndicator.className = 'mode-badge visual';
+            }
+        };
+
+        const enterEditMode = (selectAll = false) => {
+            if (!selectedCell) return;
+            
+            isEditMode = true;
+            const cell = document.querySelector(`[data-row="${selectedCell.row}"][data-col="${selectedCell.col}"]`);
+            if (cell) {
+                cell.classList.add('edit-mode');
+                cell.contentEditable = 'true';
+                editingCell = cell;
+                cell.focus();
+                
+                if (selectAll) {
+                    // Select all text for double-click
+                    const range = document.createRange();
+                    range.selectNodeContents(cell);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+                
+                updateModeIndicator();
+            }
+        };
+
+        const exitEditMode = async () => {
+            if (!isEditMode) return;
+            
+            isEditMode = false;
+            if (editingCell) {
+                editingCell.classList.remove('edit-mode');
+                
+                // Save the content
+                const row = parseInt(editingCell.getAttribute('data-row'));
+                const col = parseInt(editingCell.getAttribute('data-col'));
+                await handleCellBlur(editingCell, row, col);
+                
+                editingCell.contentEditable = 'false';
+                editingCell = null;
+            }
+            updateModeIndicator();
+        };
+
         const updateContextMenu = () => {
             const pasteMenuItem = document.getElementById('pasteMenuItem');
             if (clipboardRow) {
@@ -675,12 +776,13 @@
                     </thead>
                     <tbody>
                         ${data.map((row, rowIndex) => `
-                            <tr data-row="${rowIndex}">
+                            <tr data-row="${rowIndex}" ${cutRowIndex === rowIndex ? 'class="cut-row"' : ''}>
                                 <td class="row-number" onclick="selectRowByNumber(${rowIndex})" oncontextmenu="showContextMenu(event, ${rowIndex})">${rowIndex + 1}</td>
                                 ${headers.map((header, colIndex) => `
                                     <td onclick="selectCell(event, ${rowIndex}, ${colIndex})" 
+                                        ondblclick="selectCellAndEdit(event, ${rowIndex}, ${colIndex})"
                                         data-row="${rowIndex}" data-col="${colIndex}"
-                                        contenteditable="true" 
+                                        contenteditable="false"
                                         onblur="handleCellBlur(this, ${rowIndex}, ${colIndex})">
                                         ${row[header] || ''}
                                     </td>
@@ -697,6 +799,7 @@
             setupColumnResizers();
             updateButtonVisibility();
             updateStatusBar();
+            updateModeIndicator();
             
             if (sortColumn >= 0) {
                 applySortIndicator();
@@ -714,9 +817,14 @@
             event.stopPropagation();
             hideContextMenu();
             
+            // Exit edit mode if active
+            if (isEditMode) {
+                exitEditMode();
+            }
+            
             // Remove previous selections
             document.querySelectorAll('.selected-cell').forEach(el => {
-                el.classList.remove('selected-cell');
+                el.classList.remove('selected-cell', 'edit-mode');
             });
             document.querySelectorAll('.selected-row').forEach(el => {
                 el.classList.remove('selected-row');
@@ -734,12 +842,23 @@
             }
         };
 
+        const selectCellAndEdit = (event, row, col) => {
+            event.stopPropagation();
+            selectCell(event, row, col);
+            setTimeout(() => enterEditMode(true), 0); // Select all text on double-click
+        };
+
         const selectRowByNumber = (rowIndex) => {
             hideContextMenu();
             
+            // Exit edit mode if active
+            if (isEditMode) {
+                exitEditMode();
+            }
+            
             // Remove previous selections
             document.querySelectorAll('.selected-cell').forEach(el => {
-                el.classList.remove('selected-cell');
+                el.classList.remove('selected-cell', 'edit-mode');
             });
             document.querySelectorAll('.selected-row').forEach(el => {
                 el.classList.remove('selected-row');
@@ -799,11 +918,15 @@
                 newRow[header] = '';
             });
             
+            if (cutRowIndex !== null && cutRowIndex >= selectedRow) {
+                cutRowIndex++;
+            }
+            
             currentData.splice(selectedRow, 0, newRow);
             hasUnsavedChanges = true;
             
             createTable(currentData);
-            selectRowByNumber(selectedRow); // Keep the same visual row selected
+            selectRowByNumber(selectedRow);
             
             showLoading('Saving...');
             await saveToIndexedDB(currentData, currentFileName);
@@ -821,11 +944,15 @@
                 newRow[header] = '';
             });
             
+            if (cutRowIndex !== null && cutRowIndex > selectedRow) {
+                cutRowIndex++;
+            }
+            
             currentData.splice(selectedRow + 1, 0, newRow);
             hasUnsavedChanges = true;
             
             createTable(currentData);
-            selectRowByNumber(selectedRow + 1); // Select the new row
+            selectRowByNumber(selectedRow + 1);
             
             showLoading('Saving...');
             await saveToIndexedDB(currentData, currentFileName);
@@ -838,9 +965,11 @@
             if (selectedRow === null || currentData.length <= selectedRow) return;
             
             clipboardRow = { ...currentData[selectedRow] };
+            cutRowIndex = null;
             updateContextMenu();
+            createTable(currentData);
+            selectRowByNumber(selectedRow);
             
-            // Visual feedback
             showToast('Row copied');
         };
 
@@ -849,12 +978,23 @@
             if (selectedRow === null || currentData.length <= selectedRow) return;
             
             clipboardRow = { ...currentData[selectedRow] };
-            showDeleteRowConfirm(); // Show confirmation for cutting (which deletes)
+            cutRowIndex = selectedRow;
+            updateContextMenu();
+            createTable(currentData);
+            selectRowByNumber(selectedRow);
+            
+            showToast('Row cut - paste to move');
         };
 
         const pasteRow = async () => {
             hideContextMenu();
-            if (!clipboardRow || selectedRow === null) return;
+            if (!clipboardRow) return;
+            
+            let targetRow = selectedRow;
+            if (targetRow === null) {
+                if (currentData.length === 0) return;
+                targetRow = currentData.length - 1; // Default to last row
+            }
             
             const headers = Object.keys(currentData[0]);
             const newRow = {};
@@ -862,18 +1002,40 @@
                 newRow[header] = clipboardRow[header] || '';
             });
             
-            currentData.splice(selectedRow + 1, 0, newRow);
+            let newSelectedRow = targetRow + 1;
+            
+            if (cutRowIndex !== null) {
+                if (cutRowIndex < targetRow) {
+                    currentData.splice(targetRow + 1, 0, newRow);
+                    currentData.splice(cutRowIndex, 1);
+                    newSelectedRow = targetRow;
+                } else if (cutRowIndex > targetRow) {
+                    currentData.splice(targetRow + 1, 0, newRow);
+                    currentData.splice(cutRowIndex + 1, 1);
+                    newSelectedRow = targetRow + 1;
+                } else {
+                    cutRowIndex = null;
+                    clipboardRow = null;
+                    showToast('Cut cancelled');
+                    return;
+                }
+                cutRowIndex = null;
+                clipboardRow = null;
+                showToast('Row moved');
+            } else {
+                currentData.splice(targetRow + 1, 0, newRow);
+                showToast('Row pasted');
+            }
+            
             hasUnsavedChanges = true;
             
             createTable(currentData);
-            selectRowByNumber(selectedRow + 1); // Select the pasted row
+            selectRowByNumber(newSelectedRow);
             
             showLoading('Saving...');
             await saveToIndexedDB(currentData, currentFileName);
             await writeToFileSystem();
             hideLoading();
-            
-            showToast('Row pasted');
         };
 
         const clearRow = async () => {
@@ -885,9 +1047,14 @@
                 currentData[selectedRow][header] = '';
             });
             
+            if (cutRowIndex === selectedRow) {
+                cutRowIndex = null;
+                clipboardRow = null;
+            }
+            
             hasUnsavedChanges = true;
             createTable(currentData);
-            selectRowByNumber(selectedRow); // Keep row selected
+            selectRowByNumber(selectedRow);
             
             showLoading('Saving...');
             await saveToIndexedDB(currentData, currentFileName);
@@ -942,6 +1109,15 @@
             }
             
             closeDeleteRowModal();
+            
+            if (cutRowIndex !== null) {
+                if (cutRowIndex === selectedRow) {
+                    cutRowIndex = null;
+                    clipboardRow = null;
+                } else if (cutRowIndex > selectedRow) {
+                    cutRowIndex--;
+                }
+            }
             
             currentData.splice(selectedRow, 1);
             hasUnsavedChanges = true;
@@ -1118,6 +1294,8 @@
                             currentFileName = file.name;
                             hasUnsavedChanges = true;
                             columnWidths = {};
+                            clipboardRow = null;
+                            cutRowIndex = null;
                             
                             document.getElementById('fileName').textContent = currentFileName;
                             
@@ -1183,6 +1361,9 @@
             sortDirection = 'asc';
             columnWidths = {};
             clipboardRow = null;
+            cutRowIndex = null;
+            isEditMode = false;
+            editingCell = null;
             
             document.getElementById('fileName').textContent = 'No file loaded';
             document.getElementById('tableContainer').innerHTML = `
@@ -1199,6 +1380,7 @@
             
             updateButtonVisibility();
             updateStatusBar();
+            updateModeIndicator();
             await clearIndexedDB();
         };
 
@@ -1243,9 +1425,65 @@
             }
         };
 
-        // Keyboard navigation
+        // Keyboard navigation with dual mode system
         document.addEventListener('keydown', (e) => {
-            // Handle arrow key navigation for cells
+            // Don't handle shortcuts if we're in a modal
+            if (document.querySelector('.modal-overlay:not(.hidden)') && 
+                document.querySelector('.modal-overlay:not(.hidden)').style.display === 'flex') {
+                return;
+            }
+
+            // Handle keyboard shortcuts
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'x':
+                        e.preventDefault();
+                        if (selectedRow !== null) cutRow();
+                        break;
+                    case 'c':
+                        e.preventDefault();
+                        if (selectedRow !== null) copyRow();
+                        break;
+                    case 'v':
+                        e.preventDefault();
+                        if (clipboardRow) pasteRow();
+                        break;
+                }
+                return;
+            }
+
+            // Handle Delete key for row deletion
+            if (e.key === 'Delete' && selectedRow !== null && !isEditMode) {
+                e.preventDefault();
+                showDeleteRowConfirm();
+                return;
+            }
+            
+            // Handle mode switching
+            if (e.key === 'Enter') {
+                if (selectedCell && !isEditMode) {
+                    e.preventDefault();
+                    enterEditMode();
+                    return;
+                } else if (isEditMode) {
+                    e.preventDefault();
+                    exitEditMode();
+                    return;
+                }
+            }
+            
+            if (e.key === 'Escape' && isEditMode) {
+                e.preventDefault();
+                exitEditMode();
+                return;
+            }
+            
+            // In edit mode, let the browser handle all keys naturally (including arrows)
+            if (isEditMode) {
+                return; // Let default behavior handle text editing
+            }
+            
+            // Visual mode navigation
             if (!selectedCell) return;
             
             const { row, col } = selectedCell;
@@ -1270,6 +1508,35 @@
                     e.preventDefault();
                     newCol = Math.min(headers.length - 1, col + 1);
                     break;
+                default:
+                    // Check if it's an alphanumeric key to enter edit mode
+                    if (/^[a-zA-Z0-9]$/.test(e.key) || ['Backspace', 'Delete'].includes(e.key)) {
+                        e.preventDefault();
+                        enterEditMode();
+                        
+                        // If it's a printable character, replace cell content
+                        if (/^[a-zA-Z0-9]$/.test(e.key)) {
+                            setTimeout(() => {
+                                if (editingCell) {
+                                    editingCell.textContent = e.key;
+                                    // Move cursor to end
+                                    const range = document.createRange();
+                                    const sel = window.getSelection();
+                                    range.selectNodeContents(editingCell);
+                                    range.collapse(false);
+                                    sel.removeAllRanges();
+                                    sel.addRange(range);
+                                }
+                            }, 0);
+                        } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                            setTimeout(() => {
+                                if (editingCell) {
+                                    editingCell.textContent = '';
+                                }
+                            }, 0);
+                        }
+                        return;
+                    }
             }
             
             if (newRow !== row || newCol !== col) {
@@ -1282,8 +1549,13 @@
         document.addEventListener('click', (e) => {
             if (!e.target.closest('td[data-row], .row-number, .context-menu')) {
                 hideContextMenu();
+                
+                if (isEditMode) {
+                    exitEditMode();
+                }
+                
                 document.querySelectorAll('.selected-cell, .selected-row').forEach(el => {
-                    el.classList.remove('selected-cell', 'selected-row');
+                    el.classList.remove('selected-cell', 'selected-row', 'edit-mode');
                 });
                 document.querySelectorAll('.row-number.selected').forEach(el => {
                     el.classList.remove('selected');
@@ -1312,6 +1584,7 @@
 
         updateButtonVisibility();
         updateStatusBar();
+        updateModeIndicator();
     </script>
 </body>
 </html>
