@@ -461,15 +461,15 @@
         <div class="context-menu-divider"></div>
         <div class="context-menu-item" onclick="cutRow()">
             <span class="context-menu-icon">✂</span>
-            Cut Row <span style="margin-left: auto; color: #999;">Ctrl+X</span>
+            Cut Row
         </div>
         <div class="context-menu-item" onclick="copyRow()">
             <span class="context-menu-icon">⧉</span>
-            Copy Row <span style="margin-left: auto; color: #999;">Ctrl+C</span>
+            Copy Row
         </div>
         <div class="context-menu-item" onclick="pasteRow()" id="pasteMenuItem">
             <span class="context-menu-icon">📋</span>
-            Paste Row <span style="margin-left: auto; color: #999;">Ctrl+V</span>
+            Paste Row
         </div>
         <div class="context-menu-divider"></div>
         <div class="context-menu-item" onclick="clearRow()">
@@ -845,7 +845,7 @@
         const selectCellAndEdit = (event, row, col) => {
             event.stopPropagation();
             selectCell(event, row, col);
-            setTimeout(() => enterEditMode(true), 0); // Select all text on double-click
+            setTimeout(() => enterEditMode(true), 0);
         };
 
         const selectRowByNumber = (rowIndex) => {
@@ -993,7 +993,7 @@
             let targetRow = selectedRow;
             if (targetRow === null) {
                 if (currentData.length === 0) return;
-                targetRow = currentData.length - 1; // Default to last row
+                targetRow = currentData.length - 1;
             }
             
             const headers = Object.keys(currentData[0]);
@@ -1433,26 +1433,99 @@
                 return;
             }
 
-            // Handle keyboard shortcuts
+            // Helper function to check if user has selected text within a contenteditable cell
+            const hasTextSelection = () => {
+                const selection = window.getSelection();
+                return selection && selection.toString().length > 0 && 
+                       selection.anchorNode && 
+                       selection.anchorNode.parentElement && 
+                       (selection.anchorNode.parentElement.contentEditable === 'true' ||
+                        selection.anchorNode.parentElement.closest('[contenteditable="true"]'));
+            };
+
+            // Handle keyboard shortcuts - CELL LEVEL ONLY (no row operations via shortcuts)
             if (e.ctrlKey || e.metaKey) {
                 switch (e.key) {
                     case 'x':
-                        e.preventDefault();
-                        if (selectedRow !== null) cutRow();
+                        // In edit mode, let browser handle text cut if text is selected
+                        if (isEditMode && hasTextSelection()) {
+                            return; // Let browser handle text cut within cell
+                        }
+                        // In visual mode, cut cell content
+                        if (!isEditMode && selectedCell) {
+                            e.preventDefault();
+                            const cell = document.querySelector(`[data-row="${selectedCell.row}"][data-col="${selectedCell.col}"]`);
+                            if (cell) {
+                                // Copy cell content to clipboard and clear the cell
+                                navigator.clipboard.writeText(cell.textContent || '');
+                                cell.textContent = '';
+                                
+                                // Update data
+                                const headers = Object.keys(currentData[0]);
+                                const header = headers[selectedCell.col];
+                                currentData[selectedCell.row][header] = '';
+                                hasUnsavedChanges = true;
+                                
+                                saveToIndexedDB(currentData, currentFileName);
+                                writeToFileSystem();
+                                showToast('Cell cut');
+                            }
+                        }
                         break;
                     case 'c':
-                        e.preventDefault();
-                        if (selectedRow !== null) copyRow();
+                        // In edit mode, let browser handle text copy if text is selected
+                        if (isEditMode && hasTextSelection()) {
+                            return; // Let browser handle text copy within cell
+                        }
+                        // In visual mode, copy cell content
+                        if (!isEditMode && selectedCell) {
+                            e.preventDefault();
+                            const cell = document.querySelector(`[data-row="${selectedCell.row}"][data-col="${selectedCell.col}"]`);
+                            if (cell) {
+                                navigator.clipboard.writeText(cell.textContent || '');
+                                showToast('Cell copied');
+                            }
+                        }
                         break;
                     case 'v':
-                        e.preventDefault();
-                        if (clipboardRow) pasteRow();
+                        // In edit mode, let browser handle text paste if we're in a contenteditable cell  
+                        if (isEditMode && editingCell) {
+                            return; // Let browser handle text paste within cell
+                        }
+                        // In visual mode, paste from clipboard to cell
+                        if (!isEditMode && selectedCell) {
+                            e.preventDefault();
+                            navigator.clipboard.readText().then(async (text) => {
+                                const cell = document.querySelector(`[data-row="${selectedCell.row}"][data-col="${selectedCell.col}"]`);
+                                if (cell) {
+                                    cell.textContent = text;
+                                    
+                                    // Update data
+                                    const headers = Object.keys(currentData[0]);
+                                    const header = headers[selectedCell.col];
+                                    currentData[selectedCell.row][header] = text;
+                                    hasUnsavedChanges = true;
+                                    
+                                    await saveToIndexedDB(currentData, currentFileName);
+                                    await writeToFileSystem();
+                                    showToast('Cell pasted');
+                                }
+                            }).catch(() => {
+                                showToast('Failed to read clipboard');
+                            });
+                        }
+                        break;
+                    case 'a':
+                        // In edit mode, let browser handle Cmd+A for text selection within cell
+                        if (isEditMode && editingCell) {
+                            return; // Let browser handle select all within cell
+                        }
                         break;
                 }
                 return;
             }
 
-            // Handle Delete key for row deletion
+            // Handle Delete key for row deletion (only when row is selected)
             if (e.key === 'Delete' && selectedRow !== null && !isEditMode) {
                 e.preventDefault();
                 showDeleteRowConfirm();
@@ -1478,12 +1551,12 @@
                 return;
             }
             
-            // In edit mode, let the browser handle all keys naturally (including arrows)
+            // In edit mode, let the browser handle all other keys naturally (including arrows)
             if (isEditMode) {
                 return; // Let default behavior handle text editing
             }
             
-            // Visual mode navigation
+            // Visual mode navigation (only when a cell is selected)
             if (!selectedCell) return;
             
             const { row, col } = selectedCell;
