@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Terms - Palm Jumeirah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen p-6">
+        <div class="max-w-6xl mx-auto bg-white rounded-lg shadow-sm">
+            <!-- Header -->
+            <div class="p-6 border-b">
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="w-5 h-5 bg-gray-200 rounded"></div>
+                    <h1 class="text-gray-700 font-medium">Palm Jumeirah3</h1>
+                </div>
+                
+                <!-- Progress Steps -->
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm">✓</span>
+                        </div>
+                        <span class="text-sm text-gray-700">Inventory and Monthly Rental Details</span>
+                    </div>
+                    <div class="flex-1 h-0.5 bg-yellow-400"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-semibold">2</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">Contract Terms</span>
+                    </div>
+                    <div class="flex-1 h-0.5 bg-gray-200"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                            <span class="text-gray-500 text-sm">3</span>
+                        </div>
+                        <span class="text-sm text-gray-500">Documents</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Content -->
+            <div class="p-6">
+                <!-- Contract Terms Section -->
+                <div class="mb-8">
+                    <div class="border-l-4 border-yellow-400 pl-4 mb-6">
+                        <h2 class="text-lg font-semibold">Contract Terms</h2>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Billed Seats <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="billedSeats" value="18" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Monthly Fee <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="monthlyFee" value="78174" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Annual Escalation <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="annualEscalation" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                                <div class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Security Deposit <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="securityDeposit" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Contract Start Date <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" id="contractStartDate" value="2025-10-24" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                            <div class="mt-1 text-sm">
+                                <span class="text-yellow-600 font-medium">Tenure:</span> 
+                                <span class="text-gray-700 ml-1" id="tenure">0</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Contract End Date <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" id="contractEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Lock-in End Date <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" id="lockInEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Notice Period <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="text" id="noticePeriod" value="0" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                                <button id="noticePeriodMonths" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md border border-gray-300 font-medium">Months</button>
+                                <button id="noticePeriodDays" class="px-4 py-2 text-gray-500 rounded-md">Days</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Deposit Installments -->
+                <div class="mb-8">
+                    <div class="border-l-4 border-yellow-400 pl-4">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" id="securityDepositInstallments" class="w-4 h-4">
+                            <span class="text-base font-semibold">Security Deposit Installments</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Contract Period & Annual Escalation -->
+                <div class="mb-8">
+                    <div class="border-l-4 border-yellow-400 pl-4 flex items-center justify-between">
+                        <h3 class="text-base font-semibold">Contract Period & Annual Escalation</h3>
+                        <button class="flex items-center gap-1 text-gray-500 text-sm">
+                            <span>+</span>
+                            <span>add</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Rent Free Days -->
+                <div class="mb-8">
+                    <div class="border-l-4 border-yellow-400 pl-4 mb-4">
+                        <h3 class="text-base font-semibold">Rent Free Days</h3>
+                    </div>
+                    <div class="max-w-md">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Rent Free Days <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="rentFreeDays" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">Days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parking -->
+                <div class="mb-8">
+                    <div class="border-l-4 border-yellow-400 pl-4 flex items-center justify-between mb-4">
+                        <h3 class="text-base font-semibold">Parking</h3>
+                        <button onclick="openParkingModal()" class="flex items-center gap-2 px-4 py-2 border-2 border-yellow-400 text-yellow-600 rounded-md hover:bg-yellow-50 transition-colors font-medium">
+                            <span>+</span>
+                            <span>add parking</span>
+                        </button>
+                    </div>
+                    
+                    <div id="parkingTable" class="hidden overflow-x-auto">
+                        <table class="w-full border-collapse bg-gray-50 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">#</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">Vehicle</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">No. of Vehicles</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">Start Date</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">End Date</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">Monthly Fee Per Slot</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">Total Cost</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">Notes</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">Document</th>
+                                    <th class="text-center p-4 text-sm font-semibold text-gray-600 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="parkingTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Supplementary Services -->
+                <div class="mb-8">
+                    <div class="border-l-4 border-yellow-400 pl-4 flex items-center justify-between mb-4">
+                        <h3 class="text-base font-semibold">Supplementary Services</h3>
+                        <button onclick="openServiceModal()" class="flex items-center gap-2 px-4 py-2 border-2 border-yellow-400 text-yellow-600 rounded-md hover:bg-yellow-50 transition-colors font-medium">
+                            <span>+</span>
+                            <span>add service</span>
+                        </button>
+                    </div>
+                    
+                    <div id="serviceTable" class="hidden overflow-x-auto">
+                        <table class="w-full border-collapse bg-gray-50 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">#</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">Service Type</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">Start Date</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">End Date</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">Amount</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">Notes</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600 uppercase">Document</th>
+                                    <th class="text-center p-4 text-sm font-semibold text-gray-600 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="serviceTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="mb-8">
+                    <div class="border-l-4 border-yellow-400 pl-4 mb-4">
+                        <h3 class="text-base font-semibold">Additional Information</h3>
+                    </div>
+                    <textarea id="additionalInfo" placeholder="Enter Additional Information" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-400"></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-4">
+                    <button onclick="handlePrevious()" class="flex-1 px-6 py-3 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50">Previous</button>
+                    <button onclick="handleNext()" class="flex-1 px-6 py-3 bg-yellow-400 rounded-md text-gray-900 font-semibold hover:bg-yellow-500">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parking Modal -->
+    <div id="parkingModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl flex flex-col">
+            <div class="flex items-center justify-between p-6 border-b">
+                <h2 class="text-lg font-semibold">Parking</h2>
+                <button onclick="closeParkingModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="text-2xl">×</span>
+                </button>
+            </div>
+
+            <div class="p-6 flex-1 overflow-y-auto">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Start Date <span class="text-red-500">*</span></label>
+                        <input type="date" id="parkingStartDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">End Date <span class="text-red-500">*</span></label>
+                        <input type="date" id="parkingEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    </div>
+
+                    <div id="parkingDateError" class="hidden p-3 bg-red-50 border border-red-200 rounded-md">
+                        <p class="text-sm text-red-600"></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Vehicle Type <span class="text-red-500">*</span></label>
+                        <select id="parkingVehicleType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                            <option>Two Wheeler</option>
+                            <option>Four Wheeler</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">No of vehicles <span class="text-red-500">*</span></label>
+                        <input type="number" id="parkingNumVehicles" value="1" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Monthly fee per slot <span class="text-red-500">*</span></label>
+                        <input type="number" id="parkingFeePerSlot" value="0" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Total Cost <span class="text-red-500">*</span></label>
+                        <input type="text" id="parkingTotalCost" value="0" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Upload Document</label>
+                        <input type="file" id="parkingDocument" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="w-full px-3 py-2 border-2 border-dashed border-gray-300 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100">
+                        <p class="mt-2 text-xs text-gray-500 italic">Allocated parking spaces within or near the premises.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                        <textarea id="parkingNotes" placeholder="Add any additional notes or comments" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t">
+                <button onclick="saveParkingEntry()" class="w-full px-6 py-3 bg-yellow-400 rounded-md text-gray-900 font-semibold hover:bg-yellow-500">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Modal -->
+    <div id="serviceModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl flex flex-col">
+            <div class="flex items-center justify-between p-6 border-b">
+                <h2 class="text-lg font-semibold">Supplementary Services</h2>
+                <button onclick="closeServiceModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="text-2xl">×</span>
+                </button>
+            </div>
+
+            <div class="p-6 flex-1 overflow-y-auto">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Type of Service <span class="text-red-500">*</span></label>
+                        <select id="serviceType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                            <option value="">Select Type</option>
+                            <option value="Manpower Supply Service">Manpower Supply Service</option>
+                            <option value="AC Charges">AC Charges</option>
+                            <option value="Internet Managed Service Charges">Internet Managed Service Charges</option>
+                            <option value="CAM Charges">CAM Charges</option>
+                            <option value="Night Charges">Night Charges</option>
+                            <option value="Electricity Charges">Electricity Charges</option>
+                        </select>
+                        <p id="serviceTypeInfo" class="mt-2 text-xs text-gray-500 italic hidden"></p>
+                    </div>
+
+                    <div id="serviceDateFields" class="hidden space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Start Date <span class="text-red-500">*</span></label>
+                            <input type="date" id="serviceStartDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">End Date <span class="text-red-500">*</span></label>
+                            <input type="date" id="serviceEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        <div id="serviceDateError" class="hidden p-3 bg-red-50 border border-red-200 rounded-md">
+                            <p class="text-sm text-red-600"></p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Amount <span class="text-red-500">*</span></label>
+                            <input type="number" id="serviceAmount" placeholder="Enter amount" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Upload Document</label>
+                            <input type="file" id="serviceDocument" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="w-full px-3 py-2 border-2 border-dashed border-gray-300 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                            <textarea id="serviceNotes" placeholder="Add any additional notes or comments" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t">
+                <button onclick="saveServiceEntry()" class="w-full px-6 py-3 bg-yellow-400 rounded-md text-gray-900 font-semibold hover:bg-yellow-500">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let parkingList = [];
+        let serviceList = [];
+
+        // Service Type Information
+        const serviceTypeInfo = {
+            'Manpower Supply Service': 'Additional housekeeping or staffing support.',
+            'AC Charges': 'Air-conditioning usage beyond regular hours.',
+            'Internet Managed Service Charges': 'Upgraded or additional internet bandwidth.',
+            'CAM Charges': 'Maintenance and upkeep of shared common areas.',
+            'Night Charges': 'Electricity usage beyond permitted operating hours.',
+            'Electricity Charges': 'Power consumption for servers or additional equipment beyond workspace usage.'
+        };
+
+        // Calculate Tenure
+        function calculateTenure() {
+            const start = new Date(document.getElementById('contractStartDate').value);
+            const end = new Date(document.getElementById('contractEndDate').value);
+            if (start && end && end > start) {
+                const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                document.getElementById('tenure').textContent = days;
+            } else {
+                document.getElementById('tenure').textContent = '0';
+            }
+        }
+
+        // Initialize Event Listeners
+        document.getElementById('contractStartDate').addEventListener('change', calculateTenure);
+        document.getElementById('contractEndDate').addEventListener('change', calculateTenure);
+
+        // Parking Modal Functions
+        function openParkingModal() {
+            document.getElementById('parkingModal').classList.remove('hidden');
+        }
+
+        function closeParkingModal() {
+            document.getElementById('parkingModal').classList.add('hidden');
+            resetParkingForm();
+        }
+
+        function resetParkingForm() {
+            document.getElementById('parkingStartDate').value = '';
+            document.getElementById('parkingEndDate').value = '';
+            document.getElementById('parkingVehicleType').value = 'Two Wheeler';
+            document.getElementById('parkingNumVehicles').value = '1';
+            document.getElementById('parkingFeePerSlot').value = '0';
+            document.getElementById('parkingTotalCost').value = '0';
+            document.getElementById('parkingDocument').value = '';
+            document.getElementById('parkingNotes').value = '';
+            document.getElementById('parkingDateError').classList.add('hidden');
+        }
+
+        function validateParkingDates() {
+            const contractStart = new Date(document.getElementById('contractStartDate').value);
+            const contractEnd = new Date(document.getElementById('contractEndDate').value);
+            const startDate = new Date(document.getElementById('parkingStartDate').value);
+            const endDate = new Date(document.getElementById('parkingEndDate').value);
+            const errorDiv = document.getElementById('parkingDateError');
+            
+            if (!contractStart || !contractEnd) {
+                errorDiv.querySelector('p').textContent = 'Please set contract dates first';
+                errorDiv.classList.remove('hidden');
+                return false;
+            }
+            
+            if (startDate < contractStart) {
+                errorDiv.querySelector('p').textContent = 'Start date cannot be before contract start date';
+                errorDiv.classList.remove('hidden');
+                return false;
+            } else if (endDate > contractEnd) {
+                errorDiv.querySelector('p').textContent = 'End date cannot be after contract end date';
+                errorDiv.classList.remove('hidden');
+                return false;
+            } else if (startDate > endDate) {
+                errorDiv.querySelector('p').textContent = 'Start date cannot be after end date';
+                errorDiv.classList.remove('hidden');
+                return false;
+            }
+            
+            errorDiv.classList.add('hidden');
+            return true;
+        }
+
+        document.getElementById('parkingStartDate').addEventListener('change', validateParkingDates);
+        document.getElementById('parkingEndDate').addEventListener('change', validateParkingDates);
+
+        function calculateParkingTotal() {
+            const num = parseFloat(document.getElementById('parkingNumVehicles').value) || 0;
+            const fee = parseFloat(document.getElementById('parkingFeePerSlot').value) || 0;
+            document.getElementById('parkingTotalCost').value = (num * fee).toString();
+        }
+
+        document.getElementById('parkingNumVehicles').addEventListener('input', calculateParkingTotal);
+        document.getElementById('parkingFeePerSlot').addEventListener('input', calculateParkingTotal);
+
+        function saveParkingEntry() {
+            if (!validateParkingDates()) return;
+
+            const startDate = document.getElementById('parkingStartDate').value;
+            const endDate = document.getElementById('parkingEndDate').value;
+            
+            if (!startDate || !endDate) {
+                alert('Please fill in all required fields!');
+                return;
+            }
+
+            const entry = {
+                vehicleType: document.getElementById('parkingVehicleType').value,
+                numberOfVehicles: document.getElementById('parkingNumVehicles').value,
+                startDate: startDate,
+                endDate: endDate,
+                monthlyFeePerSlot: document.getElementById('parkingFeePerSlot').value,
+                totalCost: document.getElementById('parkingTotalCost').value,
+                notes: document.getElementById('parkingNotes').value,
+                documentName: document.getElementById('parkingDocument').files[0]?.name || ''
+            };
+
+            parkingList.push(entry);
+            renderParkingTable();
+            closeParkingModal();
+        }
+
+        function renderParkingTable() {
+            const tbody = document.getElementById('parkingTableBody');
+            const table = document.getElementById('parkingTable');
+            
+            if (parkingList.length > 0) {
+                table.classList.remove('hidden');
+                tbody.innerHTML = parkingList.map((item, index) => `
+                    <tr class="border-t border-gray-200">
+                        <td class="p-4 text-gray-700">${index + 1}</td>
+                        <td class="p-4 text-gray-700">${item.vehicleType}</td>
+                        <td class="p-4 text-gray-700">${item.numberOfVehicles}</td>
+                        <td class="p-4 text-xs text-gray-500">${item.startDate || '-'}</td>
+                        <td class="p-4 text-xs text-gray-500">${item.endDate || '-'}</td>
+                        <td class="p-4 text-gray-700">₹${item.monthlyFeePerSlot}</td>
+                        <td class="p-4 text-gray-700 font-medium">₹${item.totalCost}</td>
+                        <td class="p-4 text-xs text-gray-600 max-w-xs">
+                            ${item.notes ? `<div class="truncate" title="${item.notes}">${item.notes}</div>` : '-'}
+                        </td>
+                        <td class="p-4">
+                            ${item.documentName ? `<div class="text-xs text-blue-600 flex items-center gap-1"><span>📄</span><span class="truncate max-w-[100px]" title="${item.documentName}">${item.documentName}</span></div>` : '-'}
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="editParkingEntry(${index})" class="p-2 hover:bg-gray-200 rounded transition-colors">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </button>
+                                <button onclick="deleteParkingEntry(${index})" class="p-2 hover:bg-gray-200 rounded transition-colors">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } else {
+                table.classList.add('hidden');
+            }
+        }
+
+        function editParkingEntry(index) {
+            const entry = parkingList[index];
+            document.getElementById('parkingStartDate').value = entry.startDate;
+            document.getElementById('parkingEndDate').value = entry.endDate;
+            document.getElementById('parkingVehicleType').value = entry.vehicleType;
+            document.getElementById('parkingNumVehicles').value = entry.numberOfVehicles;
+            document.getElementById('parkingFeePerSlot').value = entry.monthlyFeePerSlot;
+            document.getElementById('parkingTotalCost').value = entry.totalCost;
+            document.getElementById('parkingNotes').value = entry.notes;
+            parkingList.splice(index, 1);
+            renderParkingTable();
+            openParkingModal();
+        }
+
+        function deleteParkingEntry(index) {
+            if (confirm('Are you sure you want to delete this parking entry?')) {
+                parkingList.splice(index, 1);
+                renderParkingTable();
+            }
+        }
+
+        // Service Modal Functions
+        function openServiceModal() {
+            document.getElementById('serviceModal').classList.remove('hidden');
+        }
+
+        function closeServiceModal() {
+            document.getElementById('serviceModal').classList.add('hidden');
+            resetServiceForm();
+        }
+
+        function resetServiceForm() {
+            document.getElementById('serviceType').value = '';
+            document.getElementById('serviceStartDate').value = '';
+            document.getElementById('serviceEndDate').value = '';
+            document.getElementById('serviceAmount').value = '';
+            document.getElementById('serviceDocument').value = '';
+            document.getElementById('serviceNotes').value = '';
+            document.getElementById('serviceDateFields').classList.add('hidden');
+            document.getElementById('serviceTypeInfo').classList.add('hidden');
+            document.getElementById('serviceDateError').classList.add('hidden');
+        }
+
+        document.getElementById('serviceType').addEventListener('change', function() {
+            const type = this.value;
+            const infoDiv = document.getElementById('serviceTypeInfo');
+            const dateFields = document.getElementById('serviceDateFields');
+            
+            if (type) {
+                dateFields.classList.remove('hidden');
+                if (serviceTypeInfo[type]) {
+                    infoDiv.textContent = serviceTypeInfo[type];
+                    infoDiv.classList.remove('hidden');
+                } else {
+                    infoDiv.classList.add('hidden');
+                }
+            } else {
+                dateFields.classList.add('hidden');
+                infoDiv.classList.add('hidden');
+            }
+        });
+
+        function validateServiceDates() {
+            const contractStart = new Date(document.getElementById('contractStartDate').value);
+            const contractEnd = new Date(document.getElementById('contractEndDate').value);
+            const startDate = new Date(document.getElementById('serviceStartDate').value);
+            const endDate = new Date(document.getElementById('serviceEndDate').value);
+            const errorDiv = document.getElementById('serviceDateError');
+            
+            if (!contractStart || !contractEnd) {
+                errorDiv.querySelector('p').textContent = 'Please set contract dates first';
+                errorDiv.classList.remove('hidden');
+                return false;
+            }
+            
+            if (startDate < contractStart) {
+                errorDiv.querySelector('p').textContent = 'Start date cannot be before contract start date';
+                errorDiv.classList.remove('hidden');
+                return false;
+            } else if (endDate > contractEnd) {
+                errorDiv.querySelector('p').textContent = 'End date cannot be after contract end date';
+                errorDiv.classList.remove('hidden');
+                return false;
+            } else if (startDate > endDate) {
+                errorDiv.querySelector('p').textContent = 'Start date cannot be after end date';
+                errorDiv.classList.remove('hidden');
+                return false;
+            }
+            
+            errorDiv.classList.add('hidden');
+            return true;
+        }
+
+        document.getElementById('serviceStartDate').addEventListener('change', validateServiceDates);
+        document.getElementById('serviceEndDate').addEventListener('change', validateServiceDates);
+
+        function saveServiceEntry() {
+            if (!validateServiceDates()) return;
+
+            const type = document.getElementById('serviceType').value;
+            const startDate = document.getElementById('serviceStartDate').value;
+            const endDate = document.getElementById('serviceEndDate').value;
+            const amount = document.getElementById('serviceAmount').value;
+            
+            if (!type || !startDate || !endDate || !amount) {
+                alert('Please fill in all required fields!');
+                return;
+            }
+
+            const entry = {
+                name: type,
+                startDate: startDate,
+                endDate: endDate,
+                amount: amount,
+                notes: document.getElementById('serviceNotes').value,
+                documentName: document.getElementById('serviceDocument').files[0]?.name || ''
+            };
+
+            serviceList.push(entry);
+            renderServiceTable();
+            closeServiceModal();
+        }
+
+        function renderServiceTable() {
+            const tbody = document.getElementById('serviceTableBody');
+            const table = document.getElementById('serviceTable');
+            
+            if (serviceList.length > 0) {
+                table.classList.remove('hidden');
+                tbody.innerHTML = serviceList.map((item, index) => `
+                    <tr class="border-t border-gray-200">
+                        <td class="p-4 text-gray-700">${index + 1}</td>
+                        <td class="p-4 text-gray-700">${item.name}</td>
+                        <td class="p-4 text-xs text-gray-500">${item.startDate || '-'}</td>
+                        <td class="p-4 text-xs text-gray-500">${item.endDate || '-'}</td>
+                        <td class="p-4 text-gray-700 font-medium">₹${item.amount}</td>
+                        <td class="p-4 text-xs text-gray-600 max-w-xs">
+                            ${item.notes ? `<div class="truncate" title="${item.notes}">${item.notes}</div>` : '-'}
+                        </td>
+                        <td class="p-4">
+                            ${item.documentName ? `<div class="text-xs text-blue-600 flex items-center gap-1"><span>📄</span><span class="truncate max-w-[100px]" title="${item.documentName}">${item.documentName}</span></div>` : '-'}
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="editServiceEntry(${index})" class="p-2 hover:bg-gray-200 rounded transition-colors">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </button>
+                                <button onclick="deleteServiceEntry(${index})" class="p-2 hover:bg-gray-200 rounded transition-colors">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } else {
+                table.classList.add('hidden');
+            }
+        }
+
+        function editServiceEntry(index) {
+            const entry = serviceList[index];
+            document.getElementById('serviceType').value = entry.name;
+            document.getElementById('serviceType').dispatchEvent(new Event('change'));
+            setTimeout(() => {
+                document.getElementById('serviceStartDate').value = entry.startDate;
+                document.getElementById('serviceEndDate').value = entry.endDate;
+                document.getElementById('serviceAmount').value = entry.amount;
+                document.getElementById('serviceNotes').value = entry.notes;
+            }, 100);
+            serviceList.splice(index, 1);
+            renderServiceTable();
+            openServiceModal();
+        }
+
+        function deleteServiceEntry(index) {
+            if (confirm('Are you sure you want to delete this service entry?')) {
+                serviceList.splice(index, 1);
+                renderServiceTable();
+            }
+        }
+
+        // Form Actions
+        function handlePrevious() {
+            alert('Going to Previous Step...');
+        }
+
+        function handleNext() {
+            const formData = {
+                billedSeats: document.getElementById('billedSeats').value,
+                monthlyFee: document.getElementById('monthlyFee').value,
+                annualEscalation: document.getElementById('annualEscalation').value,
+                securityDeposit: document.getElementById('securityDeposit').value,
+                contractStartDate: document.getElementById('contractStartDate').value,
+                contractEndDate: document.getElementById('contractEndDate').value,
+                lockInEndDate: document.getElementById('lockInEndDate').value,
+                noticePeriod: document.getElementById('noticePeriod').value,
+                rentFreeDays: document.getElementById('rentFreeDays').value,
+                securityDepositInstallments: document.getElementById('securityDepositInstallments').checked,
+                additionalInfo: document.getElementById('additionalInfo').value,
+                parking: parkingList,
+                services: serviceList
+            };
+            console.log('Form Data:', formData);
+            alert('Proceeding to Next Step...');
+        }
+
+        // Initialize on load
+        calculateParkingTotal();
+    </script>
+</body>
+</html>
