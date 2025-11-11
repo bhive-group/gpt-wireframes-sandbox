@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .filter-pill {
+            transition: all 0.2s ease;
+        }
+        .filter-pill:hover {
+            transform: translateY(-1px);
+        }
+        .table-row:hover {
+            background-color: #f9fafb;
+        }
+        .toggle-switch {
+            transition: all 0.3s ease;
+        }
+        .toggle-dot {
+            transition: transform 0.3s ease;
+        }
+        .toggle-switch.active .toggle-dot {
+            transform: translateX(16px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <div class="bg-white border-b">
+            <div class="px-6 py-3">
+                <div class="flex items-center text-sm text-gray-600 mb-4">
+                    <span>Home</span>
+                    <span class="mx-2">></span>
+                    <span>Customers</span>
+                    <span class="mx-2">></span>
+                    <span>Details</span>
+                    <button class="ml-auto flex items-center gap-2 text-gray-700">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Clients Acc
+                    </button>
+                </div>
+                
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <button class="text-gray-600 text-xl">←</button>
+                        <h1 class="text-xl font-semibold">FW Cloud Technologies Private Limited2</h1>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button class="flex items-center gap-2 px-4 py-2 border rounded-lg text-sm hover:bg-gray-50">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                            Filters
+                        </button>
+                        <button class="flex items-center gap-2 px-4 py-2 border rounded-lg text-sm hover:bg-gray-50">
+                            Add Member
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <button class="px-4 py-2 bg-yellow-400 text-black rounded-lg text-sm font-medium hover:bg-yellow-500">
+                            Import Member In Bulk
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex gap-6 border-b">
+                    <button class="pb-3 text-sm font-medium text-gray-600 hover:text-gray-900">Company Details</button>
+                    <button class="pb-3 text-sm font-medium text-gray-600 hover:text-gray-900">Contracts</button>
+                    <button class="pb-3 text-sm font-medium text-gray-600 hover:text-gray-900">Compliance Documents</button>
+                    <button class="pb-3 text-sm font-medium text-yellow-600 border-b-2 border-yellow-600">Members</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Actions -->
+        <div class="bg-white border-b px-6 py-4">
+            <div class="flex items-center justify-between mb-4">
+                <div class="relative flex-1 max-w-md">
+                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search members by name or email..."
+                        class="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                        oninput="filterMembers()"
+                    />
+                </div>
+                <div id="actionButtons" class="flex gap-3">
+                    <button class="flex items-center gap-2 px-4 py-2 border rounded-lg text-sm hover:bg-gray-50">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Type Filter Pills -->
+            <div class="flex gap-2">
+                <button onclick="setFilter('all')" class="filter-pill px-4 py-2 rounded-full text-sm font-medium bg-yellow-400 text-black" id="filter-all">
+                    All Users
+                    <span class="ml-2 px-2 py-0.5 rounded-full text-xs bg-white bg-opacity-50" id="count-all">12</span>
+                </button>
+                <button onclick="setFilter('regular')" class="filter-pill px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200" id="filter-regular">
+                    Regular Users
+                    <span class="ml-2 px-2 py-0.5 rounded-full text-xs bg-white bg-opacity-50" id="count-regular">5</span>
+                </button>
+                <button onclick="setFilter('ancillary')" class="filter-pill px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200" id="filter-ancillary">
+                    Ancillary Users
+                    <span class="ml-2 px-2 py-0.5 rounded-full text-xs bg-white bg-opacity-50" id="count-ancillary">7</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="px-6 py-4">
+            <div class="bg-white rounded-lg border overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b">
+                            <tr id="tableHeader">
+                                <!-- Headers will be dynamically generated -->
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y bg-white">
+                            <!-- Table rows will be dynamically generated -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="px-6 py-4 border-t flex items-center justify-between bg-gray-50">
+                    <div class="text-sm text-gray-600">
+                        Total Rows: <span class="font-medium" id="totalRows">12</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="px-3 py-1 border rounded hover:bg-white transition-colors">«</button>
+                        <button class="px-3 py-1 border rounded hover:bg-white transition-colors">‹</button>
+                        <button class="px-3 py-1 bg-yellow-400 text-black rounded font-medium">1</button>
+                        <button class="px-3 py-1 border rounded hover:bg-white transition-colors">›</button>
+                        <button class="px-3 py-1 border rounded hover:bg-white transition-colors">»</button>
+                    </div>
+                    <div class="text-sm text-gray-600">Rows Per Page: 25</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const members = [
+            {
+                firstName: 'Emily', lastName: 'Davis', email: 'emily.davis@gmail.com',
+                phone: '+919876543210', phone2: '+919876543211', product: 'Managed Office',
+                subProduct: 'Dedicated Desk', memberBenefits: 'WFA ACCESS', wfaActive: true,
+                kyc: 'Yes', photo: 'Yes', permissions: 'Meeting Room', status: 'Active', type: 'regular'
+            },
+            {
+                firstName: 'Robert', lastName: 'Wilson', email: 'robert.wilson@gmail.com',
+                phone: '+919988776655', phone2: '-', product: 'Co-Working', subProduct: 'Cabins',
+                memberBenefits: 'WFA ACCESS', wfaActive: false, kyc: 'No', photo: 'Yes',
+                permissions: 'None', status: 'Active', type: 'regular'
+            },
+            {
+                firstName: 'Jessica', lastName: 'Martinez', email: 'jessica.m@gmail.com',
+                phone: '+919123456789', phone2: '+919123456790', product: 'Managed Office',
+                subProduct: 'Dedicated Desk', memberBenefits: 'WFA ACCESS', wfaActive: true,
+                kyc: 'Yes', photo: 'No', permissions: 'Meeting Room', status: 'Active', type: 'regular'
+            },
+            {
+                firstName: 'David', lastName: 'Anderson', email: 'david.anderson@gmail.com',
+                phone: '+919555666777', phone2: '-', product: 'Co-Working', subProduct: 'Cabins',
+                memberBenefits: 'None', wfaActive: false, kyc: 'Yes', photo: 'Yes',
+                permissions: 'None', status: 'Active', type: 'regular'
+            },
+            {
+                firstName: 'Andrew', lastName: 'Smith', email: 'andrew.smith@gmail.com',
+                phone: '+919739442694', subProduct: 'Hot Desk', status: 'Active', type: 'ancillary'
+            },
+            {
+                firstName: 'Sarah', lastName: 'Johnson', email: 'sarah.j@gmail.com',
+                phone: '+919708270101', subProduct: 'All-Access', status: 'Active', type: 'ancillary'
+            },
+            {
+                firstName: 'Mike', lastName: 'Williams', email: 'mike.w@gmail.com',
+                phone: '+917878787878', subProduct: 'Hot Desk', status: 'Active', type: 'ancillary'
+            },
+            {
+                firstName: 'Ojha', lastName: 'Rissh', email: '342834@rjghg.vom',
+                phone: '+919877797666', phone2: '-', product: 'Managed Office',
+                subProduct: 'Managed Office', memberBenefits: 'WFA ACCESS', wfaActive: false,
+                kyc: 'Yes', photo: 'No', permissions: 'None', status: 'Inactive',
+                disabledOn: '15 Oct 2025', disabledBy: 'Admin User', reason: 'Contract Ended', type: 'regular'
+            },
+            {
+                firstName: 'oej', lastName: 'risshh', email: 'eqj@rs.bom',
+                phone: '+919879797977', subProduct: 'Cabins', status: 'Inactive',
+                disabledOn: '12 Oct 2025', disabledBy: 'System Admin', reason: 'Non-payment', type: 'ancillary'
+            },
+            {
+                firstName: 'Sarah', lastName: 'Kumar', email: 'sarah.k@email.com',
+                phone: '+919876543211', subProduct: 'Hot Desk', status: 'Inactive',
+                disabledOn: '10 Oct 2025', disabledBy: 'Admin User', reason: 'Membership Expired', type: 'ancillary'
+            },
+            {
+                firstName: 'Rajesh', lastName: 'Sharma', email: 'rajesh.r@example.com',
+                phone: '+919123456789', subProduct: 'All-Access', status: 'Inactive',
+                disabledOn: '08 Oct 2025', disabledBy: 'System Admin', reason: 'Policy Violation', type: 'ancillary'
+            },
+            {
+                firstName: 'Priya', lastName: 'Reddy', email: 'priya.reddy@email.com',
+                phone: '+919988776655', subProduct: 'Hot Desk', status: 'Inactive',
+                disabledOn: '05 Oct 2025', disabledBy: 'Admin User', reason: 'Relocation', type: 'ancillary'
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            
+            // Update pill styles
+            document.querySelectorAll('.filter-pill').forEach(btn => {
+                btn.className = 'filter-pill px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200';
+            });
+            document.getElementById(`filter-${filter}`).className = 'filter-pill px-4 py-2 rounded-full text-sm font-medium bg-yellow-400 text-black';
+            
+            // Update action buttons
+            updateActionButtons();
+            
+            // Render table
+            renderTable();
+        }
+
+        function updateActionButtons() {
+            const actionButtons = document.getElementById('actionButtons');
+            
+            if (currentFilter === 'regular') {
+                actionButtons.innerHTML = `
+                    <button class="flex items-center gap-2 px-4 py-2 border rounded-lg text-sm hover:bg-gray-50">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export
+                    </button>
+                    <button class="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50">Grant Access</button>
+                    <button class="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50">Revoke Access</button>
+                `;
+            } else {
+                actionButtons.innerHTML = `
+                    <button class="flex items-center gap-2 px-4 py-2 border rounded-lg text-sm hover:bg-gray-50">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export
+                    </button>
+                `;
+            }
+        }
+
+        function renderTable() {
+            const filteredMembers = getFilteredMembers();
+            const tableHeader = document.getElementById('tableHeader');
+            const tableBody = document.getElementById('tableBody');
+            
+            // Update total rows
+            document.getElementById('totalRows').textContent = filteredMembers.length;
+            
+            // Generate headers
+            let headers = '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">First Name</th>';
+            headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Last Name</th>';
+            headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email ID</th>';
+            headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Phone Number</th>';
+            
+            if (currentFilter === 'ancillary') {
+                headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Sub-Product</th>';
+                headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Disabled On</th>';
+                headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Disabled By</th>';
+                headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Reason for Suspension</th>';
+            } else if (currentFilter === 'regular') {
+                headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Phone Number 2</th>';
+                headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">WFA +</th>';
+                headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">KYC</th>';
+                headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Photo</th>';
+                headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Permissions</th>';
+            }
+            
+            headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>';
+            headers += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Action</th>';
+            
+            tableHeader.innerHTML = headers;
+            
+            // Generate rows
+            let rows = '';
+            filteredMembers.forEach(member => {
+                rows += '<tr class="table-row">';
+                rows += `<td class="px-4 py-4 text-sm">
+                    <div class="flex items-center gap-2">
+                        ${member.firstName}
+                        ${member.type === 'ancillary' ? '<span class="px-2 py-0.5 bg-yellow-400 text-black text-xs font-medium rounded">AU</span>' : ''}
+                    </div>
+                </td>`;
+                rows += `<td class="px-4 py-4 text-sm text-gray-900">${member.lastName}</td>`;
+                rows += `<td class="px-4 py-4 text-sm text-blue-600 hover:underline cursor-pointer">${member.email}</td>`;
+                rows += `<td class="px-4 py-4 text-sm text-gray-700">${member.phone}</td>`;
+                
+                if (currentFilter === 'ancillary') {
+                    rows += `<td class="px-4 py-4 text-sm text-gray-900">${member.subProduct}</td>`;
+                    rows += `<td class="px-4 py-4 text-sm text-gray-700">${member.disabledOn || '-'}</td>`;
+                    rows += `<td class="px-4 py-4 text-sm text-gray-700">${member.disabledBy || '-'}</td>`;
+                    rows += `<td class="px-4 py-4 text-sm text-gray-700">${member.reason || '-'}</td>`;
+                } else if (currentFilter === 'regular') {
+                    rows += `<td class="px-4 py-4 text-sm text-gray-700">${member.phone2}</td>`;
+                    rows += `<td class="px-4 py-4">
+                        <div class="toggle-switch w-10 h-6 rounded-full relative cursor-pointer ${member.wfaActive ? 'bg-yellow-400 active' : 'bg-gray-200'}">
+                            <div class="toggle-dot absolute top-1 left-1 w-4 h-4 rounded-full bg-white"></div>
+                        </div>
+                    </td>`;
+                    rows += `<td class="px-4 py-4 text-sm text-gray-900">${member.kyc}</td>`;
+                    rows += `<td class="px-4 py-4 text-sm text-gray-900">${member.photo}</td>`;
+                    rows += `<td class="px-4 py-4 text-sm text-gray-700">${member.permissions}</td>`;
+                }
+                
+                rows += `<td class="px-4 py-4">
+                    <span class="inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+                        member.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    }">${member.status}</span>
+                </td>`;
+                rows += `<td class="px-4 py-4">
+                    <div class="flex items-center gap-2">
+                        <button class="p-1.5 hover:bg-gray-100 rounded transition-colors">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                        <button class="p-1.5 hover:bg-gray-100 rounded transition-colors">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </td>`;
+                rows += '</tr>';
+            });
+            
+            tableBody.innerHTML = rows;
+        }
+
+        function getFilteredMembers() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = members;
+            
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(m => m.type === currentFilter);
+            }
+            
+            if (searchQuery) {
+                filtered = filtered.filter(m => 
+                    m.firstName.toLowerCase().includes(searchQuery) ||
+                    m.lastName.toLowerCase().includes(searchQuery) ||
+                    m.email.toLowerCase().includes(searchQuery)
+                );
+            }
+            
+            return filtered;
+        }
+
+        function filterMembers() {
+            renderTable();
+        }
+
+        // Initialize counts
+        const regularCount = members.filter(m => m.type === 'regular').length;
+        const ancillaryCount = members.filter(m => m.type === 'ancillary').length;
+        document.getElementById('count-all').textContent = members.length;
+        document.getElementById('count-regular').textContent = regularCount;
+        document.getElementById('count-ancillary').textContent = ancillaryCount;
+
+        // Initial render
+        renderTable();
+    </script>
+</body>
+</html>
