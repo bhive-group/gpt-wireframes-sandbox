@@ -1,46 +1,204 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iframe Card Gallery</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <style>
+      body {
+        background: #f4f6fa;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+      .page-header {
+        max-width: 960px;
+      }
 
-    <title>GPT Wireframes!</title>
+      .frames-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .frame-card {
+        background: #fff;
+        border-radius: 1rem;
+        padding: 1rem;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        transition: transform 160ms ease, box-shadow 160ms ease;
+        cursor: pointer;
+      }
+
+      .frame-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.15);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+        color: #0f172a;
+      }
+
+      .card-meta {
+        font-size: 0.85rem;
+        color: #475569;
+        margin: 0.15rem 0 0;
+      }
+
+      .copy-btn {
+        flex-shrink: 0;
+      }
+
+      .iframe-wrapper {
+        position: relative;
+        width: 100%;
+        padding-top: 62%;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        background: #000;
+      }
+
+      .iframe-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        pointer-events: none;
+      }
+
+      .iframe-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+      }
+
+      @media (min-width: 992px) {
+        .frames-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+    </style>
   </head>
-  <body>
-    <h1>GPT Wireframes</h1>
-    <div class="container">
-      <h4 class="card-title">List of HTML Wireframes</h4>
-      <h5 class="card-subtitle mb-2 text-muted">Links will open in new tab</h5>
-<div class='card' style='width: 18rem; margin: 20px;'> <iframe src='./contract_terms_clean_html.html'></iframe>
-<div class='card-body'><p><a class='card-link' href='./contract_terms_clean_html.html' target='_blank'>contract_terms_clean_html.html</a></p></div>
-</div>
-<div class='card' style='width: 18rem; margin: 20px;'> <iframe src='./csv_table_viewer.html'></iframe>
-<div class='card-body'><p><a class='card-link' href='./csv_table_viewer.html' target='_blank'>csv_table_viewer.html</a></p></div>
-</div>
-<div class='card' style='width: 18rem; margin: 20px;'> <iframe src='./meeting_room_booking.html'></iframe>
-<div class='card-body'><p><a class='card-link' href='./meeting_room_booking.html' target='_blank'>meeting_room_booking.html</a></p></div>
-</div>
-<div class='card' style='width: 18rem; margin: 20px;'> <iframe src='./meeting_room_booking_bootstrap.html'></iframe>
-<div class='card-body'><p><a class='card-link' href='./meeting_room_booking_bootstrap.html' target='_blank'>meeting_room_booking_bootstrap.html</a></p></div>
-</div>
-<div class='card' style='width: 18rem; margin: 20px;'> <iframe src='./member-management-html.html'></iframe>
-<div class='card-body'><p><a class='card-link' href='./member-management-html.html' target='_blank'>member-management-html.html</a></p></div>
-</div>
-<div class='card' style='width: 18rem; margin: 20px;'> <iframe src='./vendor_payment_form.html'></iframe>
-<div class='card-body'><p><a class='card-link' href='./vendor_payment_form.html' target='_blank'>vendor_payment_form.html</a></p></div>
-</div>
-    </div>
-  </div>
-</div>
+  <body class="py-5">
+    <main class="container">
+      <div class="page-header text-center mx-auto mb-5">
+        <h1 class="fw-semibold">Embedded Views</h1>
+        <p class="text-secondary mb-0">
+          Quick peeks of your favorite dashboards. Tap any card to pop the full
+          page in a fresh tab.
+        </p>
+      </div>
 
-    <!-- Optional JavaScript; choose one of the two! -->
+      <section class="frames-grid" id="framesGrid"></section>
+    </main>
 
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script>
+      const formatter = new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
 
+      const grid = document.getElementById("framesGrid");
+
+      async function initFrames() {
+        try {
+          const response = await fetch("frames.json", { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error(`Failed to load frames.json: ${response.status}`);
+          }
+
+          const frames = await response.json();
+          frames
+            .sort(
+              (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            )
+            .forEach((frame) => {
+              const card = document.createElement("article");
+              card.className = "frame-card";
+              card.dataset.url = frame.url;
+
+              const header = document.createElement("div");
+              header.className = "card-header";
+
+              const textWrap = document.createElement("div");
+              const title = document.createElement("h2");
+              title.className = "card-title";
+              title.textContent = frame.title;
+
+              const time = document.createElement("p");
+              time.className = "card-meta";
+              time.textContent = formatter.format(new Date(frame.timestamp));
+
+              textWrap.append(title, time);
+
+              const button = document.createElement("button");
+              button.className = "btn btn-sm btn-outline-primary copy-btn";
+              button.type = "button";
+              button.textContent = "Copy link";
+              button.addEventListener("click", async (ev) => {
+                ev.stopPropagation();
+                try {
+                  await navigator.clipboard.writeText(frame.url);
+                  button.textContent = "Copied!";
+                  setTimeout(() => (button.textContent = "Copy link"), 1800);
+                } catch (err) {
+                  console.error("Clipboard copy failed", err);
+                }
+              });
+
+              header.append(textWrap, button);
+
+              const iframeWrapper = document.createElement("div");
+              iframeWrapper.className = "iframe-wrapper";
+
+              const iframe = document.createElement("iframe");
+              iframe.src = frame.url;
+              iframe.loading = "lazy";
+              iframe.setAttribute("title", `${frame.title} preview`);
+
+              const overlay = document.createElement("a");
+              overlay.href = frame.url;
+              overlay.target = "_blank";
+              overlay.rel = "noopener";
+              overlay.className = "iframe-overlay";
+
+              iframeWrapper.append(iframe, overlay);
+
+              card.append(header, iframeWrapper);
+              card.addEventListener("click", () => window.open(frame.url, "_blank"));
+
+              card.setAttribute("role", "button");
+              card.setAttribute("aria-label", frame.title);
+
+              grid.appendChild(card);
+            });
+        } catch (error) {
+          console.error(error);
+          grid.innerHTML =
+            '<div class="alert alert-danger" role="alert">Unable to load frames.</div>';
+        }
+      }
+
+      initFrames();
+    </script>
   </body>
 </html>

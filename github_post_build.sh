@@ -1,51 +1,69 @@
 #!/bin/bash
+set -euo pipefail
 
-# Define the output file
-OUTPUT_FILE="index.html"
+OUTFILE="${OUTFILE:-frames.json}"
 
-# Start the HTML file
-cat > $OUTPUT_FILE <<EOL
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+json_escape() {
+  sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e ':a;N;$!ba;s/\n/\\n/g' -e 's/\t/\\t/g' -e 's/\r/\\r/g'
+}
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+to_title_case() {
+  # Convert string to Title Case (handles underscores and hyphens)
+  echo "$1" | tr '_-' ' ' | awk '{for(i=1;i<=NF;i++){ $i=toupper(substr($i,1,1)) tolower(substr($i,2)) }}1'
+}
 
-    <title>GPT Wireframes!</title>
-  </head>
-  <body>
-    <h1>GPT Wireframes</h1>
-    <div class="container">
-      <h4 class="card-title">List of HTML Wireframes</h4>
-      <h5 class="card-subtitle mb-2 text-muted">Links will open in new tab</h5>
-EOL
+OS=$(uname)
+TMP="$(mktemp)"
 
-# Find all HTML files except index.html and append to the index.html file
-find . -type f -name "*.html" ! -name "index.html" | sort | while read file; do
-    filename=$(basename "$file")
-    echo "<div class='card' style='width: 18rem; margin: 20px;'> <iframe src='./$filename'></iframe>" >> $OUTPUT_FILE
-    echo "<div class='card-body'><p><a class='card-link' href='./$filename' target='_blank'>$filename</a></p></div>" >> $OUTPUT_FILE
-    echo "</div>" >> $OUTPUT_FILE
-done
+# Collect creation epoch and filename (excluding index.html)
+if [ "$OS" = "Darwin" ]; then
+  shopt -s nullglob
+  for f in *.html; do
+    [ -f "$f" ] || continue
+    [ "$f" = "index.html" ] && continue
+    epoch=$(stat -f "%B" "$f")
+    if [ "$epoch" -eq 0 ]; then
+      epoch=$(stat -f "%m" "$f")
+    fi
+    printf '%s\t%s\n' "$epoch" "$f"
+  done | sort -n > "$TMP"
+else
+  shopt -s nullglob
+  for f in *.html; do
+    [ -f "$f" ] || continue
+    [ "$f" = "index.html" ] && continue
+    epoch=$(stat -c "%W" "$f")
+    if [ "$epoch" -lt 0 ]; then
+      epoch=$(stat -c "%Y" "$f")
+    fi
+    printf '%s\t%s\n' "$epoch" "$f"
+  done | sort -n > "$TMP"
+fi
 
-# Close the HTML file
-cat >> $OUTPUT_FILE <<EOL
-    </div>
-  </div>
-</div>
+printf '[\n' > "$OUTFILE"
+first=1
 
-    <!-- Optional JavaScript; choose one of the two! -->
+while IFS=$'\t' read -r epoch file; do
+  if [ "$OS" = "Darwin" ]; then
+    ts=$(date -u -r "$epoch" +"%Y-%m-%dT%H:%M:%SZ")
+  else
+    ts=$(date -u -d "@$epoch" +"%Y-%m-%dT%H:%M:%SZ")
+  fi
 
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  base="${file%.*}"
+  title=$(to_title_case "$base")
+  title_esc=$(printf '%s' "$title" | json_escape)
+  url="./$file"
+  url_esc=$(printf '%s' "$url" | json_escape)
 
-  </body>
-</html>
-EOL
+  if [ $first -eq 0 ]; then
+    printf ',\n' >> "$OUTFILE"
+  fi
+  first=0
 
-# Print completion message
-echo "Index file updated: $OUTPUT_FILE"
+  printf '  {"title":"%s","url":"%s","timestamp":"%s"}' "$title_esc" "$url_esc" "$ts" >> "$OUTFILE"
+done < "$TMP"
+
+printf '\n]\n' >> "$OUTFILE"
+cat "$OUTFILE"
+rm -f "$TMP"
