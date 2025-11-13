@@ -157,7 +157,7 @@
               button.addEventListener("click", async (ev) => {
                 ev.stopPropagation();
                 try {
-                  await navigator.clipboard.writeText(frame.url);
+                  await navigator.clipboard.writeText(new URL(frame.url, location.href).href);
                   button.textContent = "Copied!";
                   setTimeout(() => (button.textContent = "Copy link"), 1800);
                 } catch (err) {
