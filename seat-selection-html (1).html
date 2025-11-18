@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seat Configuration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+  <div id="app" class="max-w-3xl mx-auto p-6 min-h-screen">
+    <!-- Configuration Section -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4 text-gray-800">Seat Configuration</h2>
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Code Prefix <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="codePrefix"
+            value="BAS0112"
+            oninput="handleCodePrefixChange(this.value)"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Starting Code <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="startingCode"
+            value="6"
+            oninput="handleStartingCodeChange(this.value)"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+      <div id="regenerateButtonContainer" style="display: none;">
+        <button
+          onclick="handleRegenerateClick()"
+          class="w-full py-2 mb-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+        >
+          Regenerate Codes
+        </button>
+      </div>
+      <div class="flex justify-end">
+        <button
+          onclick="showClearAllModal()"
+          class="px-4 py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+        >
+          Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Zones Container -->
+    <div id="zonesContainer" class="space-y-4"></div>
+
+    <!-- Old Codes Section -->
+    <div id="oldCodesSection" class="mt-6 bg-white rounded-lg shadow-sm overflow-hidden" style="display: none;">
+      <button
+        onclick="toggleOldCodes()"
+        class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+      >
+        <div class="flex items-center gap-2">
+          <span class="text-lg font-semibold text-gray-800">Older Seat Codes</span>
+          <span class="text-sm text-gray-500" id="oldCodesCount"></span>
+        </div>
+        <svg id="chevronIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      
+      <div id="oldCodesContent" class="px-6 pb-6 pt-2 border-t border-gray-100" style="display: none;"></div>
+    </div>
+
+    <!-- Save/Cancel Buttons -->
+    <div class="mt-8 bg-white rounded-lg shadow-sm p-6 sticky bottom-4">
+      <div class="flex gap-4 justify-end">
+        <button
+          onclick="handleCancel()"
+          class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+        >
+          Cancel
+        </button>
+        <button
+          onclick="handleSave()"
+          class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+        >
+          Save Configuration
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Seats Modal -->
+  <div id="newSeatsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
+    <div class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">New Seats Detected</h3>
+      <p class="text-gray-600 mb-6">
+        New seats have been added to the system. How would you like to handle the seat numbering?
+      </p>
+      
+      <div class="space-y-3 mb-6">
+        <div class="border-2 border-blue-200 rounded-lg p-4 hover:border-blue-400 transition-colors cursor-pointer" onclick="handleContinueSequence()">
+          <div class="flex items-start gap-3">
+            <div class="mt-1 w-5 h-5 rounded-full border-2 border-blue-600 flex items-center justify-center flex-shrink-0">
+              <div class="w-3 h-3 rounded-full bg-blue-600"></div>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-800 mb-1">Continue from Sequence</div>
+              <div class="text-sm text-gray-600">
+                Add new seats starting from the next available number. Existing seats and their codes will remain unchanged.
+              </div>
+              <div class="text-xs text-blue-600 mt-2 font-medium">
+                Example: Current seats 1-12 → New seats will be 13, 14...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-2 border-orange-200 rounded-lg p-4 hover:border-orange-400 transition-colors cursor-pointer" onclick="handleClearAndStart()">
+          <div class="flex items-start gap-3">
+            <div class="mt-1 w-5 h-5 rounded-full border-2 border-orange-600 flex items-center justify-center flex-shrink-0">
+              <div class="w-3 h-3 rounded-full bg-orange-600"></div>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-800 mb-1">Clear All and Start New</div>
+              <div class="text-sm text-gray-600">
+                Replace all existing seats with new seats. Old seat codes will be saved in "Older Seat Codes" section. Numbering starts from 1.
+              </div>
+              <div class="text-xs text-orange-600 mt-2 font-medium">
+                Example: All seats will be replaced and renumbered from 1
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        onclick="closeNewSeatsModal()"
+        class="w-full py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- Clear All Modal -->
+  <div id="clearAllModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800">Clear All Data?</h3>
+      </div>
+      
+      <div class="mb-6">
+        <p class="text-gray-600 mb-3">
+          Are you sure you want to clear all seat mappings? This action will:
+        </p>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>All current zone's seat code will be clear</li>
+          <li>Require you to re-map seat numbers</li>
+        </ul>
+        <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-sm text-red-800 font-medium">
+            ⚠️ This action cannot be undone. All mappings will be lost.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          onclick="closeClearAllModal()"
+          class="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+        >
+          Cancel
+        </button>
+        <button
+          onclick="confirmClearAll()"
+          class="flex-1 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+        >
+          Yes, Clear All
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cancel Modal -->
+  <div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-3">Discard Changes?</h3>
+      
+      <div class="mb-6">
+        <p class="text-gray-600 text-sm">
+          Are you sure you want to cancel? Any unsaved changes to the seat configuration will be lost.
+        </p>
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          onclick="closeCancelModal()"
+          class="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          Continue Editing
+        </button>
+        <button
+          onclick="confirmCancel()"
+          class="flex-1 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+        >
+          Discard Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Regenerate Codes Confirmation Modal -->
+  <div id="regenerateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-3">Regenerate Seat Codes?</h3>
+      
+      <div class="mb-6">
+        <p class="text-gray-600 text-sm mb-3">
+          Following the same seat sequence, all seat codes will be updated with the new Code Prefix and Starting Code.
+        </p>
+        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+          <div class="text-sm">
+            <span class="font-medium text-gray-700">New Prefix:</span>
+            <span class="text-blue-700 ml-2 font-semibold" id="newPrefixDisplay"></span>
+          </div>
+          <div class="text-sm">
+            <span class="font-medium text-gray-700">New Starting Code:</span>
+            <span class="text-blue-700 ml-2 font-semibold" id="newStartingCodeDisplay"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          onclick="closeRegenerateModal()"
+          class="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          onclick="confirmRegenerate()"
+          class="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mapping Error Modal -->
+  <div id="mappingErrorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800">Incomplete Mapping</h3>
+      </div>
+      
+      <div class="mb-6">
+        <p class="text-gray-600 text-sm">
+          Please complete the seat mapping before performing regeneration of seat code.
+        </p>
+      </div>
+
+      <button
+        onclick="closeMappingErrorModal()"
+        class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let state = {
+      showOldCodes: false,
+      showRegenerateButton: false,
+      originalCodePrefix: 'BAS0112',
+      originalStartingCode: '6',
+      oldCodes: [
+        { seatNumber: 1, zoneName: 'Zone A', productType: 'Dedicated Desk', code: 'BAS0111-5' },
+        { seatNumber: 2, zoneName: 'Zone A', productType: 'Dedicated Desk', code: 'BAS0111-6' },
+      ],
+      zones: [
+        {
+          id: 1,
+          name: 'Zone A',
+          productType: 'Dedicated Desk',
+          isNew: false,
+          seats: [
+            { number: 1, selected: true, isNew: false },
+            { number: 2, selected: true, isNew: false },
+            { number: 3, selected: true, isNew: false },
+            { number: 4, selected: true, isNew: false }
+          ]
+        },
+        {
+          id: 2,
+          name: 'Zone B',
+          productType: 'Floating Zone',
+          isNew: false,
+          seats: [
+            { number: 5, selected: false, isNew: false },
+            { number: 6, selected: false, isNew: false },
+            { number: 7, selected: false, isNew: false },
+            { number: 13, selected: false, isNew: true },
+            { number: 14, selected: false, isNew: true }
+          ]
+        },
+        {
+          id: 3,
+          name: 'Zone C',
+          productType: 'Dedicated Desk',
+          isNew: false,
+          seats: [
+            { number: 8, selected: false, isNew: false },
+            { number: 9, selected: false, isNew: false },
+            { number: 10, selected: false, isNew: false }
+          ]
+        },
+        {
+          id: 4,
+          name: 'Zone D',
+          productType: 'Floating Zone',
+          isNew: false,
+          seats: [
+            { number: 11, selected: false, isNew: false },
+            { number: 12, selected: false, isNew: false }
+          ]
+        },
+        {
+          id: 5,
+          name: 'Zone E',
+          productType: 'Dedicated Desk',
+          isNew: true,
+          seats: [
+            { number: null, selected: false, isNew: false },
+            { number: null, selected: false, isNew: false },
+            { number: null, selected: false, isNew: false }
+          ]
+        }
+      ]
+    };
+
+    // Helper functions
+    function generateSeatCode(seatNumber) {
+      if (seatNumber === null) return 'Pending numbering...';
+      const codePrefix = document.getElementById('codePrefix').value;
+      const start = parseInt(document.getElementById('startingCode').value) || 0;
+      return `${codePrefix}-${start + seatNumber - 1}`;
+    }
+
+    function removeSeat(zoneId, seatNumber) {
+      state.zones = state.zones.map(zone => {
+        if (zone.id === zoneId) {
+          return {
+            ...zone,
+            seats: zone.seats.map(seat =>
+              seat.number === seatNumber ? { ...seat, selected: false } : seat
+            )
+          };
+        }
+        return zone;
+      });
+      render();
+    }
+
+    function updateZoneName(zoneId, newName) {
+      state.zones = state.zones.map(zone =>
+        zone.id === zoneId ? { ...zone, name: newName } : zone
+      );
+      render();
+    }
+
+    function handleCodePrefixChange(value) {
+      const startingCode = document.getElementById('startingCode').value;
+      if (value !== state.originalCodePrefix || startingCode !== state.originalStartingCode) {
+        state.showRegenerateButton = true;
+      } else {
+        state.showRegenerateButton = false;
+      }
+      updateRegenerateButton();
+    }
+
+    function handleStartingCodeChange(value) {
+      const codePrefix = document.getElementById('codePrefix').value;
+      if (codePrefix !== state.originalCodePrefix || value !== state.originalStartingCode) {
+        state.showRegenerateButton = true;
+      } else {
+        state.showRegenerateButton = false;
+      }
+      updateRegenerateButton();
+    }
+
+    function updateRegenerateButton() {
+      const container = document.getElementById('regenerateButtonContainer');
+      container.style.display = state.showRegenerateButton ? 'block' : 'none';
+      render();
+    }
+
+    function handleRegenerateClick() {
+      // Check if all seats have been mapped
+      const hasUnmappedSeats = state.zones.some(zone => 
+        zone.seats.some(seat => seat.number === null)
+      );
+      
+      if (hasUnmappedSeats) {
+        document.getElementById('mappingErrorModal').style.display = 'flex';
+        return;
+      }
+      
+      const codePrefix = document.getElementById('codePrefix').value;
+      const startingCode = document.getElementById('startingCode').value;
+      document.getElementById('newPrefixDisplay').textContent = codePrefix;
+      document.getElementById('newStartingCodeDisplay').textContent = startingCode;
+      document.getElementById('regenerateModal').style.display = 'flex';
+    }
+
+    function closeRegenerateModal() {
+      document.getElementById('regenerateModal').style.display = 'none';
+    }
+
+    function closeMappingErrorModal() {
+      document.getElementById('mappingErrorModal').style.display = 'none';
+    }
+
+    function confirmRegenerate() {
+      // Save old codes before regenerating
+      const oldCodesData = state.zones
+        .filter(zone => !zone.isNew)
+        .flatMap(zone => 
+          zone.seats
+            .filter(seat => seat.number !== null)
+            .map(seat => ({
+              seatNumber: seat.number,
+              zoneName: zone.name,
+              productType: zone.productType,
+              code: generateSeatCode(seat.number)
+            }))
+        );
+      
+      if (oldCodesData.length > 0) {
+        state.oldCodes = [...state.oldCodes, ...oldCodesData];
+      }
+      
+      // Update original values
+      state.originalCodePrefix = document.getElementById('codePrefix').value;
+      state.originalStartingCode = document.getElementById('startingCode').value;
+      state.showRegenerateButton = false;
+      
+      closeRegenerateModal();
+      updateRegenerateButton();
+      render();
+    }
+
+    // Modal functions
+    function showNewSeatsModal() {
+      document.getElementById('newSeatsModal').style.display = 'flex';
+    }
+
+    function closeNewSeatsModal() {
+      document.getElementById('newSeatsModal').style.display = 'none';
+    }
+
+    function showClearAllModal() {
+      document.getElementById('clearAllModal').style.display = 'flex';
+    }
+
+    function closeClearAllModal() {
+      document.getElementById('clearAllModal').style.display = 'none';
+    }
+
+    function handleCancel() {
+      document.getElementById('cancelModal').style.display = 'flex';
+    }
+
+    function closeCancelModal() {
+      document.getElementById('cancelModal').style.display = 'none';
+    }
+
+    function handleContinueSequence() {
+      const maxSeatNumber = Math.max(...state.zones.flatMap(z => z.seats.map(s => s.number || 0)), 0);
+      
+      state.zones = state.zones.map(zone => {
+        if (zone.isNew) {
+          let currentNumber = maxSeatNumber + 1;
+          return {
+            ...zone,
+            isNew: false,
+            seats: zone.seats.map(seat => ({
+              ...seat,
+              number: seat.number === null ? currentNumber++ : seat.number,
+              isNew: seat.number === null
+            }))
+          };
+        }
+        return zone;
+      });
+      
+      closeNewSeatsModal();
+      render();
+    }
+
+    function handleClearAndStart() {
+      const oldCodesData = state.zones
+        .filter(z => !z.isNew)
+        .flatMap(zone => 
+          zone.seats.map(seat => ({
+            seatNumber: seat.number,
+            zoneName: zone.name,
+            productType: zone.productType,
+            code: generateSeatCode(seat.number)
+          }))
+        );
+      state.oldCodes = [...state.oldCodes, ...oldCodesData];
+      
+      let currentNumber = 1;
+      state.zones = state.zones
+        .filter(z => z.isNew)
+        .map(zone => ({
+          ...zone,
+          isNew: false,
+          seats: zone.seats.map(seat => ({
+            ...seat,
+            number: currentNumber++,
+            isNew: false
+          }))
+        }));
+      
+      document.getElementById('startingCode').value = '1';
+      closeNewSeatsModal();
+      render();
+    }
+
+    function confirmClearAll() {
+      // Clear seat numbers but keep zones intact
+      state.zones = state.zones.map(zone => ({
+        ...zone,
+        isNew: false,
+        seats: zone.seats.map(seat => ({
+          ...seat,
+          number: null,
+          isNew: false
+        }))
+      }));
+      
+      closeClearAllModal();
+      render();
+    }
+
+    function confirmCancel() {
+      closeCancelModal();
+      alert('Changes discarded');
+    }
+
+    function handleSave() {
+      const config = {
+        codePrefix: document.getElementById('codePrefix').value,
+        startingCode: document.getElementById('startingCode').value,
+        zones: state.zones.map(zone => ({
+          id: zone.id,
+          name: zone.name,
+          productType: zone.productType,
+          seats: zone.seats.map(seat => ({
+            number: seat.number,
+            code: generateSeatCode(seat.number),
+            selected: seat.selected
+          }))
+        }))
+      };
+      console.log('Saving seat configuration:', config);
+      alert('Seat configuration saved successfully!');
+    }
+
+    function toggleOldCodes() {
+      state.showOldCodes = !state.showOldCodes;
+      const content = document.getElementById('oldCodesContent');
+      const icon = document.getElementById('chevronIcon');
+      
+      if (state.showOldCodes) {
+        content.style.display = 'block';
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />';
+      } else {
+        content.style.display = 'none';
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />';
+      }
+    }
+
+    // Render function
+    function render() {
+      // Sort zones
+      const sortedZones = [...state.zones].sort((a, b) => {
+        if (a.isNew && !b.isNew) return -1;
+        if (!a.isNew && b.isNew) return 1;
+        return 0;
+      });
+
+      // Render zones
+      const zonesContainer = document.getElementById('zonesContainer');
+      zonesContainer.innerHTML = sortedZones.map(zone => `
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <div class="mb-4">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <input
+                    type="text"
+                    value="${zone.name}"
+                    onchange="updateZoneName(${zone.id}, this.value)"
+                    class="text-lg font-semibold text-gray-800 border-b-2 border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-2 py-1"
+                    placeholder="Zone name"
+                  />
+                  ${zone.isNew ? '<span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">NEW</span>' : ''}
+                </div>
+                <div class="text-sm text-gray-600 px-2">
+                  <span class="font-medium">Product Type:</span> ${zone.productType} • ${zone.seats.length} seat${zone.seats.length !== 1 ? 's' : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            ${zone.seats.map((seat, index) => {
+              const seatCode = generateSeatCode(seat.number);
+              const textClass = seat.number === null ? 'text-gray-400 italic' : seat.selected ? 'text-gray-900' : 'text-gray-400';
+              return `
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <label class="text-sm font-medium text-gray-600">
+                      ${seat.number !== null ? `Seat ${seat.number}` : 'Seat (Unnumbered)'}
+                    </label>
+                    ${!zone.isNew && seat.isNew ? '<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">NEW</span>' : ''}
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <input
+                      type="text"
+                      value="${seatCode}"
+                      readonly
+                      class="flex-1 px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 ${textClass}"
+                    />
+                    ${seat.number !== null ? `
+                      <button
+                        onclick="removeSeat(${zone.id}, ${seat.number})"
+                        class="px-4 py-2 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors whitespace-nowrap"
+                      >
+                        Remove from Selection
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      // Render old codes section
+      const oldCodesSection = document.getElementById('oldCodesSection');
+      const oldCodesContent = document.getElementById('oldCodesContent');
+      const oldCodesCount = document.getElementById('oldCodesCount');
+      
+      if (state.oldCodes.length > 0) {
+        oldCodesSection.style.display = 'block';
+        oldCodesCount.textContent = `(${state.oldCodes.length} seats)`;
+        
+        oldCodesContent.innerHTML = `
+          <div class="space-y-2">
+            ${state.oldCodes.map((item, index) => `
+              <div class="flex items-center gap-4 py-2 border-b border-gray-100 ${index === state.oldCodes.length - 1 ? '' : 'last:border-0'}">
+                <div class="flex-1">
+                  <div class="text-sm font-medium text-gray-700">Seat ${item.seatNumber}</div>
+                  <div class="text-xs text-gray-500">${item.zoneName} • ${item.productType}</div>
+                </div>
+                <div class="flex-1">
+                  <input
+                    type="text"
+                    value="${item.code}"
+                    readonly
+                    class="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed text-sm"
+                  />
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else {
+        oldCodesSection.style.display = 'none';
+      }
+    }
+
+    // Initial render
+    document.addEventListener('DOMContentLoaded', () => {
+      render();
+    });
+  </script>
+</body>
+</html>
