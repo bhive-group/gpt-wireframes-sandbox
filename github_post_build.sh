@@ -30,6 +30,7 @@ if [ "$OS" = "Darwin" ]; then
 else
   shopt -s nullglob
   for f in *.html; do
+    printf '%s\n' "$f"
     [ -f "$f" ] || continue
     [ "$f" = "index.html" ] && continue
     epoch=$(stat -c "%W" "$f")
