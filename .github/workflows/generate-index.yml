@@ -29,7 +29,7 @@ jobs:
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "imgg.gauravgandhi@gmail.com"
-          git add index.html
-          git commit -m "Auto-updated index.html" || echo "No changes to commit"
+          git add .
+          git commit -m "Generated & Modified by Github Actions" || echo "No changes to commit"
           git push
           # git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
