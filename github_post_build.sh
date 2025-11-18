@@ -76,5 +76,5 @@ while IFS=$'\t' read -r epoch file; do
 done < "$TMP"
 
 printf '\n]\n' >> "$OUTFILE"
-cat "$OUTFILE"
+echo "Wrote $OUTFILE"
 rm -f "$TMP"
