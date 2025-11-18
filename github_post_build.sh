@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-OUTFILE="${OUTFILE:-frames.json}"
+OUTFILE="frames.json"
 
 json_escape() {
   sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e ':a;N;$!ba;s/\n/\\n/g' -e 's/\t/\\t/g' -e 's/\r/\\r/g'
@@ -52,9 +52,9 @@ while IFS=$'\t' read -r epoch file; do
 
   base="${file%.*}"
   title=$(to_title_case "$base")
-  title_esc=$(printf '%s' "$title" | json_escape)
+  title_esc=$(printf '%s' "$title")
   url="./$file"
-  url_esc=$(printf '%s' "$url" | json_escape)
+  url_esc=$(printf '%s' "$url")
 
   if [ $first -eq 0 ]; then
     printf ',\n' >> "$OUTFILE"
