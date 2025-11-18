@@ -15,30 +15,41 @@ to_title_case() {
 OS=$(uname)
 TMP="$(mktemp)"
 
-# Collect creation epoch and filename (excluding index.html)
-if [ "$OS" = "Darwin" ]; then
-  shopt -s nullglob
-  for f in *.html; do
-    [ -f "$f" ] || continue
-    [ "$f" = "index.html" ] && continue
-    epoch=$(stat -f "%B" "$f")
-    if [ "$epoch" -eq 0 ]; then
-      epoch=$(stat -f "%m" "$f")
+get_files() {
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    git ls-files '*.html' 2>/dev/null | grep -v '^index\.html$'
+  else
+    shopt -s nullglob
+    for f in *.html; do
+      [ -f "$f" ] || continue
+      [ "$f" = "index.html" ] && continue
+      printf '%s\n' "$f"
+    done
+  fi
+}
+
+file_epoch() {
+  local file=$1
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    local ts
+    ts=$(git log -1 --format='%ct' -- "$file" 2>/dev/null || true)
+    if [ -n "$ts" ]; then
+      printf '%s' "$ts"
+      return
     fi
-    printf '%s\t%s\n' "$epoch" "$f"
-  done | sort -n > "$TMP"
-else
-  shopt -s nullglob
-  for f in *.html; do
-    [ -f "$f" ] || continue
-    [ "$f" = "index.html" ] && continue
-    epoch=$(stat -c "%W" "$f")
-    if [ "$epoch" -lt 0 ]; then
-      epoch=$(stat -c "%Y" "$f")
-    fi
-    printf '%s\t%s\n' "$epoch" "$f"
-  done | sort -n > "$TMP"
-fi
+  fi
+
+  if [ "$OS" = "Darwin" ]; then
+    stat -f "%m" "$file"
+  else
+    stat -c "%Y" "$file"
+  fi
+}
+
+while IFS= read -r file; do
+  epoch=$(file_epoch "$file")
+  printf '%s\t%s\n' "$epoch" "$file"
+done < <(get_files) | sort -nr > "$TMP"
 
 printf '[\n' > "$OUTFILE"
 first=1
