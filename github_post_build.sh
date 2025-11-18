@@ -17,7 +17,7 @@ TMP="$(mktemp)"
 
 get_files() {
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    git ls-files '*.html' 2>/dev/null | grep -v '^index\.html$'
+    git ls-files '*.html' 2>/dev/null | grep -v '/' | grep -v '^index\.html$'
   else
     shopt -s nullglob
     for f in *.html; do
