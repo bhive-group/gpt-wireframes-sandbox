@@ -1,16 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Floor Plan Mapping System V5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .seat-rect { cursor: pointer; transition: all 0.2s; }
-        .notification { animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .seat-rect {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div id="app"></div>
 
@@ -29,18 +48,24 @@
             highlightedSeat: null,
             currentMappingIndex: 0,
             properties: [
-                { id: 1, name: 'BHIVE HoneyKomb Kochi', location: 'Bengaluru Urban', floors: [
-                    { id: 'f1', floorName: 'Ground Floor', zones: [], seatCodeConfig: null, seatCodes: [] },
-                    { id: 'f2', floorName: 'First Floor', zones: [], seatCodeConfig: null, seatCodes: [] },
-                    { id: 'f3', floorName: 'Second Floor', zones: [], seatCodeConfig: null, seatCodes: [] }
-                ]},
-                { id: 2, name: 'BHIVE HSR Layout', location: 'Bengaluru Urban', floors: [
-                    { id: 'f4', floorName: 'Ground Floor', zones: [], seatCodeConfig: null, seatCodes: [] },
-                    { id: 'f5', floorName: 'First Floor', zones: [], seatCodeConfig: null, seatCodes: [] }
-                ]},
-                { id: 3, name: 'BHIVE Indiranagar', location: 'Bengaluru Urban', floors: [
-                    { id: 'f6', floorName: 'Ground Floor', zones: [], seatCodeConfig: null, seatCodes: [] }
-                ]}
+                {
+                    id: 1, name: 'BHIVE HoneyKomb Kochi', location: 'Bengaluru Urban', floors: [
+                        { id: 'f1', floorName: 'Ground Floor', zones: [], seatCodeConfig: null, seatCodes: [] },
+                        { id: 'f2', floorName: 'First Floor', zones: [], seatCodeConfig: null, seatCodes: [] },
+                        { id: 'f3', floorName: 'Second Floor', zones: [], seatCodeConfig: null, seatCodes: [] }
+                    ]
+                },
+                {
+                    id: 2, name: 'BHIVE HSR Layout', location: 'Bengaluru Urban', floors: [
+                        { id: 'f4', floorName: 'Ground Floor', zones: [], seatCodeConfig: null, seatCodes: [] },
+                        { id: 'f5', floorName: 'First Floor', zones: [], seatCodeConfig: null, seatCodes: [] }
+                    ]
+                },
+                {
+                    id: 3, name: 'BHIVE Indiranagar', location: 'Bengaluru Urban', floors: [
+                        { id: 'f6', floorName: 'Ground Floor', zones: [], seatCodeConfig: null, seatCodes: [] }
+                    ]
+                }
             ],
             currentZone: { name: '', productType: '', subType: '', cabinCode: '', studioCode: '', selectedSeats: [] },
             zones: [],
@@ -63,7 +88,7 @@
         const isSeatCodeComplete = () => state.seatCodeConfig.codePrefix && state.seatCodeConfig.startingNumber;
         const allMapped = () => state.seatMappingSeats.length > 0 && state.seatMappingSeats.every(s => s.code);
         const isSeatSelected = (id) => state.currentZone.selectedSeats.includes(id);
-        
+
         const getZoneColor = (z) => {
             const c = { dedicated_desk: '#FCD34D', floating_zone: '#FB923C', cabin: '#EF4444', deluxe_cabin: '#3B82F6', managed_office: '#A855F7' };
             return c[z.subType] || c[z.productType] || '#fef3c7';
@@ -105,8 +130,8 @@
                     svg += `<rect class="seat-rect" x="${x}" y="${y}" width="50" height="30" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" style="cursor:${cur}" data-id="${id}"/>`;
                     if (code?.code && (type === 'seat' || type === 'view')) {
                         const tf = hl ? '#FFF' : '#000', cf = hl ? '#FFF' : '#333';
-                        svg += `<text x="${x+25}" y="${y+14}" text-anchor="middle" font-size="8" fill="${tf}" font-weight="bold" style="pointer-events:none">#${code.selectionOrder}</text>`;
-                        svg += `<text x="${x+25}" y="${y+24}" text-anchor="middle" font-size="7" fill="${cf}" style="pointer-events:none">${code.code}</text>`;
+                        svg += `<text x="${x + 25}" y="${y + 14}" text-anchor="middle" font-size="8" fill="${tf}" font-weight="bold" style="pointer-events:none">#${code.selectionOrder}</text>`;
+                        svg += `<text x="${x + 25}" y="${y + 24}" text-anchor="middle" font-size="7" fill="${cf}" style="pointer-events:none">${code.code}</text>`;
                     }
                 }
             }
@@ -176,10 +201,10 @@
             if (state.currentZone.selectedSeats.length === 0) return showNotification('Select at least one seat', 'error');
 
             if (state.editingZone) {
-                state.zones = state.zones.map(z => z.id === state.editingZone ? {...state.currentZone, id: state.editingZone, seats: state.currentZone.selectedSeats.length} : z);
+                state.zones = state.zones.map(z => z.id === state.editingZone ? { ...state.currentZone, id: state.editingZone, seats: state.currentZone.selectedSeats.length } : z);
                 state.editingZone = null; showNotification('Zone updated!', 'success');
             } else {
-                state.zones.push({...state.currentZone, id: Date.now(), seats: state.currentZone.selectedSeats.length}); showNotification('Zone created!', 'success');
+                state.zones.push({ ...state.currentZone, id: Date.now(), seats: state.currentZone.selectedSeats.length }); showNotification('Zone created!', 'success');
             }
             state.drawingZone = false; state.currentZone = { name: '', productType: '', subType: '', cabinCode: '', studioCode: '', selectedSeats: [] };
             render(); setTimeout(setupEvents, 100);
@@ -188,7 +213,7 @@
         const editZone = (id) => {
             if (!state.drawingZone) {
                 const z = state.zones.find(zn => zn.id === id);
-                state.editingZone = z.id; state.currentZone = {...z}; state.drawingZone = true;
+                state.editingZone = z.id; state.currentZone = { ...z }; state.drawingZone = true;
                 showNotification(`Editing: ${z.name}`, 'info'); render(); setTimeout(setupEvents, 100);
             }
         };
@@ -204,8 +229,10 @@
             if (state.zones.length === 0) return showNotification('Create at least one zone', 'error');
             if (needsSeatCode() && !allMapped()) return showNotification('Complete seat mapping', 'error');
 
-            const uf = { ...state.selectedFloor, zones: [...state.zones], seatCodeConfig: needsSeatCode() ? {...state.seatCodeConfig} : null,
-                seatCodes: needsSeatCode() ? state.seatMappingSeats.filter(s => s.code) : [], updatedAt: new Date().toISOString() };
+            const uf = {
+                ...state.selectedFloor, zones: [...state.zones], seatCodeConfig: needsSeatCode() ? { ...state.seatCodeConfig } : null,
+                seatCodes: needsSeatCode() ? state.seatMappingSeats.filter(s => s.code) : [], updatedAt: new Date().toISOString()
+            };
 
             state.properties = state.properties.map(p => {
                 if (p.id === state.selectedProperty.id) {
@@ -233,16 +260,16 @@
 
         const undoMap = () => {
             if (state.currentMappingIndex === 0) return showNotification('Nothing to undo', 'info');
-            const last = state.seatMappingSeats.filter(s => s.selectionOrder).sort((a,b) => b.selectionOrder - a.selectionOrder)[0];
+            const last = state.seatMappingSeats.filter(s => s.selectionOrder).sort((a, b) => b.selectionOrder - a.selectionOrder)[0];
             if (last) {
-                state.seatMappingSeats = state.seatMappingSeats.map(s => s.seatId === last.seatId ? {...s, code: null, selectionOrder: null} : s);
+                state.seatMappingSeats = state.seatMappingSeats.map(s => s.seatId === last.seatId ? { ...s, code: null, selectionOrder: null } : s);
                 state.currentMappingIndex--; state.highlightedSeat = null; showNotification('Mapping removed', 'info');
                 render(); setTimeout(setupEvents, 100);
             }
         };
 
         const resetMap = () => {
-            state.seatMappingSeats = state.seatMappingSeats.map(s => ({...s, code: null, selectionOrder: null}));
+            state.seatMappingSeats = state.seatMappingSeats.map(s => ({ ...s, code: null, selectionOrder: null }));
             state.currentMappingIndex = 0; state.highlightedSeat = null; showNotification('Mappings cleared', 'info');
             render(); setTimeout(setupEvents, 100);
         };
@@ -356,8 +383,8 @@
                             <div class="border-b px-6 py-4"><h2 class="text-lg font-semibold">Floor Plans</h2></div>
                             <div class="divide-y">
                                 ${p.floors.map(f => {
-                                    const hZ = f.zones?.length > 0, iC = hZ, tS = hZ ? f.zones.reduce((s, z) => s + z.seats, 0) : 0;
-                                    return `
+                const hZ = f.zones?.length > 0, iC = hZ, tS = hZ ? f.zones.reduce((s, z) => s + z.seats, 0) : 0;
+                return `
                                         <div class="px-6 py-5 hover:bg-gray-50">
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center gap-6 flex-1">
@@ -383,7 +410,7 @@
                                             </div>
                                         </div>
                                     `;
-                                }).join('')}
+            }).join('')}
                             </div>
                         </div>
                     </div>
@@ -587,7 +614,7 @@
                                 <h3 class="font-semibold mb-3">Mapped Seats (${mc}/${tc})</h3>
                                 ${mc === 0 ? '<div class="text-center py-8 text-gray-500"><div class="text-4xl mb-3">📍</div><p class="text-sm">No seats mapped</p></div>' : `
                                     <div class="space-y-2 max-h-96 overflow-y-auto">
-                                        ${state.seatMappingSeats.filter(s => s.code).sort((a,b) => a.selectionOrder - b.selectionOrder).map(s => `
+                                        ${state.seatMappingSeats.filter(s => s.code).sort((a, b) => a.selectionOrder - b.selectionOrder).map(s => `
                                             <div onmouseenter="hlSeat('${s.seatId}')" onmouseleave="unhlSeat()" class="p-3 border rounded-lg ${state.highlightedSeat === s.seatId ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-gray-300 bg-white hover:border-blue-300'}">
                                                 <div class="flex items-center justify-between mb-2">
                                                     <div class="flex items-center gap-2">
@@ -656,7 +683,7 @@
                                             ${state.seatMappingSeats.filter(s => s.zoneId === z.id && s.code).length > 0 ? `
                                                 <div class="mt-3 pt-3 border-t">
                                                     <div class="text-xs font-medium text-gray-700 mb-2">Seat Codes:</div>
-                                                    <div class="flex flex-wrap gap-1">${state.seatMappingSeats.filter(s => s.zoneId === z.id && s.code).sort((a,b) => a.selectionOrder - b.selectionOrder).map(s => `<span class="text-xs px-2 py-1 bg-gray-100 rounded font-mono">${s.code}</span>`).join('')}</div>
+                                                    <div class="flex flex-wrap gap-1">${state.seatMappingSeats.filter(s => s.zoneId === z.id && s.code).sort((a, b) => a.selectionOrder - b.selectionOrder).map(s => `<span class="text-xs px-2 py-1 bg-gray-100 rounded font-mono">${s.code}</span>`).join('')}</div>
                                                 </div>
                                             ` : ''}
                                         </div>
@@ -695,4 +722,5 @@
         render();
     </script>
 </body>
+
 </html>
