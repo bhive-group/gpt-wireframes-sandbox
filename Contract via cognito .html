@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Deals - BHIVE Workspace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        .modal { display: none; }
+        .modal.active { display: flex; }
+        .dropdown-menu { display: none; }
+        .dropdown-menu.active { display: block; }
+        .full-page-preview { display: none; }
+        .full-page-preview.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-56 bg-white border-r border-gray-200 flex flex-col">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+                        <span class="text-white text-xs">🐝</span>
+                    </div>
+                    <div>
+                        <div class="font-bold text-sm">BHIVE</div>
+                        <div class="text-xs text-gray-600">WORKSPACE</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto py-2">
+                <div class="px-3 py-2 mx-2 rounded hover:bg-gray-100 cursor-pointer text-sm">
+                    <div class="flex items-center gap-2">
+                        <span>📦</span><span class="text-gray-700">Inventory</span>
+                    </div>
+                </div>
+                <div class="px-3 py-2 mx-2 rounded hover:bg-gray-100 cursor-pointer text-sm">
+                    <div class="flex items-center gap-2">
+                        <span>🔍</span><span class="text-gray-700">Inventory Search</span>
+                    </div>
+                </div>
+                <div class="px-3 py-2 mx-2 rounded hover:bg-gray-100 cursor-pointer text-sm">
+                    <div class="flex items-center gap-2">
+                        <span>📄</span><span class="text-gray-700">Inventory Requests</span>
+                    </div>
+                </div>
+                <div class="px-3 py-2 mx-2 rounded hover:bg-gray-100 cursor-pointer text-sm">
+                    <div class="flex items-center gap-2">
+                        <span>📥</span><span class="text-gray-700">Import Existing Clients</span>
+                    </div>
+                </div>
+                <div class="px-3 py-2 mx-2 rounded hover:bg-gray-100 cursor-pointer text-sm">
+                    <div class="flex items-center gap-2">
+                        <span>🏢</span><span class="text-gray-700">Properties</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3 border-t border-gray-200 text-xs text-gray-500">Version: 2.16.1</div>
+
+            <div class="p-3 border-t border-gray-200">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-cyan-400 rounded flex items-center justify-center text-white font-semibold text-xs">WA</div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium">Workspace...</div>
+                        <div class="text-xs text-gray-500">admin@bhive...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+                    <span>Home</span><span>›</span><span class="text-gray-400">Inventory-deals</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm">👥 All Locations Access</span>
+                </div>
+            </div>
+
+            <!-- Page Title -->
+            <div class="bg-white px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-2xl font-semibold">Inventory Deals</h1>
+                    <div class="flex gap-3">
+                        <input type="text" placeholder="Search" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-64">
+                        <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Filters</button>
+                        <button class="px-4 py-2 bg-yellow-400 text-black rounded-lg font-medium hover:bg-yellow-500">Block Inventory →</button>
+                        <button class="px-4 py-2 bg-yellow-400 text-black rounded-lg font-medium hover:bg-yellow-500">Import Inventory →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="flex-1 overflow-auto px-6 py-4">
+                <table class="w-full bg-white rounded-lg">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Blocking Date</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Billable Seats</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Exit Date</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Sales POC</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Hubspot Status</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-50">«</button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-50">‹</button>
+                    <button class="px-3 py-1 bg-yellow-400 text-black rounded font-medium">1</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">2</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">3</button>
+                    <span class="px-2">...</span>
+                    <button class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">62</button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-50">›</button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-50">»</button>
+                </div>
+                <div class="flex items-center gap-4 text-sm text-gray-600">
+                    <span>Total Rows: 1528</span>
+                    <span>Rows Per Page: 25</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Contract Modal -->
+    <div id="contractModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold">New Contract - Enter Details</h2>
+                <button onclick="closeContractModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+            <div class="px-6 py-6">
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Contract ID <span class="text-red-500">*</span></label>
+                        <input id="contractId" type="text" placeholder="Enter Contract ID" class="w-full px-4 py-2 border border-gray-300 rounded-lg" oninput="updateContinueButton()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Cognito ID <span class="text-red-500">*</span></label>
+                        <input id="cognitoId" type="text" placeholder="Enter Cognito ID" class="w-full px-4 py-2 border border-gray-300 rounded-lg" oninput="updateContinueButton()">
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Customer <span class="text-red-500">*</span></label>
+                    <select id="customerSelect" onchange="handleCustomerSelect()" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <option value="">Choose a customer...</option>
+                        <option value="1">Tech Solutions Pvt Ltd</option>
+                        <option value="2">Digital Innovations Inc</option>
+                        <option value="3">Creative Minds LLC</option>
+                    </select>
+                </div>
+                <div id="customerDocs" class="border border-gray-200 rounded-lg p-4 bg-gray-50" style="display: none;">
+                    <h4 class="text-sm font-semibold mb-3 text-gray-800">Customer Documents Preview</h4>
+                    <div class="grid grid-cols-3 gap-3 text-sm">
+                        <div><div class="text-xs text-gray-500 mb-1">PAN</div><div id="panNumber" class="font-medium"></div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">TAN</div><div id="tanNumber" class="font-medium"></div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">GST</div><div id="gstNumber" class="font-medium"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <button onclick="closeContractModal()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 font-medium">Cancel</button>
+                <button id="continueBtn" onclick="openContractPreview()" disabled class="px-6 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed font-medium">Continue to Preview</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exit Date Modal -->
+    <div id="exitDateModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h2 id="exitDateTitle" class="text-xl font-semibold">Add Exit Date</h2>
+                <button onclick="closeExitDateModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+            <div class="px-6 py-6">
+                <p class="text-gray-500 mb-6">Exit date agreed by the BHIVE team and customer</p>
+                <div id="exitWarning" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg" style="display: none;">
+                    <div class="flex items-start gap-2">
+                        <span class="text-yellow-600 text-xl">⚠️</span>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-800 font-medium mb-2">Cannot change exit date</p>
+                            <p class="text-sm text-gray-700 mb-2">A queued deal <a href="#" onclick="window.open('#/deal/12345', '_blank'); return false;" class="text-blue-600 hover:underline font-medium">Tech Solutions Pvt Ltd - Q4 2025</a> shares the same inventory.</p>
+                            <p class="text-xs text-gray-600 bg-blue-50 p-2 rounded border border-blue-200">💡 To change the exit date, please archive the queued deal first.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">Exit Date for <span id="exitCompanyName"></span> <span class="text-red-500">*</span></label>
+                    <input id="exitDateInput" type="text" placeholder="DD/MM/YYYY" class="w-full px-4 py-2 border border-gray-300 rounded-lg" oninput="validateExitForm()">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">Exit Reason <span class="text-red-500">*</span></label>
+                    <select id="exitReason" class="w-full px-4 py-2 border border-gray-300 rounded-lg" onchange="validateExitForm()">
+                        <option value="">Select Reason</option>
+                        <option>Acquiring own space</option>
+                        <option>Switching to work from home/remote</option>
+                        <option>Moving to cheaper space</option>
+                        <option>Received free space elsewhere</option>
+                        <option>Relocated to new office</option>
+                        <option>Pricing issue</option>
+                        <option>Others</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">Comment <span class="text-red-500">*</span></label>
+                    <textarea id="exitComment" placeholder="Write your comment here.." rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg resize-none" oninput="validateExitForm()"></textarea>
+                </div>
+            </div>
+            <div class="flex items-center justify-center gap-3 px-6 py-4 border-t border-gray-200">
+                <button onclick="closeExitDateModal()" class="px-8 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 font-medium">Cancel</button>
+                <button id="exitSubmitBtn" disabled class="px-8 py-2 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed font-medium">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Exit Modal -->
+    <div id="cancelExitModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold">Cancel Exit</h2>
+                <button onclick="closeCancelExitModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+            <div class="px-6 py-6">
+                <p class="text-gray-500 mb-6">Update the Exit date agreed by the BHIVE team and customer</p>
+                <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div class="flex items-start gap-2">
+                        <span class="text-yellow-600 text-xl">⚠️</span>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-800 font-medium mb-2">Cannot cancel exit</p>
+                            <p class="text-sm text-gray-700 mb-2">A queued deal <a href="#" onclick="window.open('#/deal/12345', '_blank'); return false;" class="text-blue-600 hover:underline font-medium">Tech Solutions Pvt Ltd - Q4 2025</a> shares the same inventory.</p>
+                            <p class="text-xs text-gray-600 bg-blue-50 p-2 rounded border border-blue-200">💡 To cancel the exit, please archive the queued deal first.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">Exit Date for Cabin Deal</label>
+                    <input type="text" value="31/01/2026" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed text-gray-500">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">Comment <span class="text-red-500">*</span></label>
+                    <textarea id="cancelExitComment" placeholder="Write your comment here.." rows="4" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg resize-none bg-gray-100 cursor-not-allowed"></textarea>
+                </div>
+            </div>
+            <div class="flex items-center justify-center gap-3 px-6 py-4 border-t border-gray-200">
+                <button onclick="closeCancelExitModal()" class="px-8 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 font-medium">Cancel</button>
+                <button disabled class="px-8 py-2 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed font-medium">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Page Contract Preview -->
+    <div id="contractPreview" class="full-page-preview fixed inset-0 bg-white z-50 overflow-y-auto">
+        <div class="sticky top-0 bg-white border-b border-gray-200 shadow-sm z-10">
+            <div class="max-w-7xl mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <button onclick="closeContractPreview()" class="text-gray-600 hover:text-gray-800">← Back</button>
+                        <div class="h-6 w-px bg-gray-300"></div>
+                        <h1 id="previewTitle" class="text-xl font-semibold">Contract Preview</h1>
+                    </div>
+                    <button onclick="submitContract()" class="px-6 py-2 bg-yellow-400 text-black rounded-lg font-medium hover:bg-yellow-500">Submit Contract</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-6 py-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-xs">✓</div>
+                        <span class="text-sm font-medium">Inventory and Monthly Rental Details</span>
+                    </div>
+                    <div class="w-32 h-0.5 bg-yellow-400"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-xs">✓</div>
+                        <span class="text-sm font-medium">Contract Terms</span>
+                    </div>
+                    <div class="w-32 h-0.5 bg-yellow-400"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-xs">3</div>
+                        <span class="text-sm font-medium">Documents</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 py-6">
+            <div class="mb-6 p-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
+                <div class="grid grid-cols-4 gap-6">
+                    <div><div class="text-xs text-gray-600 mb-1">Contract Number</div><div id="contractNumber" class="text-lg font-bold text-gray-900"></div></div>
+                    <div><div class="text-xs text-gray-600 mb-1">Contract ID</div><div id="contractIdDisplay" class="text-lg font-semibold text-gray-900"></div></div>
+                    <div><div class="text-xs text-gray-600 mb-1">Cognito ID</div><div id="cognitoIdDisplay" class="text-lg font-semibold text-gray-900"></div></div>
+                    <div><div class="text-xs text-gray-600 mb-1">Customer</div><div id="customerDisplay" class="text-lg font-semibold text-gray-900"></div></div>
+                </div>
+            </div>
+
+            <!-- Section 1 -->
+            <div class="mb-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                    <h3 class="font-semibold text-lg flex items-center gap-2">
+                        <span class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-sm">1</span>
+                        Inventory and Monthly Rental Details
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="text-sm font-medium text-gray-600 mb-3">Deal 1</div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="col-span-2"><div class="text-xs text-gray-500 mb-1">Select Deal</div><div class="font-medium">Tylium Technologies Private Limited Expansion - Renewal</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Blocking ID</div><div class="font-medium">35d2cd19</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Status</div><span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-700"><span class="w-2 h-2 rounded-full bg-purple-500"></span>Queued</span></div>
+                        <div class="col-span-2"><div class="text-xs text-gray-500 mb-1">Center</div><div class="font-medium">Garuda BHIVE Workspace BTM Layout Campus</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Floor</div><div class="font-medium">1</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Billable Seats</div><div class="font-medium">8</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Billed Seats</div><div class="font-medium">8</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Price Per Seat</div><div class="font-medium">₹10</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Monthly Fee</div><div class="font-medium text-lg text-green-600">₹80</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2 -->
+            <div class="mb-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                    <h3 class="font-semibold text-lg flex items-center gap-2">
+                        <span class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-sm">2</span>
+                        Contract Terms
+                    </h3>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-4 gap-4 pb-6 border-b border-gray-200">
+                        <div><div class="text-xs text-gray-500 mb-1">Billed Seats</div><div class="font-medium">8</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Monthly Fee</div><div class="font-medium">₹25,064</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Annual Escalation</div><div class="font-medium">0%</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Security Deposit</div><div class="font-medium">₹0</div></div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4 pb-6 border-b border-gray-200">
+                        <div><div class="text-xs text-gray-500 mb-1">Contract Start Date</div><div class="font-medium">February 1, 2020</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Contract End Date</div><div class="font-medium">September 30, 2026</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Tenure</div><div class="font-medium text-yellow-600">6 years 8 months</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Lock-in End Date</div><div class="font-medium">March 31, 2026</div></div>
+                        <div><div class="text-xs text-gray-500 mb-1">Notice Period</div><div class="font-medium">270 Months</div></div>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-3"><input type="checkbox" checked class="w-4 h-4"><h4 class="font-semibold">Security Deposit Installments</h4></div>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 border-y border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">#</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">Due Date</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">Milestone</th>
+                                    <th class="px-4 py-2 text-right font-medium text-gray-600">Amount</th>
+                                    <th class="px-4 py-2 text-center font-medium text-gray-600">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-100">
+                                    <td class="px-4 py-3">1</td>
+                                    <td class="px-4 py-3">22/09/2025</td>
+                                    <td class="px-4 py-3">Execution of LOI</td>
+                                    <td class="px-4 py-3 text-right font-medium">₹21.00</td>
+                                    <td class="px-4 py-3 text-center"><button class="text-blue-600 mr-2">✏️</button><button class="text-red-600">🗑️</button></td>
+                                </tr>
+                                <tr class="border-b border-gray-100">
+                                    <td class="px-4 py-3">2</td>
+                                    <td class="px-4 py-3">27/01/2026</td>
+                                    <td class="px-4 py-3">Execution of LOI</td>
+                                    <td class="px-4 py-3 text-right font-medium">₹9,10,29,103.00</td>
+                                    <td class="px-4 py-3 text-center"><button class="text-blue-600 mr-2">✏️</button><button class="text-red-600">🗑️</button></td>
+                                </tr>
+                                <tr class="border-b border-gray-100">
+                                    <td class="px-4 py-3">3</td>
+                                    <td class="px-4 py-3">27/01/2026</td>
+                                    <td class="px-4 py-3">Before Move-in Day</td>
+                                    <td class="px-4 py-3 text-right font-medium">₹1,29,013.00</td>
+                                    <td class="px-4 py-3 text-center"><button class="text-blue-600 mr-2">✏️</button><button class="text-red-600">🗑️</button></td>
+                                </tr>
+                                <tr class="bg-gray-50 font-semibold">
+                                    <td class="px-4 py-3" colspan="3">Total</td>
+                                    <td class="px-4 py-3 text-right">₹9,11,58,137.00</td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-3">Contract Period & Annual Escalation</h4>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 border-y border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">#</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">Duration</th>
+                                    <th class="px-4 py-2 text-center font-medium text-gray-600">Billable Seats</th>
+                                    <th class="px-4 py-2 text-right font-medium text-gray-600">Fee Per Seat</th>
+                                    <th class="px-4 py-2 text-center font-medium text-gray-600">Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-100">
+                                    <td class="px-4 py-3">1</td>
+                                    <td class="px-4 py-3">09/01/2026 - 31/03/2026</td>
+                                    <td class="px-4 py-3 text-center">8</td>
+                                    <td class="px-4 py-3 text-right">₹1,290.00</td>
+                                    <td class="px-4 py-3 text-center">Yearly</td>
+                                </tr>
+                                <tr class="border-b border-gray-100">
+                                    <td class="px-4 py-3">2</td>
+                                    <td class="px-4 py-3">27/01/2026 - 31/07/2026</td>
+                                    <td class="px-4 py-3 text-center">8</td>
+                                    <td class="px-4 py-3 text-right">₹38,103.00</td>
+                                    <td class="px-4 py-3 text-center">Yearly</td>
+                                </tr>
+                                <tr class="border-b border-gray-100">
+                                    <td class="px-4 py-3">3</td>
+                                    <td class="px-4 py-3">27/01/2026 - 31/08/2026</td>
+                                    <td class="px-4 py-3 text-center">8</td>
+                                    <td class="px-4 py-3 text-right">₹3,21,890.00</td>
+                                    <td class="px-4 py-3 text-center">Yearly</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-3">Rent Free Days</h4>
+                        <div class="mb-4"><div class="text-xs text-gray-500 mb-1">Total Rent Free Days</div><div class="font-medium">21 Days</div></div>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 border-y border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">#</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">Months</th>
+                                    <th class="px-4 py-2 text-right font-medium text-gray-600">Days</th>
+                                    <th class="px-4 py-2 text-center font-medium text-gray-600">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-100"><td class="px-4 py-3">1</td><td class="px-4 py-3">Oct 2025</td><td class="px-4 py-3 text-right">0</td><td class="px-4 py-3 text-center"><button class="text-blue-600">✏️</button></td></tr>
+                                <tr class="border-b border-gray-100"><td class="px-4 py-3">2</td><td class="px-4 py-3">Sep 2025</td><td class="px-4 py-3 text-right">0</td><td class="px-4 py-3 text-center"><button class="text-blue-600">✏️</button></td></tr>
+                                <tr class="border-b border-gray-100"><td class="px-4 py-3">3</td><td class="px-4 py-3">Aug 2025</td><td class="px-4 py-3 text-right">0</td><td class="px-4 py-3 text-center"><button class="text-blue-600">✏️</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-3">Parking</h4>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 border-y border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">Start Date</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">End Date</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">Vehicle Type</th>
+                                    <th class="px-4 py-2 text-right font-medium text-gray-600">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-100"><td class="px-4 py-3">01/01/2026</td><td class="px-4 py-3">31/08/2026</td><td class="px-4 py-3">Two Wheeler</td><td class="px-4 py-3 text-right">10 x ₹1,009.00 = ₹10,090.00</td></tr>
+                                <tr class="bg-gray-50 font-semibold"><td class="px-4 py-3" colspan="3">Total</td><td class="px-4 py-3 text-right">₹10,090.00</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-3">Supplementary Services</h4>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 border-y border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">Charge Type</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">Start Date</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-600">End Date</th>
+                                    <th class="px-4 py-2 text-right font-medium text-gray-600">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-100"><td class="px-4 py-3">Manpower Supply Service</td><td class="px-4 py-3">01/02/2020</td><td class="px-4 py-3">30/09/2026</td><td class="px-4 py-3 text-right">₹12,901.00</td></tr>
+                                <tr class="bg-gray-50 font-semibold"><td class="px-4 py-3" colspan="3">Total</td><td class="px-4 py-3 text-right">₹12,901.00</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-3">Additional Information</h4>
+                        <div class="p-4 bg-gray-50 rounded border border-gray-200 text-sm">testing testing testing testing testing testing testing testing</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3 -->
+            <div class="mb-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                    <h3 class="font-semibold text-lg flex items-center gap-2">
+                        <span class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-sm">3</span>
+                        Documents
+                    </h3>
+                </div>
+                <div class="p-6 space-y-3">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded border border-gray-200">
+                        <div><div class="font-medium">AC Charges</div><div class="text-xs text-gray-500 mt-1">Description: 123</div></div>
+                        <div class="flex items-center gap-3"><span class="text-sm text-green-600">✓ File Uploaded</span><button class="text-blue-600">View</button></div>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded border border-gray-200">
+                        <div><div class="font-medium">Contract Agreement</div><div class="text-xs text-gray-500 mt-1">Description: 13123</div></div>
+                        <div class="flex items-center gap-3"><span class="text-sm text-green-600">✓ File Uploaded</span><button class="text-blue-600">View</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sticky bottom-0 bg-white border-t border-gray-200 shadow-lg">
+            <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                <button onclick="closeContractPreview()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 font-medium">Previous</button>
+                <button onclick="submitContract()" class="px-8 py-2 bg-yellow-400 text-black rounded-lg font-medium hover:bg-yellow-500">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const deals = [
+            { blockingDate: '15-01-2026 05:54:39 PM', seats: 40, exitDate: '', salesPoc: 'Workspace Admin', status: 'Exiting', company: 'INCANUS TECHNOLOGIES' },
+            { blockingDate: '15-01-2026 05:54:14 PM', seats: 32, exitDate: '', salesPoc: 'Workspace Admin', status: 'Occupied', company: 'Tech Solutions' },
+            { blockingDate: '15-01-2026 05:53:53 PM', seats: 62, exitDate: '', salesPoc: 'Workspace Admin', status: 'Exiting', company: 'Digital Innovations' },
+            { blockingDate: '15-01-2026 05:53:28 PM', seats: 39, exitDate: '', salesPoc: 'Workspace Admin', status: 'Occupied', company: 'Creative Minds' },
+            { blockingDate: '16-09-2025 11:43:18 AM', seats: 7, exitDate: '', salesPoc: 'Workspace Admin', status: 'Pending', company: 'Smart Systems' },
+        ];
+
+        const customers = {
+            '1': { name: 'Tech Solutions Pvt Ltd', pan: 'AABCT1234C', tan: 'BLRT12345A', gst: '29AABCT1234C1Z5' },
+            '2': { name: 'Digital Innovations Inc', pan: 'AABDI5678D', tan: 'BLRT67890B', gst: '29AABDI5678D1Z9' },
+            '3': { name: 'Creative Minds LLC', pan: 'AABCM9012E', tan: 'BLRT11223C', gst: '29AABCM9012E1Z3' }
+        };
+
+        let currentDealIndex = null;
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = deals.map((deal, idx) => `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm">${deal.blockingDate}</td>
+                    <td class="px-4 py-3 text-sm">${deal.seats}</td>
+                    <td class="px-4 py-3 text-sm">${deal.exitDate}</td>
+                    <td class="px-4 py-3 text-sm">${deal.salesPoc}</td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs ${
+                            deal.status === 'Exiting' ? 'bg-red-100 text-red-700' :
+                            deal.status === 'Occupied' ? 'bg-purple-100 text-purple-700' :
+                            deal.status === 'Pending' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-700'
+                        }">
+                            <span class="w-2 h-2 rounded-full ${
+                                deal.status === 'Exiting' ? 'bg-red-500' :
+                                deal.status === 'Occupied' ? 'bg-purple-500' :
+                                deal.status === 'Pending' ? 'bg-orange-500' : 'bg-gray-500'
+                            }"></span>
+                            ${deal.status}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-500">N/A</td>
+                    <td class="px-4 py-3">
+                        <div class="relative">
+                            <button onclick="toggleMenu(${idx})" class="p-1 hover:bg-gray-100 rounded">⋮</button>
+                            <div id="menu-${idx}" class="dropdown-menu absolute right-0 mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                                <div class="py-1">
+                                    <button class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50">View Details</button>
+                                    <button onclick="openExitDateModal(${idx})" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50">
+                                        ${deal.status === 'Exiting' ? 'Update Exit Date' : 'Add Exit Date'}
+                                    </button>
+                                    ${deal.status === 'Exiting' ? `<button onclick="openCancelExitModal(${idx})" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50">Cancel Exit</button>` : ''}
+                                    <button onclick="openContractModal()" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50">Add Contract</button>
+                                    <button class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50">Archive Deal</button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleMenu(idx) {
+            const menu = document.getElementById(`menu-${idx}`);
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m !== menu) m.classList.remove('active');
+            });
+            menu.classList.toggle('active');
+        }
+
+        function openContractModal() {
+            document.getElementById('contractModal').classList.add('active');
+            closeAllMenus();
+        }
+
+        function closeContractModal() {
+            document.getElementById('contractModal').classList.remove('active');
+            document.getElementById('contractId').value = '';
+            document.getElementById('cognitoId').value = '';
+            document.getElementById('customerSelect').value = '';
+            document.getElementById('customerDocs').style.display = 'none';
+            updateContinueButton();
+        }
+
+        function handleCustomerSelect() {
+            const select = document.getElementById('customerSelect');
+            const customerId = select.value;
+            if (customerId) {
+                const customer = customers[customerId];
+                document.getElementById('panNumber').textContent = customer.pan;
+                document.getElementById('tanNumber').textContent = customer.tan;
+                document.getElementById('gstNumber').textContent = customer.gst;
+                document.getElementById('customerDocs').style.display = 'block';
+            } else {
+                document.getElementById('customerDocs').style.display = 'none';
+            }
+            updateContinueButton();
+        }
+
+        function updateContinueButton() {
+            const contractId = document.getElementById('contractId').value;
+            const cognitoId = document.getElementById('cognitoId').value;
+            const customer = document.getElementById('customerSelect').value;
+            const btn = document.getElementById('continueBtn');
+            if (contractId && cognitoId && customer) {
+                btn.disabled = false;
+                btn.className = 'px-6 py-2 bg-yellow-400 text-black rounded-lg hover:bg-yellow-500 font-medium';
+            } else {
+                btn.disabled = true;
+                btn.className = 'px-6 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed font-medium';
+            }
+        }
+
+        function openContractPreview() {
+            const contractId = document.getElementById('contractId').value;
+            const cognitoId = document.getElementById('cognitoId').value;
+            const customerId = document.getElementById('customerSelect').value;
+            const customer = customers[customerId];
+            document.getElementById('contractNumber').textContent = `CNT-2026-${contractId}`;
+            document.getElementById('contractIdDisplay').textContent = contractId;
+            document.getElementById('cognitoIdDisplay').textContent = cognitoId;
+            document.getElementById('customerDisplay').textContent = customer.name;
+            document.getElementById('previewTitle').textContent = `Contract Preview - ${customer.name}`;
+            document.getElementById('contractPreview').classList.add('active');
+        }
+
+        function closeContractPreview() {
+            document.getElementById('contractPreview').classList.remove('active');
+        }
+
+        function submitContract() {
+            alert('Contract submitted successfully!');
+            closeContractPreview();
+            closeContractModal();
+        }
+
+        function openExitDateModal(idx) {
+            currentDealIndex = idx;
+            const deal = deals[idx];
+            const modal = document.getElementById('exitDateModal');
+            const title = document.getElementById('exitDateTitle');
+            const warning = document.getElementById('exitWarning');
+            const dateInput = document.getElementById('exitDateInput');
+            const reasonSelect = document.getElementById('exitReason');
+            const commentTextarea = document.getElementById('exitComment');
+            
+            title.textContent = deal.status === 'Exiting' ? 'Update Exit Date' : 'Add Exit Date';
+            document.getElementById('exitCompanyName').textContent = deal.company;
+            
+            if (deal.status === 'Exiting') {
+                warning.style.display = 'block';
+                dateInput.disabled = true;
+                dateInput.className = 'w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed';
+                reasonSelect.disabled = true;
+                reasonSelect.className = 'w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed';
+                commentTextarea.disabled = true;
+                commentTextarea.className = 'w-full px-4 py-2 border border-gray-300 rounded-lg resize-none bg-gray-100 cursor-not-allowed';
+            } else {
+                warning.style.display = 'none';
+                dateInput.disabled = false;
+                dateInput.className = 'w-full px-4 py-2 border border-gray-300 rounded-lg';
+                reasonSelect.disabled = false;
+                reasonSelect.className = 'w-full px-4 py-2 border border-gray-300 rounded-lg';
+                commentTextarea.disabled = false;
+                commentTextarea.className = 'w-full px-4 py-2 border border-gray-300 rounded-lg resize-none';
+            }
+            
+            modal.classList.add('active');
+            closeAllMenus();
+        }
+
+        function closeExitDateModal() {
+            document.getElementById('exitDateModal').classList.remove('active');
+            document.getElementById('exitDateInput').value = '';
+            document.getElementById('exitReason').value = '';
+            document.getElementById('exitComment').value = '';
+        }
+
+        function validateExitForm() {
+            const dateInput = document.getElementById('exitDateInput');
+            const reasonSelect = document.getElementById('exitReason');
+            const commentTextarea = document.getElementById('exitComment');
+            const submitBtn = document.getElementById('exitSubmitBtn');
+            const deal = deals[currentDealIndex];
+            
+            const isValid = dateInput.value.trim() && reasonSelect.value && commentTextarea.value.trim() && deal.status !== 'Exiting';
+            
+            if (isValid) {
+                submitBtn.disabled = false;
+                submitBtn.className = 'px-8 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 font-medium';
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.className = 'px-8 py-2 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed font-medium';
+            }
+        }
+
+        function openCancelExitModal(idx) {
+            document.getElementById('cancelExitModal').classList.add('active');
+            closeAllMenus();
+        }
+
+        function closeCancelExitModal() {
+            document.getElementById('cancelExitModal').classList.remove('active');
+        }
+
+        function closeAllMenus() {
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('active'));
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('button')) {
+                closeAllMenus();
+            }
+        });
+
+        renderTable();
+    </script>
+</body>
+</html>
