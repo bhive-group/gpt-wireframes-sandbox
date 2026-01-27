@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Deals - BHIVE Workspace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        .modal {
+            display: none;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .dropdown-menu {
+            display: none;
+        }
+        .dropdown-menu.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-56 bg-white border-r border-gray-200 flex flex-col">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+                        <span class="text-white text-xs">🐝</span>
+                    </div>
+                    <div>
+                        <div class="font-bold text-sm">BHIVE</div>
+                        <div class="text-xs text-gray-600">WORKSPACE</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto py-2">
+                <div class="px-3 py-2 mx-2 rounded hover:bg-gray-100 cursor-pointer flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                        <span>📦</span>
+                        <span class="text-gray-700">Inventory</span>
+                    </div>
+                </div>
+                <div class="px-3 py-2 mx-2 rounded hover:bg-gray-100 cursor-pointer flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                        <span>🔍</span>
+                        <span class="text-gray-700">Inventory Search</span>
+                    </div>
+                </div>
+                <div class="px-3 py-2 mx-2 rounded hover:bg-gray-100 cursor-pointer flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                        <span>📄</span>
+                        <span class="text-gray-700">Inventory Requests</span>
+                    </div>
+                </div>
+                <div class="px-3 py-2 mx-2 rounded hover:bg-gray-100 cursor-pointer flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                        <span>📥</span>
+                        <span class="text-gray-700">Import Existing Clients</span>
+                    </div>
+                </div>
+                <div class="px-3 py-2 mx-2 rounded hover:bg-gray-100 cursor-pointer flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                        <span>🏢</span>
+                        <span class="text-gray-700">Properties</span>
+                    </div>
+                </div>
+                <div class="px-3 py-2 mx-2 rounded hover:bg-gray-100 cursor-pointer flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                        <span>✓</span>
+                        <span class="text-gray-700">Property Approval</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3 border-t border-gray-200 text-xs text-gray-500">
+                Version: 2.16.1
+            </div>
+
+            <div class="p-3 border-t border-gray-200">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-cyan-400 rounded flex items-center justify-center text-white font-semibold text-xs">
+                        WA
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium">Workspace...</div>
+                        <div class="text-xs text-gray-500">admin@bhive...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+                    <span>Home</span>
+                    <span>›</span>
+                    <span class="text-gray-400">Inventory-deals</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm">👥 All Locations Access</span>
+                </div>
+            </div>
+
+            <!-- Page Title and Actions -->
+            <div class="bg-white px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-2xl font-semibold">Inventory Deals</h1>
+                    <div class="flex gap-3">
+                        <div class="relative">
+                            <input
+                                type="text"
+                                placeholder="Search"
+                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <button class="px-4 py-2 border border-gray-300 rounded-lg flex items-center gap-2 hover:bg-gray-50">
+                            Filters
+                        </button>
+                        <button class="px-4 py-2 bg-yellow-400 text-black rounded-lg font-medium hover:bg-yellow-500">
+                            Block Inventory →
+                        </button>
+                        <button class="px-4 py-2 bg-yellow-400 text-black rounded-lg font-medium hover:bg-yellow-500">
+                            Import Inventory →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="flex-1 overflow-auto px-6 py-4">
+                <table class="w-full bg-white rounded-lg">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Blocking Date</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Billable Seats</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Exit Date</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Sales POC</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Hubspot Status</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-50">«</button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-50">‹</button>
+                    <button class="px-3 py-1 bg-yellow-400 text-black rounded font-medium">1</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">2</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">3</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">4</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">5</button>
+                    <span class="px-2">...</span>
+                    <button class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">62</button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-50">›</button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-50">»</button>
+                </div>
+                <div class="flex items-center gap-4 text-sm text-gray-600">
+                    <span>Total Rows: 1528</span>
+                    <span>Rows Per Page: 25</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Contract Modal -->
+    <div id="contractModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold">Add Contract</h2>
+                <button onclick="closeContractModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+            <div class="px-6 py-6">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Customer *</label>
+                    <select id="customerSelect" onchange="handleCustomerSelect()" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <option value="">Choose a customer...</option>
+                        <option value="1">Tech Solutions Pvt Ltd</option>
+                        <option value="2">Digital Innovations Inc</option>
+                        <option value="3">Creative Minds LLC</option>
+                    </select>
+                </div>
+                <div id="customerDocs" class="border border-gray-200 rounded-lg p-4 bg-gray-50" style="display: none;">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Customer Documents</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
+                            <div>
+                                <div class="text-xs text-gray-500 uppercase">PAN Number</div>
+                                <div id="panNumber" class="font-medium text-gray-800 mt-1"></div>
+                            </div>
+                            <button class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600">View</button>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
+                            <div>
+                                <div class="text-xs text-gray-500 uppercase">TAN Number</div>
+                                <div id="tanNumber" class="font-medium text-gray-800 mt-1"></div>
+                            </div>
+                            <button class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600">View</button>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
+                            <div>
+                                <div class="text-xs text-gray-500 uppercase">GST Number</div>
+                                <div id="gstNumber" class="font-medium text-gray-800 mt-1"></div>
+                            </div>
+                            <button class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600">View</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <button onclick="closeContractModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Cancel</button>
+                <button id="contractContinue" disabled class="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exit Date Modal -->
+    <div id="exitDateModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h2 id="exitDateTitle" class="text-xl font-semibold">Add Exit Date</h2>
+                <button onclick="closeExitDateModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+            <div class="px-6 py-6">
+                <p class="text-gray-500 mb-6">Exit date agreed by the BHIVE team and customer</p>
+                <div id="exitWarning" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg" style="display: none;">
+                    <div class="flex items-start gap-2">
+                        <span class="text-yellow-600 text-xl">⚠️</span>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-800 font-medium mb-2">Cannot change exit date</p>
+                            <p class="text-sm text-gray-700 mb-2">
+                                A queued deal <a href="#" class="text-blue-600 hover:underline font-medium">Tech Solutions Pvt Ltd - Q4 2025</a> shares the same inventory.
+                            </p>
+                            <p class="text-xs text-gray-600 bg-blue-50 p-2 rounded border border-blue-200">
+                                💡 To change the exit date, please archive the queued deal first.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">Exit Date for <span id="exitCompanyName"></span> <span class="text-red-500">*</span></label>
+                    <input id="exitDateInput" type="text" placeholder="DD/MM/YYYY" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">Exit Reason <span class="text-red-500">*</span></label>
+                    <select id="exitReason" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <option value="">Select Reason</option>
+                        <option>Acquiring own space</option>
+                        <option>Switching to work from home/remote</option>
+                        <option>Moving to cheaper space</option>
+                        <option>Received free space elsewhere</option>
+                        <option>Relocated to new office</option>
+                        <option>Pricing issue</option>
+                        <option>Others</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">Comment <span class="text-red-500">*</span></label>
+                    <textarea id="exitComment" placeholder="Write your comment here.." rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg resize-none"></textarea>
+                </div>
+            </div>
+            <div class="flex items-center justify-center gap-3 px-6 py-4 border-t border-gray-200">
+                <button onclick="closeExitDateModal()" class="px-8 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 font-medium">Cancel</button>
+                <button id="exitDateSubmit" disabled class="px-8 py-2 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed font-medium">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Exit Modal -->
+    <div id="cancelExitModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold">Cancel Exit</h2>
+                <button onclick="closeCancelExitModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+            <div class="px-6 py-6">
+                <p class="text-gray-500 mb-6">Update the Exit date agreed by the BHIVE team and customer</p>
+                <div id="cancelExitWarning" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div class="flex items-start gap-2">
+                        <span class="text-yellow-600 text-xl">⚠️</span>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-800 font-medium mb-2">Cannot cancel exit</p>
+                            <p class="text-sm text-gray-700 mb-2">
+                                A queued deal <a href="#" class="text-blue-600 hover:underline font-medium">Tech Solutions Pvt Ltd - Q4 2025</a> shares the same inventory.
+                            </p>
+                            <p class="text-xs text-gray-600 bg-blue-50 p-2 rounded border border-blue-200">
+                                💡 To cancel the exit, please archive the queued deal first.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">Exit Date for Cabin Deal</label>
+                    <input type="text" value="31/01/2026" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed text-gray-500">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-900 mb-2">Comment <span class="text-red-500">*</span></label>
+                    <textarea id="cancelExitComment" placeholder="Write your comment here.." rows="4" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg resize-none bg-gray-100 cursor-not-allowed"></textarea>
+                </div>
+            </div>
+            <div class="flex items-center justify-center gap-3 px-6 py-4 border-t border-gray-200">
+                <button onclick="closeCancelExitModal()" class="px-8 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 font-medium">Cancel</button>
+                <button disabled class="px-8 py-2 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed font-medium">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const deals = [
+            { blockingDate: '15-01-2026 05:54:39 PM', seats: 40, exitDate: '', salesPoc: 'Workspace Admin', status: 'Exiting', company: 'INCANUS TECHNOLOGIES PRIVATE LIMITED' },
+            { blockingDate: '15-01-2026 05:54:14 PM', seats: 32, exitDate: '', salesPoc: 'Workspace Admin', status: 'Occupied', company: 'Tech Solutions Pvt Ltd' },
+            { blockingDate: '15-01-2026 05:53:53 PM', seats: 62, exitDate: '', salesPoc: 'Workspace Admin', status: 'Exiting', company: 'Digital Innovations Inc' },
+            { blockingDate: '15-01-2026 05:53:28 PM', seats: 39, exitDate: '', salesPoc: 'Workspace Admin', status: 'Occupied', company: 'Creative Minds LLC' },
+            { blockingDate: '15-01-2026 05:51:48 PM', seats: 35, exitDate: '', salesPoc: 'Workspace Admin', status: 'Occupied', company: 'Global Enterprises' },
+            { blockingDate: '16-09-2025 11:43:18 AM', seats: 7, exitDate: '', salesPoc: 'Workspace Admin', status: 'Pending', company: 'Smart Systems Co' },
+            { blockingDate: '16-09-2025 11:40:40 AM', seats: 2, exitDate: '', salesPoc: 'Workspace Admin', status: 'Occupied', company: 'Innovative Tech Ltd' },
+            { blockingDate: '12-08-2025 12:17:34 PM', seats: 12, exitDate: '', salesPoc: 'Shalini Das', status: 'Occupied', company: 'Future Works Inc' },
+            { blockingDate: '07-08-2025 04:19:37 PM', seats: 3, exitDate: '', salesPoc: 'Shalini Das', status: 'Occupied', company: 'NextGen Solutions' },
+            { blockingDate: '07-08-2025 04:17:37 PM', seats: 20, exitDate: '17/08/2025', salesPoc: 'Shalini Das', status: 'Exited', company: 'Alpha Ventures' },
+        ];
+
+        const customers = {
+            '1': { name: 'Tech Solutions Pvt Ltd', pan: 'AABCT1234C', tan: 'BLRT12345A', gst: '29AABCT1234C1Z5' },
+            '2': { name: 'Digital Innovations Inc', pan: 'AABDI5678D', tan: 'BLRT67890B', gst: '29AABDI5678D1Z9' },
+            '3': { name: 'Creative Minds LLC', pan: 'AABCM9012E', tan: 'BLRT11223C', gst: '29AABCM9012E1Z3' }
+        };
+
+        let currentDeal = null;
+
+        function getStatusClass(status) {
+            if (status === 'Occupied') return 'bg-purple-100 text-purple-700';
+            if (status === 'Pending') return 'bg-orange-100 text-orange-700';
+            if (status === 'Exiting') return 'bg-red-100 text-red-700';
+            return 'bg-gray-100 text-gray-700';
+        }
+
+        function getDotClass(status) {
+            if (status === 'Occupied') return 'bg-purple-500';
+            if (status === 'Pending') return 'bg-orange-500';
+            if (status === 'Exiting') return 'bg-red-500';
+            return 'bg-gray-500';
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = deals.map((deal, idx) => `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm">${deal.blockingDate}</td>
+                    <td class="px-4 py-3 text-sm">${deal.seats}</td>
+                    <td class="px-4 py-3 text-sm">${deal.exitDate}</td>
+                    <td class="px-4 py-3 text-sm">${deal.salesPoc}</td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs ${getStatusClass(deal.status)}">
+                            <span class="w-2 h-2 rounded-full ${getDotClass(deal.status)}"></span>
+                            ${deal.status}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-500">N/A</td>
+                    <td class="px-4 py-3">
+                        <div class="relative">
+                            <button onclick="toggleMenu(${idx})" class="p-1 hover:bg-gray-100 rounded">⋮</button>
+                            <div id="menu-${idx}" class="dropdown-menu absolute right-0 mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                                <div class="py-1">
+                                    <button class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50">View Details</button>
+                                    <button onclick="openExitDateModal(${idx})" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50">
+                                        ${deal.status === 'Exiting' ? 'Update Exit Date' : 'Add Exit Date'}
+                                    </button>
+                                    ${deal.status === 'Exiting' ? `<button onclick="openCancelExitModal(${idx})" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50">Cancel Exit</button>` : ''}
+                                    <button onclick="openContractModal()" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50">Add Contract</button>
+                                    <button class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50">Archive Deal</button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleMenu(idx) {
+            const menu = document.getElementById(`menu-${idx}`);
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m !== menu) m.classList.remove('active');
+            });
+            menu.classList.toggle('active');
+        }
+
+        function openContractModal() {
+            document.getElementById('contractModal').classList.add('active');
+            closeAllMenus();
+        }
+
+        function closeContractModal() {
+            document.getElementById('contractModal').classList.remove('active');
+            document.getElementById('customerSelect').value = '';
+            document.getElementById('customerDocs').style.display = 'none';
+        }
+
+        function handleCustomerSelect() {
+            const select = document.getElementById('customerSelect');
+            const customerId = select.value;
+            const continueBtn = document.getElementById('contractContinue');
+            
+            if (customerId) {
+                const customer = customers[customerId];
+                document.getElementById('panNumber').textContent = customer.pan;
+                document.getElementById('tanNumber').textContent = customer.tan;
+                document.getElementById('gstNumber').textContent = customer.gst;
+                document.getElementById('customerDocs').style.display = 'block';
+                continueBtn.disabled = false;
+                continueBtn.className = 'px-4 py-2 bg-yellow-400 text-black rounded-lg hover:bg-yellow-500 font-medium';
+            } else {
+                document.getElementById('customerDocs').style.display = 'none';
+                continueBtn.disabled = true;
+                continueBtn.className = 'px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed';
+            }
+        }
+
+        function openExitDateModal(idx) {
+            currentDeal = deals[idx];
+            const modal = document.getElementById('exitDateModal');
+            const title = document.getElementById('exitDateTitle');
+            const warning = document.getElementById('exitWarning');
+            const dateInput = document.getElementById('exitDateInput');
+            const reasonSelect = document.getElementById('exitReason');
+            const commentTextarea = document.getElementById('exitComment');
+            
+            title.textContent = currentDeal.status === 'Exiting' ? 'Update Exit Date' : 'Add Exit Date';
+            document.getElementById('exitCompanyName').textContent = currentDeal.company;
+            
+            if (currentDeal.status === 'Exiting') {
+                warning.style.display = 'block';
+                dateInput.disabled = true;
+                dateInput.className = 'w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed';
+                reasonSelect.disabled = true;
+                reasonSelect.className = 'w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed';
+                commentTextarea.disabled = true;
+                commentTextarea.className = 'w-full px-4 py-2 border border-gray-300 rounded-lg resize-none bg-gray-100 cursor-not-allowed';
+            } else {
+                warning.style.display = 'none';
+                dateInput.disabled = false;
+                reasonSelect.disabled = false;
+                commentTextarea.disabled = false;
+            }
+            
+            modal.classList.add('active');
+            closeAllMenus();
+        }
+
+        function closeExitDateModal() {
+            document.getElementById('exitDateModal').classList.remove('active');
+            document.getElementById('exitDateInput').value = '';
+            document.getElementById('exitReason').value = '';
+            document.getElementById('exitComment').value = '';
+        }
+
+        function openCancelExitModal(idx) {
+            document.getElementById('cancelExitModal').classList.add('active');
+            closeAllMenus();
+        }
+
+        function closeCancelExitModal() {
+            document.getElementById('cancelExitModal').classList.remove('active');
+            document.getElementById('cancelExitComment').value = '';
+        }
+
+        function closeAllMenus() {
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('active'));
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('button')) {
+                closeAllMenus();
+            }
+        });
+
+        renderTable();
+    </script>
+</body>
+</html>
