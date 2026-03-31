@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Contract Members</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f3ef;color:#1a1917;font-size:13px;line-height:1.5;min-height:100vh}
+button,input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#ccc9c0;border-radius:4px}
+.nav{height:50px;display:flex;align-items:center;padding:0 24px;background:#fff;border-bottom:1px solid #eae8e2;position:sticky;top:0;z-index:100}
+.logo{font-size:14px;font-weight:800;color:#0f0e0c;letter-spacing:-.4px;display:flex;align-items:center;gap:7px;margin-right:28px}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:#e8a020}
+.bc{display:flex;align-items:center;gap:2px;flex:1}
+.bc a{font-size:12px;color:#9a9893;cursor:pointer;padding:3px 7px;border-radius:5px;font-weight:500;text-decoration:none;transition:all .12s}
+.bc a:hover{background:#f4f3ef;color:#1a1917}
+.bc-sep{color:#d0cfc9;font-size:10px;margin:0 1px}
+.bc-cur{font-size:12px;color:#1a1917;font-weight:600;padding:3px 7px}
+.nav-r{margin-left:auto}
+.nav-user{display:flex;align-items:center;gap:7px;padding:4px 11px;border-radius:20px;background:#f4f3ef;border:1px solid #eae8e2;cursor:pointer;font-size:12px;color:#6b6a65;font-weight:500}
+.nav-av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#534ab7,#185fa5);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700}
+.shell{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 50px)}
+.sb{background:#fff;border-right:1px solid #eae8e2;padding:16px 0;position:sticky;top:50px;height:calc(100vh - 50px);overflow-y:auto;display:flex;flex-direction:column}
+.sb-sec{padding:0 10px}
+.sb-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.9px;color:#c8c7c0;padding:0 8px;margin:10px 0 4px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:12px;color:#6b6a65;font-weight:500;transition:all .12s;user-select:none}
+.sb-item:hover{background:#f4f3ef;color:#1a1917}
+.sb-item.active{background:#fff8ec;color:#9a6010;font-weight:600}
+.sb-ico{font-size:13px;width:16px;text-align:center;flex-shrink:0}
+.sb-cnt{margin-left:auto;font-size:10px;font-weight:700;background:#f0efea;color:#9a9893;padding:1px 6px;border-radius:6px}
+.sb-item.active .sb-cnt{background:rgba(232,160,32,.15);color:#9a6010}
+.sb-div{height:1px;background:#f0efea;margin:10px 10px}
+.sb-info{padding:12px 18px;margin-top:auto;border-top:1px solid #f0efea}
+.sb-info-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#c8c7c0;margin-bottom:3px;margin-top:8px}
+.sb-info-lbl:first-child{margin-top:0}
+.sb-info-val{font-size:12px;font-weight:600;color:#1a1917}
+.sb-info-mono{font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:#4a4946;background:#f4f3ef;padding:2px 7px;border-radius:5px;display:inline-block}
+.main{display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.ph{padding:20px 24px 0;background:#fff;border-bottom:1px solid #eae8e2;flex-shrink:0}
+.ph-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.ph-left{display:flex;align-items:center;gap:10px}
+.ph-back{width:30px;height:30px;border-radius:7px;border:1px solid #eae8e2;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:#9a9893;transition:all .12s;flex-shrink:0}
+.ph-back:hover{background:#f4f3ef;color:#1a1917}
+.ph-title{font-size:18px;font-weight:800;color:#0f0e0c;letter-spacing:-.4px}
+.ph-sub{font-size:11px;color:#b0afa9;margin-top:1px}
+.ph-actions{display:flex;gap:8px}
+.tabs{display:flex}
+.tab{padding:11px 14px 10px;border:none;background:transparent;cursor:pointer;font-size:13px;font-weight:500;color:#9a9893;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.tab:hover{color:#4a4946}
+.tab.on{color:#1a1917;font-weight:700;border-bottom-color:#e8a020}
+.tab-pill{font-size:10px;font-weight:700;padding:1px 6px;border-radius:7px;background:#f0efea;color:#9a9893}
+.tab.on .tab-pill{background:rgba(232,160,32,.12);color:#9a6010}
+.content{padding:20px 24px;flex:1;overflow-y:auto;min-height:0}
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:nowrap}
+.search-box{position:relative;width:240px;flex-shrink:0}
+.s-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#c8c7c0;font-size:14px;pointer-events:none}
+.s-inp{width:100%;height:34px;padding:0 11px 0 32px;border-radius:7px;border:1px solid #e5e3dd;background:#fff;font-size:12px;color:#1a1917;outline:none;transition:all .15s}
+.s-inp:focus{border-color:#e8a020;box-shadow:0 0 0 3px rgba(232,160,32,.1)}
+.s-inp::placeholder{color:#c8c7c0}
+.vsep{width:1px;height:18px;background:#e5e3dd;flex-shrink:0}
+.tb-space{flex:1}
+.fw{position:relative;flex-shrink:0}
+.fb{height:34px;padding:0 12px;border-radius:7px;border:1px solid #e5e3dd;background:#fff;font-size:12px;font-weight:500;color:#4a4946;display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;transition:all .15s;user-select:none}
+.fb:hover{background:#f4f3ef;border-color:#c8c7c0}
+.fb.on{border-color:#e8a020;background:rgba(232,160,32,.04);color:#9a6010}
+.fc{background:#e8a020;color:#fff;font-size:9px;font-weight:800;padding:1px 5px;border-radius:6px;min-width:17px;text-align:center;line-height:15px}
+.fdrop{position:absolute;top:calc(100% + 5px);left:0;z-index:500;background:#fff;border:1px solid #e0dfd9;border-radius:11px;min-width:220px;box-shadow:0 12px 40px rgba(0,0,0,.12);overflow:hidden;display:none}
+.fdrop.open{display:block}
+.fdrop-h{padding:9px 13px 7px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f0efea;background:#f9f8f5}
+.fdrop-h span{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#b0afa9}
+.fdrop-acts button{font-size:11px;font-weight:600;background:none;border:none;cursor:pointer;padding:0;margin-left:8px}
+.fdrop-acts .fa-all{color:#185fa5}
+.fdrop-acts .fa-rst{color:#c0bfb9}
+.fi{display:flex;align-items:center;justify-content:space-between;padding:8px 13px;cursor:pointer;border-bottom:1px solid #faf9f6;transition:background .1s;user-select:none}
+.fi:last-child{border-bottom:none}
+.fi:hover{background:#f9f8f5}
+.fi-l{display:flex;align-items:center;gap:8px}
+.fi-n{font-size:10px;font-weight:700;color:#b0afa9;background:#f4f3ef;padding:1px 6px;border-radius:6px;min-width:20px;text-align:center}
+.drop-item{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;cursor:pointer;border-bottom:1px solid #f5f4f0;transition:background .1s}
+.drop-item:last-child{border-bottom:none}
+.drop-item:hover{background:#f9f8f5}
+.drop-item.dim{opacity:.32;pointer-events:none}
+.di-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.di-lbl{font-size:12px;font-weight:700;color:#1a1917;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.di-sub{font-size:11px;color:#9a9893;line-height:1.4}
+.gbtn{height:34px;padding:0 11px;border-radius:7px;border:1px solid #e5e3dd;background:#fff;font-size:12px;color:#6b6a65;display:flex;align-items:center;gap:5px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.gbtn:hover{background:#f4f3ef}
+.gq{width:15px;height:15px;border-radius:50%;border:1.5px solid #b0afa9;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#b0afa9}
+.btn-amber{height:34px;padding:0 16px;border-radius:7px;background:#e8a020;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.btn-amber:hover:not(:disabled){background:#d4911c}
+.btn-amber:disabled{opacity:.28;cursor:default;pointer-events:none}
+.btn-red{height:34px;padding:0 16px;border-radius:7px;background:#e05c5c;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.btn-red:hover:not(:disabled){background:#cc4a4a}
+.btn-red:disabled{opacity:.28;cursor:default;pointer-events:none}
+.tbl-wrap{background:#fff;border-radius:11px;border:1px solid #eae8e2;overflow:hidden}
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:860px}
+thead tr{background:#f9f8f5}
+th{padding:9px 13px;text-align:left;font-size:9px;font-weight:800;color:#c8c7c0;white-space:nowrap;text-transform:uppercase;letter-spacing:.7px;border-bottom:1px solid #f0efea}
+th.c,td.c{text-align:center}
+td{padding:11px 13px;vertical-align:middle;border-bottom:1px solid #f5f4f0;font-size:12px}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background .08s}
+tbody tr:hover td{background:#fdfcf9}
+tbody tr.rs td{background:#fffdf5}
+tbody tr.rs:hover td{background:#fff9e8}
+.cb-lock{display:inline-block;width:13px;height:13px;border-radius:3px;background:#f4f3ef;border:1px solid #e5e3dd;cursor:not-allowed}
+.nc{display:flex;align-items:center;gap:9px}
+.nm{font-weight:600;color:#0f0e0c;font-size:12px}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.bdot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
+.tog{width:28px;height:16px;border-radius:8px;position:relative;display:inline-block;flex-shrink:0}
+.tok{width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:2px;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.ra{display:flex;justify-content:center;align-items:center;gap:2px}
+.ib{width:26px;height:26px;border-radius:6px;border:1px solid #eae8e2;background:transparent;display:flex;align-items:center;justify-content:center;font-size:11px;color:#c8c7c0;cursor:pointer;transition:all .12s}
+.ib:hover{background:#f4f3ef;border-color:#d0cfc9;color:#1a1917}
+.mw{position:relative;display:inline-block}
+.mdrop{position:absolute;right:0;top:calc(100% + 3px);z-index:500;background:#fff;border:1px solid #e0dfd9;border-radius:9px;min-width:168px;box-shadow:0 8px 28px rgba(0,0,0,.11);overflow:hidden;display:none}
+.mdrop.open{display:block}
+.mi{width:100%;padding:8px 12px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:12px;font-weight:500;color:#1a1917;display:flex;align-items:center;gap:8px;transition:background .1s}
+.mi:hover{background:#f9f8f5}
+.mi-ic{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.mi.g{color:#0a5c45;font-weight:600}.mi.r{color:#8b2020;font-weight:600}.mi.a{color:#7a4500;font-weight:600}
+.msep{height:1px;background:#f5f4f0;margin:2px 0}
+.mv-cell{display:flex;flex-direction:column;gap:4px}
+.mv-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#c8c7c0}
+.mv-contract{font-family:'SF Mono','Fira Code',monospace;font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;display:inline-block}
+.mv-note{font-size:10px;color:#b0afa9;margin-top:1px}
+.tbl-foot{padding:10px 18px;border-top:1px solid #f5f4f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;background:#fdfcfa}
+.tft{font-size:11px;color:#c8c7c0}
+.tft strong{color:#9a9893}
+.spills{display:flex;gap:4px;flex-wrap:wrap}
+.sp{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;background:#f4f3ef;border:1px solid #eae8e2;font-size:10px;color:#6b6a65;font-weight:600}
+.sdot{width:4px;height:4px;border-radius:50%}
+.empty{padding:72px 20px;text-align:center}
+.empty-e{font-size:32px;margin-bottom:12px}
+.empty-t{font-size:14px;font-weight:700;color:#6b6a65;margin-bottom:5px}
+.empty-s{font-size:12px;color:#c8c7c0}
+.btn{height:34px;padding:0 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap;border:none}
+.btn-ghost{background:#fff;border:1px solid #e5e3dd;color:#4a4946}.btn-ghost:hover{background:#f4f3ef}
+.btn-solid{background:#e8a020;color:#fff}.btn-solid:hover{background:#d4911c}
+.btn-danger{background:#c0392b;color:#fff}.btn-danger:hover{background:#a93224}
+.btn-danger[disabled],.btn[disabled]{opacity:.4;cursor:default;pointer-events:none}
+.btn-success{background:#0f6e56;color:#fff}.btn-success:hover{background:#0a5c45}
+.ov{position:fixed;inset:0;z-index:200;background:rgba(10,9,8,.28);backdrop-filter:blur(3px)}
+.dr{position:fixed;top:0;right:0;bottom:0;z-index:201;background:#fff;display:flex;flex-direction:column;box-shadow:-16px 0 56px rgba(0,0,0,.10)}
+.dr-sm{width:430px}.dr-md{width:476px}
+.dr-head{padding:20px 22px 16px;border-bottom:1px solid #eae8e2;flex-shrink:0}
+.dr-hr{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.dr-title{font-size:16px;font-weight:800;letter-spacing:-.3px;color:#0f0e0c}
+.dr-sub{font-size:11px;color:#b0afa9;margin-top:3px}
+.dr-x{width:28px;height:28px;border-radius:7px;border:1px solid #eae8e2;background:#fff;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;color:#b0afa9;transition:all .12s;flex-shrink:0}
+.dr-x:hover{background:#f4f3ef;color:#1a1917}
+.dr-body{flex:1;overflow-y:auto;padding:20px 22px}
+.dr-foot{padding:14px 22px;border-top:1px solid #eae8e2;display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;background:#f9f8f5}
+.sl{font-size:9px;font-weight:800;color:#b0afa9;margin-bottom:7px;text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:3px}
+.req{color:#c0392b}
+.hint{font-size:11px;color:#c8c7c0;margin-bottom:16px;line-height:1.55}
+.inp{width:100%;height:38px;padding:0 13px;border-radius:8px;border:1px solid #e5e3dd;font-size:13px;background:#fff;color:#1a1917;outline:none;transition:all .15s}
+.inp:focus{border-color:#e8a020;box-shadow:0 0 0 3px rgba(232,160,32,.1)}
+.ta{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #e5e3dd;font-size:13px;resize:vertical;background:#fff;color:#1a1917;outline:none;transition:all .15s;line-height:1.6;min-height:88px}
+.ta:focus{border-color:#e8a020;box-shadow:0 0 0 3px rgba(232,160,32,.1)}
+.sinp{width:100%;height:38px;padding:0 32px 0 13px;border-radius:8px;border:1px solid #e5e3dd;font-size:13px;background:#fff;color:#1a1917;outline:none;cursor:pointer;margin-bottom:14px;appearance:none;transition:all .15s}
+.sinp:focus{border-color:#e8a020;box-shadow:0 0 0 3px rgba(232,160,32,.1)}
+.rrow{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:8px;cursor:pointer;border:1.5px solid #eae8e2;background:#fff;margin-bottom:7px;transition:all .15s;user-select:none}
+.rrow:hover{border-color:#c8c7c0}
+.rrow.on{border-color:#e8a020;background:rgba(232,160,32,.04)}
+.rc{width:16px;height:16px;border-radius:50%;border:2px solid #d0cfc9;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.rc.on{border-color:#e8a020}
+.rdot{width:7px;height:7px;border-radius:50%;background:#e8a020}
+.rl{font-size:13px;font-weight:500;color:#1a1917}
+.rl.on{font-weight:600}
+.su-list{border:1px solid #eae8e2;border-radius:10px;overflow:hidden;margin-bottom:20px}
+.su-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f5f4f0;background:#fdfcfa}
+.su-row:last-child{border-bottom:none}
+.bn{border-radius:10px;padding:12px 14px;margin-bottom:16px;display:flex;gap:10px;line-height:1.6}
+.bn-ico{flex-shrink:0;font-size:14px;margin-top:1px}
+.bn-title{font-size:12px;font-weight:700;margin-bottom:2px}
+.bn-msg{font-size:12px}
+.bne{background:#fdf2f2;border:1px solid #f0c8c8}.bne .bn-ico,.bne .bn-title,.bne .bn-msg{color:#8b2020}
+.bnw{background:#fffcf0;border:1px solid #f0e080}.bnw .bn-title{color:#6b3800}.bnw .bn-ico,.bnw .bn-msg{color:#9a5e00}
+.bni{background:#f0faf6;border:1px solid #9ed8c0}.bni .bn-ico,.bni .bn-title,.bni .bn-msg{color:#0a5c45}
+.lct{border:1px solid #eae8e2;border-radius:10px;overflow:hidden;margin-bottom:20px}
+.lc-r{display:grid;grid-template-columns:1.1fr 1fr 1fr;border-bottom:1px solid #eae8e2}
+.lc-r:last-child{border-bottom:none}
+.lcc{padding:11px 13px}
+.lcc.sh{background:#f9f8f5;border-right:1px solid #eae8e2}
+.lcc.md{border-right:1px solid #eae8e2}
+.lc-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#c8c7c0;margin-bottom:4px}
+.lc-nm{font-size:12px;font-weight:600;color:#1a1917}
+.lc-note{font-size:10px;color:#b0afa9;margin-top:2px}
+.cbox{border:1px solid #eae8e2;border-radius:10px;padding:14px 16px;margin-bottom:16px;background:#fdfcfa}
+.cbox-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
+.cbox-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#b0afa9}
+.cbox-s{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px 20px}
+.cf-l{font-size:9px;color:#c8c7c0;margin-bottom:2px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.cf-v{font-size:12px;font-weight:600;color:#1a1917}
+.yts{margin-top:11px;padding:9px 12px;background:#f5f0fe;border:1px solid #c8bcf5;border-radius:8px}
+.yts-t{font-size:12px;color:#3d3490;font-weight:700}
+.yts-s{font-size:10px;color:#534ab7;margin-top:2px}
+.mov{position:fixed;inset:0;z-index:300;background:rgba(10,9,8,.42);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.mo{background:#fff;border-radius:16px;padding:28px 26px 24px;position:relative}
+.mo-x{position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:7px;border:1px solid #eae8e2;background:#fff;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;color:#b0afa9;transition:all .12s}
+.mo-x:hover{background:#f4f3ef;color:#1a1917}
+.mo-icon{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.mo-icon-in{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:800}
+.mo-title{font-size:17px;font-weight:800;margin-bottom:6px;line-height:1.3;letter-spacing:-.3px;color:#0f0e0c}
+.mo-desc{font-size:13px;color:#6b6a65;margin-bottom:20px;line-height:1.65}
+.mo-btns{display:flex;gap:9px;margin-top:4px}
+.mo-cancel{flex:1;height:40px;border-radius:8px;border:1px solid #e5e3dd;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#4a4946;transition:background .15s}
+.mo-cancel:hover{background:#f4f3ef}
+.mo-confirm{flex:1;height:40px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:filter .15s}
+.mo-confirm:hover:not([disabled]){filter:brightness(1.07)}
+.mo-confirm[disabled]{cursor:default;filter:none}
+.og{display:grid;grid-template-columns:1fr 1fr;border:1px solid #eae8e2;border-radius:10px;overflow:hidden;margin-bottom:16px}
+.oc{padding:13px 15px}
+.oc:first-child{border-right:1px solid #eae8e2}
+.oc-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#c8c7c0;margin-bottom:8px}
+.ibox{background:#f9f8f5;border-radius:9px;padding:13px 15px;border:1px solid #eae8e2;margin-top:14px}
+.ibox-t{font-size:12px;font-weight:700;margin-bottom:5px;color:#1a1917}
+.ibox-b{font-size:12px;color:#6b6a65;line-height:1.85}
+.lmo{background:#fff;border-radius:16px;width:480px;max-height:86vh;overflow-y:auto;padding:26px}
+.lr{display:flex;align-items:flex-start;gap:11px;padding:10px 13px;background:#f9f8f5;border-radius:9px;border:1px solid #eae8e2;margin-bottom:7px}
+.ldesc{font-size:12px;color:#6b6a65;line-height:1.6;padding-top:2px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;border-radius:11px;padding:11px 15px 11px 12px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:9px;max-width:400px;min-width:240px;animation:tUp .22s ease;box-shadow:0 12px 48px rgba(0,0,0,.18)}
+@keyframes tUp{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.toast.success{background:#0f6e56;color:#fff}
+.toast.error{background:#8b2020;color:#fff}
+.toast.warning{background:#1a1917;color:#fff}
+.t-ico{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.t-x{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.55);font-size:12px;padding:0;margin-left:4px;line-height:1}
+.t-x:hover{color:#fff}
+.av{border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0}
+.phtab{padding:72px 24px;text-align:center;color:#c8c7c0;flex:1}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+var firstNames=["Aarav","Vivaan","Aditya","Vihaan","Arjun","Sai","Reyansh","Ayaan","Krishna","Ishaan","Shaurya","Atharv","Advik","Pranav","Advait","Dhruv","Kabir","Ritvik","Aarush","Darsh","Priya","Ananya","Isha","Kavya","Riya","Pooja","Nisha","Meera","Sanya","Tanvi","Aditi","Divya","Neha","Shruti","Swati","Pallavi","Sonali","Manasi","Deepa","Rekha"];
+var lastNames=["Sharma","Patel","Singh","Kumar","Mehta","Nair","Joshi","Gupta","Shah","Verma","Reddy","Rao","Iyer","Pillai","Menon","Desai","Bhat","Kaur","Malhotra","Chopra"];
+function makeMember(id,status,extra){
+  var fn=firstNames[(id-1)%firstNames.length];
+  var ln=lastNames[(id-1)%lastNames.length];
+  var base={id:id,firstName:fn,lastName:ln,email:fn.toLowerCase()+"."+ln.toLowerCase()+"@yopmail.com",phone:"9"+String(800000000+id),phone2:null,benefits:"None",wfa:false,permissions:"None",kyc:id%3===0,photo:false,subProduct:"CABIN",status:status,disabledOn:null,disabledBy:null,reason:null,movedTo:null,movingTo:null};
+  if(extra)Object.assign(base,extra);
+  return base;
+}
+var MD=[];
+for(var i=1;i<=50;i++) MD.push(makeMember(i,"active"));
+MD[2].status="deactivated";MD[2].disabledOn="2024-11-15";MD[2].disabledBy="admin@memberv3.com";MD[2].reason="Violated terms of service.";
+MD[3].status="moved";MD[3].movedTo="2ae09935";
+MD[4].status="inactive";
+MD[5].status="moving";MD[5].movingTo="a1b2c3d4";MD[5].firstName="Ananya";MD[5].lastName="Sharma";MD[5].email="ananya.sharma@yopmail.com";
+MD[6].status="pending";
+var CONTRACTS=[
+  {id:"f34772da",status:"ACTIVE",startDate:"19/03/2026",endDate:"30/04/2026",billedSeats:12,billableSeats:12,property:"BHIVE Workspace Koramangala 5th Block"},
+  {id:"a1b2c3d4",status:"YET_TO_START",startDate:"01/06/2026",endDate:"31/07/2026",billedSeats:8,billableSeats:8,property:"BHIVE Workspace HSR Layout"},
+  {id:"cc334455",status:"ACTIVE",startDate:"01/01/2026",endDate:"31/12/2026",billedSeats:20,billableSeats:18,property:"BHIVE Workspace Indiranagar"}
+];
+var BENEFITS=["WFA Access","Meeting Rooms","Parking"];
+var PERMS=["Meeting Rooms","Visitor Access","Locker Access"];
+var STATUSES=["active","inactive","deactivated","moving","pending","moved"];
+var CID="f34772da";
+var SC={
+  active:{bg:"#e6f9f0",color:"#0a5c45",dot:"#1d9e75",label:"Active"},
+  inactive:{bg:"#f0efe8",color:"#5a5955",dot:"#a0a09a",label:"Inactive"},
+  deactivated:{bg:"#fdf0f0",color:"#8b2020",dot:"#c0392b",label:"Deactivated"},
+  moved:{bg:"#eaf3fd",color:"#1450a0",dot:"#185fa5",label:"Moved"},
+  moving:{bg:"#fff8ec",color:"#7a4500",dot:"#e8a020",label:"Moving"},
+  pending:{bg:"#f3f0fe",color:"#3d3490",dot:"#534ab7",label:"Pending"}
+};
+var AVC={A:"#0f6e56",D:"#185fa5",J:"#0f6e56",P:"#993556",R:"#534ab7",S:"#185fa5",T:"#e8a020",default:"#6b6a65"};
+function cgr(s){return s==="active";}
+function cmv(s){return s==="active"||s==="inactive"||s==="pending";}
+function cac(s){return s==="deactivated";}
+function cdc(s){return s==="active"||s==="inactive";}
+function cck(s){return s==="active"||s==="inactive"||s==="moving"||s==="pending";}
+
+var S={
+  members:JSON.parse(JSON.stringify(MD)),
+  search:"",selSt:["active"],sel:[],tab:"Members",
+  drawer:null,am:null,toast:null,fopen:false,mvopen:false,dealsOpen:false,
+  dBen:null,dPerm:null,dReason:"",dNote:"",dTarget:null,dMigR:"",dSub:false,_tt:null
+};
+
+function filt(){
+  return S.members.filter(function(m){
+    var q=S.search.toLowerCase();
+    return S.selSt.indexOf(m.status)>-1&&(!q||[m.firstName,m.lastName,m.email,m.phone].join(" ").toLowerCase().indexOf(q)>-1);
+  });
+}
+function selM(){return S.members.filter(function(m){return S.sel.indexOf(m.id)>-1;});}
+function mvSel(arr){return arr.filter(function(m){return m.status==="moving";});}
+function cnts(){
+  var r={};
+  STATUSES.forEach(function(s){r[s]=S.members.filter(function(m){return m.status===s;}).length;});
+  return r;
+}
+function avb(l){return AVC[l]||AVC.default;}
+
+function badge(s){
+  var c=SC[s]||SC.inactive;
+  return '<span class="badge" style="background:'+c.bg+';color:'+c.color+'"><span class="bdot" style="background:'+c.dot+'"></span>'+c.label+'</span>';
+}
+function av(m,sz){
+  sz=sz||26;
+  var l=(m.firstName||"?")[0].toUpperCase();
+  var l2=(m.lastName||"")[0]?m.lastName[0].toUpperCase():"";
+  return '<span class="av" style="width:'+sz+'px;height:'+sz+'px;background:'+avb(l)+';font-size:'+Math.round(sz*.33)+'px">'+l+l2+'</span>';
+}
+function tog(v){
+  return '<div class="tog" style="background:'+(v?"#1d9e75":"#d0cfc9")+'"><div class="tok" style="left:'+(v?14:2)+'px"></div></div>';
+}
+
+// ── GLOBAL HANDLERS (must be defined before first render) ─────────────────
+window._mvClick=function(e){
+  e.stopPropagation();
+  S.mvopen=!S.mvopen;
+  S.fopen=false;
+  render();
+};
+window._mvAct=function(a){
+  S.mvopen=false;
+  if(a==="openMove"){
+    var sM2=selM();
+    if(!sM2.length){S.toast={msg:"Select at least one member to move.",type:"error"};render();return;}
+    var ineligible=sM2.filter(function(m){return !cmv(m.status);});
+    if(ineligible.length===sM2.length){S.toast={msg:"Selected members cannot be moved. Only Active, Inactive or Pending members are eligible.",type:"error"};render();return;}
+    S.drawer="move";S.dTarget=null;S.dMigR="";S.dSub=false;S.dealsOpen=false;render();return;
+  }
+  if(a==="openBulkCancel"){
+    var allMvs=S.members.filter(function(m){return m.status==="moving";});
+    if(!allMvs.length){S.toast={msg:"No members are currently moving.",type:"error"};render();return;}
+    S.drawer="bulkCancel";S.dReason="";render();return;
+  }
+  act(a,null,null);
+};
+
+function render(){
+  document.getElementById("root").innerHTML=buildAll();
+  document.querySelectorAll('[data-ind]').forEach(function(el){el.indeterminate=true;});
+  if(S.toast){
+    if(S._tt)clearTimeout(S._tt);
+    S._tt=setTimeout(function(){S.toast=null;render();},4500);
+  }
+}
+
+// ONE root listener
+var rootEl=document.getElementById("root");
+rootEl.addEventListener("click",function(e){
+  var el=e.target.closest("[data-a]");
+  var inFilter=!!e.target.closest(".fw");
+  var inMvBtn=!!e.target.closest(".mfw");
+  var inMenu=!!e.target.closest(".mw");
+
+  if(el){
+    var a=el.dataset.a;
+    // handle dropdown toggles first
+    if(a==="toggleF"){S.fopen=!S.fopen;S.mvopen=false;render();return;}
+    if(a==="toggleMvDrop"){S.mvopen=!S.mvopen;S.fopen=false;render();return;}
+    // close dropdowns then handle action
+    S.fopen=false;S.mvopen=false;
+    if(!inMenu)document.querySelectorAll(".mdrop.open").forEach(function(d){d.classList.remove("open");});
+    act(a,el.dataset.id?parseInt(el.dataset.id):null,el.dataset.val);
+    return;
+  }
+
+  // outside clicks — close dropdowns
+  var changed=false;
+  if(!inFilter&&S.fopen){S.fopen=false;changed=true;}
+  if(!inMvBtn&&S.mvopen){S.mvopen=false;changed=true;}
+  if(!inMenu)document.querySelectorAll(".mdrop.open").forEach(function(d){d.classList.remove("open");});
+  if(changed)render();
+});
+rootEl.addEventListener("change",function(e){
+  var f=e.target.closest("[data-filter]");
+  if(f){
+    var s=f.dataset.filter;
+    if(S.selSt.indexOf(s)>-1){if(S.selSt.length>1)S.selSt=S.selSt.filter(function(x){return x!==s;});}
+    else S.selSt=S.selSt.concat([s]);
+    render();return;
+  }
+  if(e.target.dataset.a==="setTgt"){S.dTarget=e.target.value||null;render();}
+});
+rootEl.addEventListener("input",function(e){
+  var a=e.target.dataset.a;
+  if(a==="search")S.search=e.target.value;
+  else if(a==="setR")S.dReason=e.target.value;
+  else if(a==="setNote")S.dNote=e.target.value;
+  else if(a==="setMR")S.dMigR=e.target.value;
+  else return;
+  render();
+});
+rootEl.addEventListener("click",function(e){
+  var btn=e.target.closest(".mtrig");
+  if(!btn)return;
+  e.stopPropagation();
+  var id=btn.dataset.id;
+  document.querySelectorAll(".mdrop").forEach(function(d){
+    if(d.id==="md-"+id)d.classList.toggle("open");
+    else d.classList.remove("open");
+  });
+},{capture:true});
+
+function buildAll(){
+  var parts=[];
+  parts.push(buildToast());
+  parts.push('<div style="display:flex;flex-direction:column;min-height:100vh">');
+  parts.push(buildNav());
+  parts.push('<div class="shell">');
+  parts.push(buildSidebar());
+  parts.push('<div class="main">');
+  parts.push(buildPH());
+  parts.push(S.tab==="Members"?buildMembers():buildPhTab());
+  parts.push('</div></div></div>');
+  parts.push(buildOverlay());
+  return parts.join("");
+}
+
+function buildToast(){
+  if(!S.toast)return"";
+  var ic={success:"✓",error:"✕",warning:"!"}[S.toast.type]||"✓";
+  return '<div class="toast '+S.toast.type+'"><div class="t-ico">'+ic+'</div><span style="flex:1">'+S.toast.msg+'</span><button class="t-x" data-a="closeToast">✕</button></div>';
+}
+
+function buildNav(){
+  return '<nav class="nav"><div class="logo"><div class="logo-dot"></div>BHIVE</div><div class="bc"><div><a>Home</a><span class="bc-sep">›</span></div><div><a>Contracts</a><span class="bc-sep">›</span></div><span class="bc-cur">Details</span></div><div class="nav-r"><div class="nav-user"><div class="nav-av">CA</div>Countries Access</div></div></nav>';
+}
+
+function buildSidebar(){
+  var items=[
+    {ico:"📋",label:"Overview"},{ico:"📄",label:"Contract Terms"},
+    {ico:"💳",label:"Credits"},{ico:"📝",label:"Agreements"},
+    {ico:"👥",label:"Members",count:S.members.length,active:true}
+  ];
+  var html='<aside class="sb"><div class="sb-sec"><div class="sb-lbl">Contract</div>';
+  items.forEach(function(it){
+    html+='<div class="sb-item'+(it.active?" active":"")+(it.active?' data-a="setTab" data-val="Members"':"")+'"><span class="sb-ico">'+it.ico+'</span>'+it.label+(it.count!=null?'<span class="sb-cnt">'+it.count+'</span>':"")+'</div>';
+  });
+  html+='</div><div class="sb-div"></div><div class="sb-info"><div class="sb-info-lbl">Company</div><div class="sb-info-val">Memberv3</div><div class="sb-info-lbl">Contract ID</div><div class="sb-info-mono">2ae09933</div><div style="margin-top:10px">'+badge("active")+'</div></div></aside>';
+  return html;
+}
+
+function buildPH(){
+  var tabs=["Contract Terms","Credits","Agreements","Members"];
+  var tabHtml="";
+  tabs.forEach(function(t){
+    tabHtml+='<button class="tab'+(S.tab===t?" on":"")+'" data-a="setTab" data-val="'+t+'">'+t+(t==="Members"?'<span class="tab-pill">'+S.members.length+'</span>':"")+'</button>';
+  });
+  return '<div class="ph"><div class="ph-top"><div class="ph-left"><button class="ph-back">←</button><div><div class="ph-title">Contract Members</div><div class="ph-sub">Memberv3 · Coworking · f34772da</div></div></div><div class="ph-actions"><button class="btn btn-ghost" style="font-size:12px">+ Add Member</button><button class="btn btn-solid" style="font-size:12px">⇪ Import in Bulk</button></div></div><div class="tabs">'+tabHtml+'</div></div>';
+}
+
+function buildMembers(){
+  var rows=filt();
+  var ck=rows.filter(function(m){return cck(m.status);});
+  var allS=ck.length>0&&ck.every(function(m){return S.sel.indexOf(m.id)>-1;});
+  var someS=ck.some(function(m){return S.sel.indexOf(m.id)>-1;})&&!allS;
+  var anySel=S.sel.length>0;
+  var sM=selM();
+  var allMv=anySel&&sM.every(function(m){return cmv(m.status);});
+  var mvs=mvSel(sM);
+  var cnt=cnts();
+
+  // Status filter dropdown
+  var filterItems="";
+  STATUSES.forEach(function(s){
+    filterItems+='<label class="fi"><div class="fi-l"><input type="checkbox"'+(S.selSt.indexOf(s)>-1?" checked":"")+ ' data-filter="'+s+'" style="accent-color:#e8a020;width:13px;height:13px;cursor:pointer;flex-shrink:0">'+badge(s)+'</div><span class="fi-n">'+cnt[s]+'</span></label>';
+  });
+
+  var mvDropItems='<div class="fdrop-h" style="padding:7px 13px 6px"><span>Initiate</span></div>';
+  mvDropItems+='<div class="drop-item" onclick="window._mvAct(\'openMove\')">'
+    +'<div class="di-ico" style="background:#eaf3fd"><svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5h11M8 2L12 5.5 8 9M5 2L1 5.5 5 9" stroke="#185fa5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+    +'<div><div class="di-lbl">Move to contract</div><div class="di-sub">Transfer selected members to another contract</div></div></div>';
+  mvDropItems+='<div class="fdrop-h" style="padding:7px 13px 6px;border-top:0.5px solid #f0efea;display:flex;align-items:center;gap:6px"><span>Pending</span>'+(mvs.length?'<span class="fc">'+mvs.length+'</span>':"")+'</div>';
+  mvDropItems+='<div class="drop-item'+(mvs.length?"":" dim")+'" onclick="window._mvAct(\'openBulkCancel\')">'
+    +'<div class="di-ico" style="background:#fff8ec"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#9a6010" stroke-width="1.3"/><path d="M3.8 6h4.4" stroke="#9a6010" stroke-width="1.3" stroke-linecap="round"/></svg></div>'
+    +'<div><div class="di-lbl">Cancel movement</div><div class="di-sub">Revert scheduled movements back to active</div></div></div>';
+
+  var selPill=anySel?'<span style="font-size:12px;font-weight:700;color:#9a6010;background:#fff8ec;border:1px solid #f5d080;padding:3px 10px;border-radius:20px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px">'+S.sel.length+' selected<button style="background:none;border:none;cursor:pointer;color:#9a6010;font-size:10px;opacity:.6;padding:0;line-height:1" data-a="clearSel">✕</button></span>':"";
+
+  var tblRows=rows.length===0?'<tr><td colspan="12"><div class="empty"><div class="empty-e">🔍</div><div class="empty-t">No members found</div><div class="empty-s">Adjust search or status filter</div></div></td></tr>':rows.map(buildRow).join("");
+
+  var spills="";
+  STATUSES.forEach(function(s){if(cnt[s]>0)spills+='<div class="sp"><div class="sdot" style="background:'+SC[s].dot+'"></div>'+SC[s].label+' '+cnt[s]+'</div>';});
+
+  return '<div class="content">'
+    +'<div class="toolbar">'
+    +'<div class="search-box"><span class="s-ico">⌕</span><input class="s-inp" type="text" placeholder="Search members…" value="'+S.search+'" data-a="search"></div>'
+    +'<div class="fw"><button class="fb'+(S.fopen?" on":"")+'" data-a="toggleF"><span style="font-size:10px">⊞</span> Status <span class="fc">'+S.selSt.length+'</span></button>'
+    +'<div class="fdrop'+(S.fopen?" open":"")+'"><div class="fdrop-h"><span>Filter by status</span><div class="fdrop-acts"><button class="fa-all" data-a="fAll">All</button><button class="fa-rst" data-a="fReset">Reset</button></div></div>'+filterItems+'</div></div>'
+    +'<button class="gbtn" data-a="showLegend"><span class="gq">?</span> Guide</button>'
+    +'<div class="vsep"></div>'
+    +'<button class="btn-amber"'+(anySel?"":' disabled')+' data-a="openGrant">Grant Access</button>'
+    +'<button class="btn-red"'+(anySel?"":' disabled')+' data-a="openRevoke">Revoke Access</button>'
+    +'<div class="vsep"></div>'
+    +'<div class="mfw" style="position:relative;flex-shrink:0">'
+    +'<button class="fb'+(mvs.length?" on":"")+'" onclick="window._mvClick(event)" style="gap:7px;'+(anySel||mvs.length?"":"opacity:.3;pointer-events:none")+'">'
+    +'<svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5h10M7 1.5L11 5 7 8.5M5 1.5L1 5 5 8.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    +'Movement'+(mvs.length?' <span class="fc">'+mvs.length+'</span>':"")
+    +' <svg width="7" height="5" viewBox="0 0 7 5" fill="none" style="opacity:.45;margin-left:1px"><path d="M1 1l2.5 3L6 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    +'</button>'
+    +'<div id="mv-drop" class="fdrop'+(S.mvopen?" open":"")+'">'+mvDropItems+'</div></div>'
+    +'<div class="tb-space"></div>'
+    +selPill
+    +'</div>'
+    +'<div class="tbl-wrap"><div class="tbl-scroll"><table>'
+    +'<thead><tr>'
+    +'<th class="c" style="width:44px;padding-left:14px"><input type="checkbox"'+(allS?" checked":"")+(someS?' data-ind="1"':"")+' data-a="toggleAll" style="accent-color:#e8a020;width:13px;height:13px;cursor:pointer"></th>'
+    +'<th style="min-width:155px">Name</th>'
+    +'<th style="min-width:110px">Status</th>'
+    +'<th style="min-width:170px">Email</th>'
+    +'<th style="min-width:110px">Phone</th>'
+    +'<th style="min-width:85px">Benefits</th>'
+    +'<th style="min-width:50px">WFA</th>'
+    +'<th style="min-width:100px">Permissions</th>'
+    +'<th style="min-width:46px">KYC</th>'
+    +'<th style="min-width:88px">Sub-product</th>'
+    +'<th style="min-width:200px">Movement / Reason</th>'
+    +'<th class="c" style="width:76px">Actions</th>'
+    +'</tr></thead>'
+    +'<tbody>'+tblRows+'</tbody></table></div>'
+    +'<div class="tbl-foot"><div class="tft">Showing <strong>'+rows.length+'</strong> of <strong>'+S.members.length+'</strong> members</div><div class="spills">'+spills+'</div></div>'
+    +'</div></div>';
+}
+
+function buildRow(m,i){
+  var isSel=S.sel.indexOf(m.id)>-1;
+  var ck=cck(m.status);
+  var movCell="";
+  if(m.status==="moving"){
+    var tc=CONTRACTS.filter(function(c){return c.id===m.movingTo;})[0];
+    movCell='<div class="mv-cell"><span class="mv-lbl">Moving to</span><div style="display:flex;align-items:center;gap:6px"><span class="mv-contract" style="background:#fff8ec;color:#9a6010;border:0.5px solid #f5d080">'+(m.movingTo||"–")+'</span></div>'+(tc?'<span class="mv-note">'+tc.property+'</span>':"")+'</div>';
+  }else if(m.status==="moved"){
+    movCell='<div class="mv-cell"><span class="mv-lbl">Moved to</span><span class="mv-contract" style="background:#eaf3fd;color:#1450a0;border:0.5px solid #b5d4f4">'+(m.movedTo||"–")+'</span></div>';
+  }else if(m.status==="pending"){
+    movCell='<span style="background:#f3f0fe;color:#3d3490;border:0.5px solid #c8bcf5;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700">Pending activation</span>';
+  }else if(m.status==="deactivated"&&m.reason){
+    movCell='<div class="mv-cell"><span class="mv-lbl">Reason</span><span style="font-size:11px;color:#6b6a65;line-height:1.4">'+m.reason+'</span>'+(m.disabledOn?'<span class="mv-note">Disabled '+m.disabledOn+' · '+(m.disabledBy||"")+'</span>':"")+'</div>';
+  }else{
+    movCell='<span style="color:#d8d7d0">—</span>';
+  }
+
+  var mis="";
+  if(cac(m.status))mis+='<div class="msep"></div><button class="mi g" data-a="openActivate" data-id="'+m.id+'"><div class="mi-ic" style="background:#e6f9f0">✓</div>Activate</button>';
+  if(cdc(m.status))mis+='<div class="msep"></div><button class="mi r" data-a="openDeactivate" data-id="'+m.id+'"><div class="mi-ic" style="background:#fdf0f0">✕</div>Deactivate</button>';
+
+  var cb=ck?'<input type="checkbox"'+(isSel?" checked":"")+ ' data-a="toggleRow" data-id="'+m.id+'" style="accent-color:#e8a020;width:13px;height:13px;cursor:pointer">':'<span class="cb-lock" title="'+m.status+'"></span>';
+  var rowBg=isSel?"rs":"";
+
+  return '<tr class="'+rowBg+'" data-mid="'+m.id+'">'
+    +'<td class="c" style="padding-left:14px">'+cb+'</td>'
+    +'<td><div class="nc">'+av(m,26)+'<span class="nm">'+m.firstName+" "+m.lastName+'</span></div></td>'
+    +'<td>'+badge(m.status)+'</td>'
+    +'<td style="font-size:11px;color:#9a9893">'+m.email+'</td>'
+    +'<td style="color:#4a4946">'+(m.phone||'<span style="color:#d8d7d0">—</span>')+'</td>'
+    +'<td>'+(!m.benefits||m.benefits==="None"?'<span style="color:#d8d7d0">—</span>':'<span style="color:#4a4946">'+m.benefits+'</span>')+'</td>'
+    +'<td>'+tog(m.wfa)+'</td>'
+    +'<td>'+(!m.permissions||m.permissions==="None"?'<span style="color:#d8d7d0">—</span>':'<span style="color:#4a4946">'+m.permissions+'</span>')+'</td>'
+    +'<td><span style="font-size:10px;font-weight:700;color:'+(m.kyc?"#0a5c45":"#d8d7d0")+'">'+(m.kyc?"Yes":"–")+'</span></td>'
+    +'<td><span style="background:#fdf0f0;color:#8b2020;border:0.5px solid #f0c0c0;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px">'+m.subProduct+'</span></td>'
+    +'<td>'+movCell+'</td>'
+    +'<td class="c"><div class="ra"><button class="ib" title="Edit">✏</button><div class="mw"><button class="ib mtrig" data-id="'+m.id+'">⋮</button><div class="mdrop" id="md-'+m.id+'"><button class="mi" style="color:#b0afa9" disabled><div class="mi-ic" style="background:#f4f3ef">👁</div>View details</button>'+mis+'</div></div></div></td>'
+    +'</tr>';
+}
+
+function buildPhTab(){
+  return '<div class="phtab"><div style="font-size:30px;margin-bottom:12px">📄</div><div style="font-size:14px;font-weight:700;color:#6b6a65;margin-bottom:4px">'+S.tab+'</div><div style="font-size:12px">Content for this tab will appear here.</div></div>';
+}
+
+function buildOverlay(){
+  if(!S.drawer)return"";
+  var fns={grant:bGrant,revoke:bRevoke,move:bMove,activate:bActivate,deactivate:bDeactivate,legend:bLegend,cancelMov:bCancelMov,bulkCancel:bBulkCancel};
+  return fns[S.drawer]?fns[S.drawer]():"";
+}
+
+function suHTML(mbs){
+  var rows=mbs.map(function(m){
+    return '<div class="su-row">'+av(m,28)+'<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600">'+m.firstName+" "+m.lastName+'</div><div style="font-size:10px;color:#b0afa9;margin-top:1px">'+m.email+'</div></div>'+badge(m.status)+'</div>';
+  }).join("");
+  return '<div class="sl">Members ('+mbs.length+')</div><div class="su-list">'+rows+'</div>';
+}
+function rrow(lbl,sv,val,pfx){
+  var s=sv===val;
+  return '<div class="rrow'+(s?" on":"")+'" data-a="'+pfx+'R" data-val="'+val+'"><div class="rc'+(s?" on":"")+'">'+(s?'<div class="rdot"></div>':"")+'</div><span class="rl'+(s?" on":"")+'" >'+lbl+'</span></div>';
+}
+function drShell(cls,title,sub,body,foot){
+  return '<div class="ov" data-a="closeDr"></div><div class="dr '+cls+'"><div class="dr-head"><div class="dr-hr"><div><div class="dr-title">'+title+'</div>'+(sub?'<div class="dr-sub">'+sub+'</div>':"")+'</div><button class="dr-x" data-a="closeDr">✕</button></div></div><div class="dr-body">'+body+'</div><div class="dr-foot">'+foot+'</div></div>';
+}
+
+function bGrant(){
+  var mbs=selM();
+  var bl=mbs.filter(function(m){return !cgr(m.status);});
+  var ok=S.dBen||S.dPerm;
+  var errHtml=S.dSub&&bl.length?'<div class="bn bne"><span class="bn-ico">⚠</span><div><div class="bn-title">Action not allowed</div><div class="bn-msg">Only Active members can receive permissions. Ineligible: '+bl.map(function(m){return m.firstName;}).join(", ")+'</div></div></div>':"";
+  var benRows=BENEFITS.map(function(b){return rrow(b,S.dBen,b,"ben");}).join("");
+  var permRows=PERMS.map(function(p){return rrow(p,S.dPerm,p,"perm");}).join("");
+  var body=errHtml+'<div class="sl">Benefits</div>'+benRows+'<p class="hint">Select one benefit to grant (optional)</p><div class="sl" style="margin-top:2px">Permissions</div>'+permRows+'<p class="hint">Select one permission (optional)</p>'+suHTML(mbs)+(!S.dSub||!bl.length?'<div class="ibox"><div class="ibox-t">What happens</div><div class="ibox-b">• Permission granted immediately<br>• WFA triggers notification email<br>• Logged for audit</div></div>':"");
+  var foot='<button class="btn btn-ghost" data-a="closeDr">Cancel</button><button class="btn btn-solid'+(ok?"":" disabled")+'"'+(ok?"":" disabled")+' data-a="subGrant">Grant Permissions</button>';
+  return drShell("dr-sm","Grant Permissions",mbs.length+" member(s) selected",body,foot);
+}
+
+function bRevoke(){
+  var mbs=selM();
+  var bl=mbs.filter(function(m){return !cgr(m.status);});
+  var ok=S.dBen||S.dPerm;
+  var errHtml=S.dSub&&bl.length?'<div class="bn bne"><span class="bn-ico">⚠</span><div><div class="bn-title">Action not allowed</div><div class="bn-msg">Only Active members. Ineligible: '+bl.map(function(m){return m.firstName;}).join(", ")+'</div></div></div>':"";
+  var benRows=BENEFITS.map(function(b){return rrow(b,S.dBen,b,"ben");}).join("");
+  var permRows=PERMS.map(function(p){return rrow(p,S.dPerm,p,"perm");}).join("");
+  var body=errHtml+'<div class="sl">Benefits</div>'+benRows+'<p class="hint">Select one benefit to revoke</p><div class="sl" style="margin-top:2px">Permissions</div>'+permRows+'<p class="hint">Select one permission to revoke</p>'+suHTML(mbs)+(!S.dSub||!bl.length?'<div class="sl" style="margin-top:2px">Reason <span class="req">*</span></div><textarea class="ta" rows="3" placeholder="Reason for revoking…" data-a="setR">'+S.dReason+'</textarea>':"");
+  var foot='<button class="btn btn-ghost" data-a="closeDr">Cancel</button><button class="btn btn-danger'+(ok?"":" disabled")+'"'+(ok?"":" disabled")+' data-a="subRevoke">Revoke Access</button>';
+  return drShell("dr-sm","Revoke Access",mbs.length+" member(s) selected",body,foot);
+}
+
+function bMove(){
+  var mbs=selM();
+  var bl=mbs.filter(function(m){return !cmv(m.status);});
+  var avail=CONTRACTS.filter(function(c){return c.id!==CID;});
+  var sel=avail.filter(function(c){return c.id===S.dTarget;})[0];
+  var isYTS=sel&&sel.status==="YET_TO_START";
+  var ok=!bl.length&&S.dTarget&&S.dMigR.trim().length>0;
+
+  var opts='<option value="">Choose target contract…</option>';
+  avail.forEach(function(c){opts+='<option value="'+c.id+'"'+(S.dTarget===c.id?" selected":"")+'>'+c.id+' — '+c.property+'</option>';});
+
+  var selDetails="";
+  if(sel){
+    var gridRows='<div><div class="cf-l">ID</div><div class="cf-v" style="font-family:monospace;font-size:11px">'+sel.id+'</div></div><div><div class="cf-l">Start</div><div class="cf-v">'+sel.startDate+'</div></div><div><div class="cf-l">End</div><div class="cf-v">'+sel.endDate+'</div></div><div><div class="cf-l">Seats</div><div class="cf-v">'+sel.billedSeats+'</div></div><div style="grid-column:1/-1"><div class="cf-l">Property</div><div class="cf-v">'+sel.property+'</div></div>';
+    selDetails='<div class="cbox"><div class="cbox-h"><span class="cbox-lbl">Target details</span><span class="cbox-s" style="background:'+(isYTS?"#f3f0fe":"#e6f9f0")+';color:'+(isYTS?"#3d3490":"#0a5c45")+'">'+sel.status.replace(/_/g," ")+'</span></div><div class="cgrid">'+gridRows+'</div>'+(isYTS?'<div class="yts"><div class="yts-t">⏳ Yet-to-Start</div><div class="yts-s">Members stay Pending until '+sel.startDate+'</div></div>':"")+'</div>';
+  }
+
+  var errHtml=S.dSub&&bl.length?'<div class="bn bne"><span class="bn-ico">⚠</span><div><div class="bn-title">Movement blocked</div><div class="bn-msg">'+bl.map(function(m){return m.firstName+" ("+m.status+")";}).join(", ")+" cannot be moved."+'</div></div></div>':"";
+  var body=errHtml+'<div class="bn bnw"><span class="bn-ico">⚠</span><div><div class="bn-msg">Cannot be undone. Member details locked during movement.</div></div></div>'
+    +'<div class="sl">Movement lifecycle</div>'
+    +'<div class="lct"><div class="lc-r"><div class="lcc sh"><div class="lc-lbl">Stage</div><div class="lc-nm">After confirmation</div><div class="lc-note">Access via C1 continues</div></div><div class="lcc md"><div class="lc-lbl">C1</div>'+badge("moving")+'</div><div class="lcc"><div class="lc-lbl">C2</div>'+badge("pending")+'</div></div><div class="lc-r"><div class="lcc sh"><div class="lc-lbl">Stage</div><div class="lc-nm">On C2 start date</div><div class="lc-note">Access switches to C2</div></div><div class="lcc md"><div class="lc-lbl">C1</div>'+badge("moved")+'</div><div class="lcc"><div class="lc-lbl">C2</div>'+badge("active")+'</div></div></div>'
+    +suHTML(mbs)
+    +'<div class="sl">Target contract <span class="req">*</span></div><select class="sinp" data-a="setTgt">'+opts+'</select>'
+    +selDetails
+    +'<div class="sl" style="margin-top:4px">Reason <span class="req">*</span></div><p class="hint">Recorded for audit trail.</p><textarea class="ta" rows="3" placeholder="e.g., Contract renewal…" data-a="setMR">'+S.dMigR+'</textarea>';
+  var foot='<button class="btn btn-ghost" data-a="closeDr">Cancel</button><button class="btn btn-solid'+(ok?"":" disabled")+'"'+(ok?"":" disabled")+' data-a="subMove">Confirm Movement</button>';
+  return drShell("dr-md","Move Members",mbs.length+" member(s) · from f34772da",body,foot);
+}
+
+function bActivate(){
+  var m=S.am;
+  var body='<div class="bn bni"><span class="bn-ico">ℹ</span><div><div class="bn-title">Activation note</div><div class="bn-msg">Only allowed if contract is Active or Exiting. Status: Deactivated → Active.</div></div></div>'
+    +'<div style="display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid #eae8e2;border-radius:10px;background:#fdfcfa;margin-bottom:20px">'+av(m,38)+'<div><div style="font-size:13px;font-weight:700">'+m.firstName+" "+m.lastName+'</div><div style="font-size:12px;color:#b0afa9;margin-top:2px">'+m.email+'</div><div style="margin-top:8px;display:flex;align-items:center;gap:7px">'+badge(m.status)+'<span style="color:#d8d7d0;font-size:11px">→</span>'+badge("active")+'</div></div></div>'
+    +'<div class="sl">Note (optional)</div><textarea class="ta" rows="3" placeholder="Reason for reactivation…" data-a="setNote">'+S.dNote+'</textarea>';
+  var foot='<button class="btn btn-ghost" data-a="closeDr">Cancel</button><button class="btn btn-success" data-a="subActivate">Confirm Activation</button>';
+  return drShell("dr-sm","Activate Member",m.firstName+" "+m.lastName,body,foot);
+}
+
+function bDeactivate(){
+  var m=S.am;
+  var v=S.dReason.trim().length>0;
+  return '<div class="mov"><div class="mo" style="width:440px" onclick="event.stopPropagation()">'
+    +'<button class="mo-x" data-a="closeDr">✕</button>'
+    +'<div class="mo-icon" style="background:#fdf0f0"><div class="mo-icon-in" style="background:#c0392b">!</div></div>'
+    +'<div class="mo-title">Deactivate '+m.firstName+'?</div>'
+    +'<div class="mo-desc">Manually disables <strong>'+m.firstName+" "+m.lastName+'</strong>. Reactivation requires an Active or Exiting contract.</div>'
+    +'<div class="sl">Reason <span class="req">*</span></div>'
+    +'<input class="inp" style="margin-bottom:20px" type="text" placeholder="Reason for deactivation…" value="'+S.dReason+'" data-a="setR">'
+    +'<div class="mo-btns"><button class="mo-cancel" data-a="closeDr">Cancel</button><button class="mo-confirm'+(v?"":" disabled")+'"'+(v?"":" disabled")+' data-a="subDeactivate" style="background:'+(v?"#c0392b":"#e5e4de")+';color:'+(v?"#fff":"#a09f9a")+'">Deactivate</button></div>'
+    +'</div></div>';
+}
+
+function bCancelMov(){
+  var m=S.am;
+  var tc=CONTRACTS.filter(function(c){return c.id===m.movingTo;})[0];
+  var v=S.dReason.trim().length>0;
+
+  var outcomeRows=[
+    {ico:'<path d="M2 6l3 3 5-5" stroke="#0a5c45" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',bg:"#e6f9f0",title:"Member remains on this contract",desc:m.firstName+" "+m.lastName+" reverts to Active and keeps full access on this contract."},
+    {ico:'<circle cx="6" cy="6" r="4.5" stroke="#8b2020" stroke-width="1.3"/><path d="M3.8 6h4.4" stroke="#8b2020" stroke-width="1.3" stroke-linecap="round"/>',bg:"#fdf2f2",title:"Pending record removed from target",desc:"The pre-association on "+(tc?tc.id:"the target contract")+" is permanently deleted."},
+    {ico:'<rect x="1.5" y="3.5" width="9" height="7" rx="1.5" stroke="#185fa5" stroke-width="1.3"/><path d="M4 3.5v-1a2 2 0 0 1 4 0v1" stroke="#185fa5" stroke-width="1.3"/>',bg:"#eaf3fd",title:"Logged for audit",desc:"Cancellation, comment, and timestamp are recorded for compliance."}
+  ].map(function(o,i,arr){
+    return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 13px;border-bottom:'+(i<arr.length-1?"0.5px solid #f5f4f0":"none")+'">'
+      +'<div style="width:28px;height:28px;border-radius:7px;background:'+o.bg+';display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">'
+      +'<svg width="12" height="12" viewBox="0 0 12 12" fill="none">'+o.ico+'</svg></div>'
+      +'<div><div style="font-size:12px;font-weight:700;color:#1a1917;margin-bottom:2px">'+o.title+'</div>'
+      +'<div style="font-size:11px;color:#6b6a65;line-height:1.5">'+o.desc+'</div></div></div>';
+  }).join("");
+
+  var memberCard='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f9f8f5;border:0.5px solid #eae8e2;border-radius:8px">'
+    +av(m,30)
+    +'<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;color:#1a1917">'+m.firstName+" "+m.lastName+'</div><div style="font-size:11px;color:#6b6a65;margin-top:1px">'+m.email+'</div></div>'
+    +'<div style="text-align:right;flex-shrink:0"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#b0afa9;margin-bottom:3px">Moving to</div>'
+    +'<div style="font-family:monospace;font-size:11px;font-weight:700;color:#9a6010;background:#fff8ec;padding:2px 7px;border-radius:5px;border:0.5px solid #f5d080">'+(m.movingTo||"–")+'</div>'
+    +(tc?'<div style="font-size:10px;color:#b0afa9;margin-top:2px">'+tc.property+'</div>':"")+'</div></div>';
+
+  return '<div class="mov"><div class="mo" style="width:500px;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">'
+    +'<button class="mo-x" data-a="closeDr">✕</button>'
+    +'<div class="mo-icon" style="background:#fff8ec;border-radius:12px"><div class="mo-icon-in" style="background:#e8a020;border-radius:8px"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#fff" stroke-width="1.5"/><path d="M4.5 7h5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></div></div>'
+    +'<div class="mo-title">Cancel movement?</div>'
+    +'<div style="font-size:13px;color:#6b6a65;margin-bottom:20px;line-height:1.65">Movement will be cancelled for <strong>'+m.firstName+" "+m.lastName+'</strong>. They will remain linked to this contract and revert to Active.</div>'
+    +'<div style="margin-bottom:20px"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#b0afa9;margin-bottom:8px">Member</div>'+memberCard+'</div>'
+    +'<div style="margin-bottom:20px"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#b0afa9;margin-bottom:8px">What will happen</div><div style="border:0.5px solid #eae8e2;border-radius:10px;overflow:hidden">'+outcomeRows+'</div></div>'
+    +'<div class="bn bnw" style="margin-bottom:20px"><span class="bn-ico">⚠</span><div><div class="bn-msg">The Pending record on the target contract is <strong>permanently deleted</strong> once cancelled.</div></div></div>'
+    +'<div style="margin-bottom:22px"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#b0afa9;margin-bottom:4px;display:flex;align-items:center;gap:4px">Comment <span style="color:#c0392b;font-size:11px">*</span></div><div style="font-size:11px;color:#b0afa9;margin-bottom:8px">Recorded for audit purposes.</div><textarea class="ta" rows="4" placeholder="e.g., Member decided to stay, contract terms changed…" data-a="setR">'+S.dReason+'</textarea></div>'
+    +'<div class="mo-btns"><button class="mo-cancel" data-a="closeDr">Keep movement</button><button class="mo-confirm'+(v?"":" disabled")+'"'+(v?"":" disabled")+' data-a="subCancelMov" style="background:'+(v?"#e8a020":"#e5e4de")+';color:'+(v?"#fff":"#a09f9a")+'">Cancel movement</button></div>'
+    +'</div></div>';
+}
+
+function bBulkCancel(){
+  var allMvs=S.members.filter(function(m){return m.status==="moving";});
+  var sM=selM();
+  var mvs=sM.length>0?mvSel(sM):allMvs;
+  var nMv=sM.filter(function(m){return m.status!=="moving";});
+  var v=S.dReason.trim().length>0;
+
+  var byT={};
+  mvs.forEach(function(m){
+    var k=m.movingTo||"?";
+    if(!byT[k])byT[k]=[];
+    byT[k].push(m);
+  });
+
+  var memberRows="";
+  Object.keys(byT).forEach(function(cid,gi){
+    var mbs=byT[cid];
+    var tc=CONTRACTS.filter(function(c){return c.id===cid;})[0];
+    memberRows+='<div style="padding:9px 13px;background:#f9f8f5;border-bottom:0.5px solid #eae8e2'+(gi>0?";border-top:0.5px solid #eae8e2":"")+'"><div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#b0afa9;margin-bottom:3px">Target contract</div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div><span style="font-family:monospace;font-size:12px;font-weight:700;color:#1a1917">'+cid+'</span>'+(tc?'<span style="font-size:11px;color:#9a9893;margin-left:6px">· '+tc.property+'</span>':"")+'</div><span style="background:#fdf2f2;border:0.5px solid #f0c8c8;border-radius:5px;padding:2px 8px;font-size:10px;color:#8b2020;font-weight:700;white-space:nowrap;flex-shrink:0">Pending removed</span></div></div>';
+    mbs.forEach(function(m,i){
+      memberRows+='<div style="display:flex;align-items:center;gap:10px;padding:10px 13px;border-bottom:'+(i<mbs.length-1?"0.5px solid #f5f4f0":"none")+'">'+av(m,28)+'<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:#1a1917">'+m.firstName+" "+m.lastName+'</div><div style="font-size:11px;color:#9a9893;margin-top:1px">'+m.email+'</div></div><div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'+badge("moving")+'<svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M8 1.5l4 3.5-4 3.5" stroke="#d0cfc9" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>'+badge("active")+'</div></div>';
+    });
+  });
+
+  var outcomes=[
+    {ico:'<path d="M2 6l3 3 5-5" stroke="#0a5c45" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',bg:"#e6f9f0",title:"Members stay on this contract",desc:"Their status reverts to Active. They keep full access and billing continues as normal on this contract."},
+    {ico:'<circle cx="6" cy="6" r="4.5" stroke="#8b2020" stroke-width="1.3"/><path d="M3.8 6h4.4" stroke="#8b2020" stroke-width="1.3" stroke-linecap="round"/>',bg:"#fdf2f2",title:"Target contract slot is freed",desc:"The reserved spot on the target contract is released. The member will no longer appear there."},
+    {ico:'<path d="M6 2v4M6 8v.5" stroke="#9a5e00" stroke-width="1.5" stroke-linecap="round"/>',bg:"#fffcf0",title:"Cannot be undone",desc:"Once cancelled, you will need to initiate a new movement if the transfer is required again."}
+  ];
+
+  var outcomeRows=outcomes.map(function(o,i){
+    return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 13px;border-bottom:'+(i<outcomes.length-1?"0.5px solid #f5f4f0":"none")+'">'
+      +'<div style="width:28px;height:28px;border-radius:7px;background:'+o.bg+';display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">'
+      +'<svg width="12" height="12" viewBox="0 0 12 12" fill="none">'+o.ico+'</svg></div>'
+      +'<div><div style="font-size:12px;font-weight:700;color:#1a1917;margin-bottom:2px">'+o.title+'</div>'
+      +'<div style="font-size:11px;color:#6b6a65;line-height:1.5">'+o.desc+'</div></div></div>';
+  }).join("");
+
+  var skipped=nMv.length?'<div style="margin-top:6px;font-size:12px;color:#b0afa9">'+nMv.length+' non-Moving member'+(nMv.length>1?"s":"")+" in your selection will be skipped."+'</div>':"";
+
+  var body='<div style="font-size:13px;color:#6b6a65;margin-bottom:20px;line-height:1.65">Movement will be cancelled for <strong>'+mvs.length+' member'+(mvs.length>1?"s":"")+'</strong>. They will remain linked to this contract and their status will revert to Active.'+skipped+'</div>'
+    +'<div style="margin-bottom:20px"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#b0afa9;margin-bottom:8px">Affected members ('+mvs.length+')</div><div style="border:0.5px solid #eae8e2;border-radius:10px;overflow:hidden">'+memberRows+'</div></div>'
+    +'<div style="margin-bottom:20px"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#b0afa9;margin-bottom:8px">What will happen</div><div style="border:0.5px solid #eae8e2;border-radius:10px;overflow:hidden">'+outcomeRows+'</div></div>'
+    +'<div class="sl">Comment <span class="req">*</span></div>'
+    +'<div style="font-size:11px;color:#b0afa9;margin-bottom:8px">Applies to all '+mvs.length+' member'+(mvs.length>1?"s":"")+'. Recorded for audit purposes.</div>'
+    +'<textarea class="ta" rows="4" placeholder="e.g., Contract terms changed, members staying on this contract…" data-a="setR">'+S.dReason+'</textarea>';
+
+  var foot='<button class="btn btn-ghost" data-a="closeDr">Keep movements</button>'
+    +'<button class="btn btn-solid'+(v?"":" disabled")+'"'+(v?"":" disabled")+' data-a="subBulkCancel">Cancel '+mvs.length+' movement'+(mvs.length>1?"s":"")+'</button>';
+
+  return drShell("dr-md","Cancel "+mvs.length+" movement"+(mvs.length>1?"s":"")+"?",mvs.length+" member"+(mvs.length>1?"s":"")+" will revert to Active",body,foot);
+}
+
+function bLegend(){
+  var list=[
+    {s:"active",d:"Linked to an active or exiting contract. Can use access."},
+    {s:"inactive",d:"Contract ended or archived. Access disabled but can be moved."},
+    {s:"deactivated",d:"Manually disabled. Reactivation requires Active/Exiting contract."},
+    {s:"moving",d:"Scheduled to move from C1. Access continues until transition."},
+    {s:"pending",d:"Pre-associated with a future contract C2. Access not yet usable."},
+    {s:"moved",d:"Fully transitioned. Lifecycle complete on this contract."}
+  ];
+  var rows=list.map(function(item){
+    return '<div class="lr"><div style="flex-shrink:0;padding-top:1px">'+badge(item.s)+'</div><div class="ldesc">'+item.d+'</div></div>';
+  }).join("");
+  return '<div class="mov" data-a="closeDr"><div class="lmo" onclick="event.stopPropagation()">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"><div style="font-size:16px;font-weight:800;letter-spacing:-.3px">Member Status Guide</div><button class="dr-x" data-a="closeDr">✕</button></div>'
+    +rows
+    +'<div style="margin-top:14px;padding:13px 15px;background:#fffcf0;border:1px solid #f0e080;border-radius:10px"><div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#9a5e00;margin-bottom:7px">Action Permissions</div><div style="font-size:12px;color:#9a5e00;line-height:2"><strong>Grant / Revoke:</strong> Active only<br><strong>Move:</strong> Active, Inactive, Pending<br><strong>Activate:</strong> Deactivated only</div></div>'
+    +'</div></div>';
+}
+
+function act(a,id,val){
+  switch(a){
+    case"closeToast":S.toast=null;break;
+    case"setTab":S.tab=val;break;
+    case"toggleF":S.fopen=!S.fopen;S.mvopen=false;break;
+    case"toggleMvDrop":S.mvopen=!S.mvopen;S.fopen=false;break;
+    case"fAll":S.selSt=STATUSES.slice();break;
+    case"fReset":S.selSt=["active"];break;
+    case"showLegend":S.drawer="legend";break;
+    case"clearSel":S.sel=[];break;
+    case"toggleAll":{
+      var r=filt(),cks=r.filter(function(m){return cck(m.status);}).map(function(m){return m.id;});
+      var aS=cks.every(function(x){return S.sel.indexOf(x)>-1;});
+      S.sel=aS?S.sel.filter(function(x){return cks.indexOf(x)===-1;}):S.sel.concat(cks.filter(function(x){return S.sel.indexOf(x)===-1;}));
+      break;}
+    case"toggleRow":{
+      var m=S.members.filter(function(m){return m.id===id;})[0];
+      if(!m||!cck(m.status))return;
+      S.sel=S.sel.indexOf(id)>-1?S.sel.filter(function(x){return x!==id;}):[...S.sel,id];
+      break;}
+    case"openGrant":if(!S.sel.length)return;S.drawer="grant";S.dBen=null;S.dPerm=null;S.dSub=false;break;
+    case"openRevoke":if(!S.sel.length)return;S.drawer="revoke";S.dBen=null;S.dPerm=null;S.dReason="";S.dSub=false;break;
+    case"openMove":{
+      var sM2=selM();
+      if(!sM2.length){S.toast={msg:"Select members first to move.",type:"error"};break;}
+      if(!sM2.every(function(m){return cmv(m.status);})){S.toast={msg:"Some selected members cannot be moved.",type:"error"};break;}
+      S.drawer="move";S.dTarget=null;S.dMigR="";S.dSub=false;S.mvopen=false;
+      break;
+    }
+    case"openActivate":S.am=S.members.filter(function(m){return m.id===id;})[0];S.drawer="activate";S.dNote="";break;
+    case"openDeactivate":S.am=S.members.filter(function(m){return m.id===id;})[0];S.drawer="deactivate";S.dReason="";break;
+    case"openCancelMov":S.am=S.members.filter(function(m){return m.id===id;})[0];S.drawer="cancelMov";S.dReason="";break;
+    case"openBulkCancel":{var allMvAll=S.members.filter(function(m){return m.status==="moving";});if(!allMvAll.length)return;S.drawer="bulkCancel";S.dReason="";S.mvopen=false;break;}
+    case"closeDr":S.drawer=null;S.am=null;break;
+    case"benR":S.dBen=S.dBen===val?null:val;break;
+    case"permR":S.dPerm=S.dPerm===val?null:val;break;
+    case"subGrant":{S.dSub=true;var bl2=selM().filter(function(m){return !cgr(m.status);});if(bl2.length)break;S.toast={msg:"Permissions granted.",type:"success"};S.sel=[];S.drawer=null;break;}
+    case"subRevoke":{S.dSub=true;var bl3=selM().filter(function(m){return !cgr(m.status);});if(bl3.length)break;S.toast={msg:"Access revoked.",type:"success"};S.sel=[];S.drawer=null;break;}
+    case"subMove":{S.dSub=true;var bl4=selM().filter(function(m){return !cmv(m.status);});if(bl4.length||!S.dTarget||!S.dMigR.trim())break;S.toast={msg:selM().length+" member(s) movement initiated.",type:"warning"};S.sel=[];S.drawer=null;break;}
+    case"subActivate":S.toast={msg:"Member activated.",type:"success"};S.drawer=null;S.am=null;break;
+    case"subDeactivate":if(!S.dReason.trim())return;S.toast={msg:"Member deactivated.",type:"success"};S.drawer=null;S.am=null;break;
+    case"subCancelMov":if(!S.dReason.trim())return;S.toast={msg:"Movement cancelled for "+S.am.firstName+".",type:"warning"};S.drawer=null;S.am=null;break;
+    case"subBulkCancel":{if(!S.dReason.trim())return;var mv3=S.members.filter(function(m){return m.status==="moving";});S.toast={msg:"Movement cancelled for "+mv3.length+" member(s).",type:"warning"};S.sel=[];S.drawer=null;break;}
+    default:return;
+  }
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
