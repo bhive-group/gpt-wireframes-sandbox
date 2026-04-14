@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bhive App</title>
+</head>
+<body style="margin:0">
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef, useCallback, useReducer, useContext, useLayoutEffect } = React;
+
+const HomeIcon = ({ active }) => (<svg width="22" height="22" viewBox="0 0 24 24" fill={active?"#111":"none"} stroke={active?"#111":"#bbb"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>);
+const PassIcon = ({ active }) => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active?"#111":"#bbb"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/></svg>);
+const TeamIcon = ({ active }) => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active?"#111":"#bbb"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>);
+const MenuIcon = ({ active }) => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active?"#111":"#bbb"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>);
+const ChevronRight = () => (<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>);
+const BackBtn = ({ onPress, color="#F59E0B" }) => (<button onClick={onPress} style={{background:"none",border:"none",color,fontSize:14,fontWeight:700,cursor:"pointer",padding:0,display:"flex",alignItems:"center",gap:4}}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>Back</button>);
+
+function QRCode({ size=180 }) {
+  const cell = size/21;
+  const p = [[1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1,0,0],[1,0,0,0,0,0,1,0,0,1,0,1,1,0,0,0,0,0,1,1,0],[1,0,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1],[1,0,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,0,1,1,0],[1,0,1,1,1,0,1,0,1,1,0,1,0,0,1,1,1,0,1,0,1],[1,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,1,0,0],[1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1,0,0],[0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,1,1],[1,0,1,1,0,1,1,1,0,1,1,0,1,1,0,1,0,1,1,0,1],[0,1,1,0,1,0,0,0,1,0,0,1,0,1,1,0,1,0,0,1,0],[1,1,0,0,1,1,1,1,0,1,1,1,1,0,0,1,1,0,1,1,0],[0,0,1,0,0,1,0,0,1,0,1,0,0,1,1,0,0,1,0,0,1],[1,0,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,1],[0,0,0,0,0,0,0,0,1,0,1,1,0,1,0,1,0,0,0,1,0],[1,1,1,1,1,1,1,0,0,1,1,0,1,0,1,0,1,0,1,0,1],[1,0,0,0,0,0,1,0,1,1,0,1,0,1,0,1,0,1,0,1,0],[1,0,1,1,1,0,1,0,0,0,1,0,1,1,1,0,0,0,1,1,0],[1,0,1,1,1,0,1,0,1,0,0,1,0,0,0,1,1,0,0,0,1],[1,0,1,1,1,0,1,1,0,1,1,0,1,1,0,0,1,1,1,0,0],[1,0,0,0,0,0,1,0,1,0,0,1,0,0,1,0,0,0,0,1,1],[1,1,1,1,1,1,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1]];
+  return (<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}><rect width={size} height={size} fill="#fff" rx="8"/>{p.map((row,r)=>row.map((v,c)=>v?<rect key={`${r}-${c}`} x={c*cell+2} y={r*cell+2} width={cell-0.5} height={cell-0.5} fill="#111" rx="1"/>:null))}</svg>);
+}
+
+const activePass = { id:"20483", name:"BHIVE Platinum Church Street", shortName:"Church Street", cluster:"CBD", date:"Mon, 23 Feb", type:"Day Pass", validUntil:"11:59 PM" };
+const spaces = [
+  { id:1, name:"BHIVE Premium Koramangala", cluster:"CBD", rating:4.8, reviews:124, available:6, image:"https://images.unsplash.com/photo-1497366216548-37526070297c?w=700&q=80", dayPass:{original:200,discounted:100,discount:50}, bulkPass:{original:2000,discounted:800,days:10,discount:60} },
+  { id:2, name:"BHIVE Platinum Church Street", cluster:"CBD", rating:4.9, reviews:210, available:2, image:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=700&q=80", dayPass:{original:300,discounted:150,discount:50}, bulkPass:{original:2500,discounted:1000,days:10,discount:60} },
+  { id:3, name:"BHIVE HSR Layout", cluster:"HSR", rating:4.7, reviews:89, available:11, image:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=700&q=80", dayPass:{original:250,discounted:125,discount:50}, bulkPass:{original:2200,discounted:900,days:10,discount:59} },
+  { id:4, name:"BHIVE Whitefield Hub", cluster:"Whitefield", rating:4.6, reviews:73, available:8, image:"https://images.unsplash.com/photo-1556761175-b413da4baf72?w=700&q=80", dayPass:{original:180,discounted:90,discount:50}, bulkPass:{original:1800,discounted:720,days:10,discount:60} },
+];
+const filters = ["All","CBD","HSR","Whitefield","Bellandur"];
+const bookings = [
+  { id:"20483", workspace:"BHIVE Platinum Church Street", location:"CBD", type:"Day Pass", date:"Mon, 23 Feb 2026", status:"active", amount:150 },
+  { id:"20401", workspace:"BHIVE HSR Layout", location:"HSR", type:"Bulk Day Pass", date:"Fri, 20 Feb 2026", status:"upcoming", amount:900, daysLeft:8 },
+  { id:"20312", workspace:"BHIVE Premium Koramangala", location:"CBD", type:"Day Pass", date:"Wed, 18 Feb 2026", status:"completed", amount:100 },
+  { id:"20201", workspace:"BHIVE HSR Layout", location:"HSR", type:"Day Pass", date:"Thu, 12 Feb 2026", status:"cancelled", amount:125 },
+];
+const transactions = [
+  { id:"TXN8823", desc:"Day Pass · Church Street", date:"23 Feb 2026", amount:150, type:"debit", method:"UPI" },
+  { id:"TXN8801", desc:"Bulk Day Pass · HSR Layout", date:"20 Feb 2026", amount:900, type:"debit", method:"Credit Card" },
+  { id:"TXN8790", desc:"Refund · HSR Layout", date:"15 Feb 2026", amount:125, type:"credit", method:"Refund" },
+  { id:"TXN8755", desc:"Day Pass · Koramangala", date:"18 Feb 2026", amount:100, type:"debit", method:"UPI" },
+  { id:"TXN8700", desc:"Referral Credit Applied", date:"10 Feb 2026", amount:240, type:"credit", method:"Credits" },
+];
+const notificationsData = [
+  { id:1, group:"Today", type:"transactional", icon:"🎫", title:"Your pass is active!", body:"Day Pass for BHIVE Church Street is now active. Tap to show QR at reception.", time:"9:41 AM", unread:true, action:"show_qr" },
+  { id:2, group:"Today", type:"transactional", icon:"💳", title:"Payment confirmed", body:"₹150 paid for Day Pass at Church Street. Booking ID: BHV-20483.", time:"9:40 AM", unread:true, action:null },
+  { id:3, group:"Today", type:"space", icon:"⚠️", title:"Almost full — HSR Layout", body:"BHIVE HSR is at 90% capacity today. Your bulk pass is reserved.", time:"8:15 AM", unread:true, action:null },
+  { id:4, group:"This Week", type:"event", icon:"🎤", title:"Founder Meetup this Friday", body:"Join 40+ founders at BHIVE Koramangala — Feb 28, 7PM. Free for Day Pass holders.", time:"Sat, 21 Feb", unread:false, action:"rsvp" },
+  { id:5, group:"This Week", type:"transactional", icon:"📦", title:"Bulk Pass purchased", body:"10-day Bulk Pass for BHIVE HSR Layout activated. 8 days remaining.", time:"Thu, 20 Feb", unread:false, action:null },
+  { id:6, group:"Earlier", type:"transactional", icon:"🎁", title:"Referral credit earned!", body:"You earned ₹240 in credits. A friend joined BHIVE using your referral link.", time:"10 Feb", unread:false, action:null },
+];
+const notifPrefsData = [
+  { id:"transactional", label:"Bookings & Payments", sub:"Pass activation, payment receipts, refunds", icon:"🎫", locked:true, on:true },
+  { id:"space", label:"Space Updates", sub:"Capacity alerts, new locations, closures", icon:"📍", locked:false, on:true },
+  { id:"offers", label:"Offers & Discounts", sub:"Flash deals, weekend pricing, promo codes", icon:"🏷️", locked:false, on:true },
+  { id:"events", label:"Community & Events", sub:"Meetups, workshops, networking events", icon:"🎤", locked:false, on:false },
+  { id:"social", label:"Social", sub:"When coworkers join or activity on your team", icon:"👥", locked:false, on:false },
+];
+const ticketCategories = [
+  { id:"facilities", icon:"🔧", label:"Facilities", sub:"AC, plumbing, furniture" },
+  { id:"wifi", icon:"📶", label:"WiFi / IT", sub:"Slow internet, printer" },
+  { id:"billing", icon:"💳", label:"Billing", sub:"Payment, invoice, refund" },
+  { id:"security", icon:"🔐", label:"Access / Security", sub:"Entry, locker, keycard" },
+  { id:"noise", icon:"🔊", label:"Noise", sub:"Loud calls, disturbance" },
+  { id:"other", icon:"💬", label:"Other", sub:"Anything else" },
+];
+const priorities = [
+  { id:"low", label:"Low", color:"#10B981", bg:"#ECFDF5", sub:"Not urgent" },
+  { id:"medium", label:"Medium", color:"#F59E0B", bg:"#FFFBEB", sub:"Needs attention" },
+  { id:"high", label:"High", color:"#E53935", bg:"#FFF0F0", sub:"Blocking me" },
+];
+const pastTickets = [
+  { id:"TKT-1042", category:"WiFi / IT", title:"Printer not responding", location:"Church Street", date:"21 Feb 2026", status:"resolved", priority:"medium" },
+  { id:"TKT-1031", category:"Facilities", title:"AC not cooling in zone B", location:"HSR Layout", date:"15 Feb 2026", status:"resolved", priority:"high" },
+  { id:"TKT-1028", category:"Billing", title:"Double charged for day pass", location:"Church Street", date:"10 Feb 2026", status:"closed", priority:"high" },
+];
+const typeColor = { transactional:"#111", space:"#3B82F6", event:"#8B5CF6" };
+const typeBg    = { transactional:"#F5F5F5", space:"#EFF6FF", event:"#F5F3FF" };
+const typeLabel = { transactional:"Booking", space:"Space", event:"Event" };
+
+function Toggle({ on, locked, onChange }) {
+  return (<div onClick={()=>!locked&&onChange(!on)} style={{width:44,height:26,borderRadius:13,background:on?"#111":"#DDD",position:"relative",cursor:locked?"not-allowed":"pointer",transition:"background 0.2s",flexShrink:0,opacity:locked?0.5:1}}><div style={{position:"absolute",top:3,left:on?21:3,width:20,height:20,borderRadius:"50%",background:"#fff",boxShadow:"0 1px 4px rgba(0,0,0,0.2)",transition:"left 0.2s"}}/></div>);
+}
+function StatusPill({ status }) {
+  const m = { active:{bg:"#ECFDF5",color:"#059669",label:"Active"}, upcoming:{bg:"#EFF6FF",color:"#3B82F6",label:"Upcoming"}, completed:{bg:"#F5F5F5",color:"#888",label:"Completed"}, cancelled:{bg:"#FFF0F0",color:"#E53935",label:"Cancelled"} };
+  const s = m[status]||m.completed;
+  return <span style={{background:s.bg,color:s.color,fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20}}>{s.label}</span>;
+}
+
+// ── E-KYC Modal (Option 2 — on app open, disguised skip) ──────────────────
+function EKYCModal({ onComplete, onSkip }) {
+  const [step, setStep] = useState("intro"); // intro | aadhaar | otp | verifying | success
+  const [aadhaar, setAadhaar] = useState("");
+  const [otp, setOtp] = useState(["","","","","",""]);
+  const [error, setError] = useState("");
+  const [timer, setTimer] = useState(0);
+  const [agreed, setAgreed] = useState(false);
+
+  const fmt = v => v.replace(/\D/g,"").slice(0,12).replace(/(\d{4})(?=\d)/g,"$1 ").trim();
+
+  const sendOTP = () => {
+    if (aadhaar.replace(/\s/g,"").length !== 12) { setError("Please enter a valid 12-digit Aadhaar number."); return; }
+    if (!agreed) { setError("Please accept the terms to continue."); return; }
+    setStep("otp"); setTimer(30);
+    const iv = setInterval(()=>setTimer(t=>{if(t<=1){clearInterval(iv);return 0;}return t-1;}),1000);
+  };
+  const handleOtpChange = (val, i) => {
+    if (!/^\d*$/.test(val)) return;
+    const n=[...otp]; n[i]=val.slice(-1); setOtp(n); setError("");
+    if (val && i<5) { const el=document.getElementById(`ekyc-otp-${i+1}`); if(el) el.focus(); }
+  };
+  const handleOtpKey = (e, i) => {
+    if (e.key==="Backspace" && !otp[i] && i>0) { const el=document.getElementById(`ekyc-otp-${i-1}`); if(el) el.focus(); }
+  };
+  const verify = () => {
+    if (otp.join("").length<6) { setError("Please enter the complete 6-digit OTP."); return; }
+    setStep("verifying");
+    setTimeout(()=>{ setStep("success"); setTimeout(onComplete, 1400); }, 1800);
+  };
+  const masked = aadhaar.replace(/\s/g,"").replace(/(\d{8})(\d{4})/,"XXXX XXXX $2");
+
+  return (
+    <div style={{position:"absolute",inset:0,zIndex:200,display:"flex",flexDirection:"column",justifyContent:"flex-end"}}>
+      <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(6px)"}}/>
+      <div style={{position:"relative",background:"#fff",borderRadius:"28px 28px 0 0",zIndex:1,maxHeight:"90%",display:"flex",flexDirection:"column"}}>
+        {/* Drag handle + disguised close */}
+        <div style={{display:"flex",justifyContent:"center",padding:"12px 0 4px",position:"relative"}}>
+          <div style={{width:36,height:4,background:"#E0E0E0",borderRadius:2}}/>
+          {/* Disguised skip — small, low contrast, easy to miss */}
+          <button onClick={onSkip} style={{position:"absolute",right:16,top:10,background:"none",border:"none",cursor:"pointer",padding:4,opacity:0.3}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div style={{overflowY:"auto",padding:"8px 24px 36px"}}>
+          {step==="intro"&&(
+            <>
+              <div style={{textAlign:"center",marginBottom:24,paddingTop:8}}>
+                <div style={{width:64,height:64,borderRadius:20,background:"linear-gradient(135deg,#111,#2d2d2d)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}>
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <p style={{margin:"0 0 6px",fontSize:22,fontWeight:900,color:"#111",letterSpacing:-0.5}}>Verify your identity</p>
+                <p style={{margin:0,fontSize:14,color:"#999",lineHeight:1.6}}>Complete a one-time E-KYC for<br/>seamless, queue-free check-in at all BHIVE spaces.</p>
+              </div>
+              <div style={{background:"#F8F8F8",borderRadius:16,padding:"16px",marginBottom:24}}>
+                {[["⚡","Instant entry","Walk in without waiting at reception"],["🔒","100% secure","Your data is encrypted and never shared"],["✅","One-time only","Verify once, use everywhere"]].map(([ic,title,sub])=>(
+                  <div key={title} style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:title==="One-time only"?0:14}}>
+                    <span style={{fontSize:20,flexShrink:0}}>{ic}</span>
+                    <div><p style={{margin:"0 0 2px",fontSize:13,fontWeight:700,color:"#111"}}>{title}</p><p style={{margin:0,fontSize:12,color:"#999"}}>{sub}</p></div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={()=>setStep("aadhaar")} style={{width:"100%",background:"#111",border:"none",borderRadius:14,padding:"15px",fontSize:15,fontWeight:800,color:"#fff",cursor:"pointer",marginBottom:10}}>
+                Verify with Aadhaar →
+              </button>
+              <p style={{margin:"8px 0 0",fontSize:11,color:"#ccc",textAlign:"center",lineHeight:1.6}}>By verifying you agree to BHIVE's <span style={{color:"#F59E0B"}}>Terms</span> & <span style={{color:"#F59E0B"}}>Privacy Policy</span></p>
+            </>
+          )}
+
+          {step==="aadhaar"&&(
+            <>
+              <div style={{marginBottom:20,paddingTop:4}}>
+                <p style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:"#111"}}>Enter Aadhaar number</p>
+                <p style={{margin:0,fontSize:13,color:"#999"}}>We'll send an OTP to your linked mobile</p>
+              </div>
+              <p style={{margin:"0 0 6px",fontSize:12,fontWeight:700,color:"#555",letterSpacing:0.3,textTransform:"uppercase"}}>Aadhaar Number</p>
+              <div style={{position:"relative",marginBottom:6}}>
+                <input value={aadhaar} onChange={e=>{setError("");setAadhaar(fmt(e.target.value));}} placeholder="XXXX XXXX XXXX" maxLength={14} style={{width:"100%",border:`2px solid ${error?"#E53935":"#E8E8E8"}`,borderRadius:14,padding:"14px 48px 14px 16px",fontSize:20,fontWeight:700,color:"#111",letterSpacing:2,outline:"none",boxSizing:"border-box",background:"#FAFAFA"}}/>
+                <div style={{position:"absolute",right:14,top:"50%",transform:"translateY(-50%)"}}>
+                  {aadhaar.replace(/\s/g,"").length===12?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>}
+                </div>
+              </div>
+              {error&&<p style={{margin:"0 0 10px",fontSize:12,color:"#E53935",fontWeight:500}}>{error}</p>}
+              <div onClick={()=>setAgreed(!agreed)} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"12px",background:"#F8F8F8",borderRadius:12,marginBottom:20,cursor:"pointer",border:`1.5px solid ${agreed?"#F59E0B":"#F0F0F0"}`}}>
+                <div style={{width:20,height:20,borderRadius:6,border:`2px solid ${agreed?"#F59E0B":"#ccc"}`,background:agreed?"#F59E0B":"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
+                  {agreed&&<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+                </div>
+                <p style={{margin:0,fontSize:12,color:"#666",lineHeight:1.5}}>I consent to BHIVE verifying my identity using UIDAI's Aadhaar authentication. My data will not be stored.</p>
+              </div>
+              <button onClick={sendOTP} style={{width:"100%",background:"#111",border:"none",borderRadius:14,padding:"15px",fontSize:15,fontWeight:800,color:"#fff",cursor:"pointer"}}>Send OTP</button>
+            </>
+          )}
+
+          {step==="otp"&&(
+            <>
+              <div style={{marginBottom:20,paddingTop:4}}>
+                <p style={{margin:"0 0 4px",fontSize:20,fontWeight:800,color:"#111"}}>Verify OTP</p>
+                <p style={{margin:0,fontSize:13,color:"#999"}}>Sent to mobile linked with <span style={{color:"#F59E0B",fontWeight:700}}>{masked}</span></p>
+              </div>
+              <div style={{display:"flex",gap:8,marginBottom:8}}>
+                {otp.map((d,i)=>(
+                  <input key={i} id={`ekyc-otp-${i}`} value={d} onChange={e=>handleOtpChange(e.target.value,i)} onKeyDown={e=>handleOtpKey(e,i)} maxLength={1} style={{flex:1,height:52,textAlign:"center",fontSize:22,fontWeight:800,color:"#111",border:`2px solid ${error?"#E53935":d?"#F59E0B":"#E8E8E8"}`,borderRadius:12,outline:"none",background:d?"#FFFBEB":"#FAFAFA"}}/>
+                ))}
+              </div>
+              {error&&<p style={{margin:"0 0 8px",fontSize:12,color:"#E53935",fontWeight:500}}>{error}</p>}
+              <div style={{display:"flex",justifyContent:"flex-end",marginBottom:24}}>
+                {timer>0?<span style={{fontSize:12,color:"#bbb"}}>Resend in <b style={{color:"#555"}}>{timer}s</b></span>:<button onClick={sendOTP} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:"#F59E0B",fontWeight:700,padding:0}}>Resend OTP</button>}
+              </div>
+              <button onClick={verify} style={{width:"100%",background:otp.join("").length===6?"#111":"#E8E8E8",border:"none",borderRadius:14,padding:"15px",fontSize:15,fontWeight:800,color:otp.join("").length===6?"#fff":"#bbb",cursor:otp.join("").length===6?"pointer":"not-allowed"}}>Verify & Continue</button>
+              <button onClick={()=>{setStep("aadhaar");setOtp(["","","","","",""]);setError("");}} style={{width:"100%",background:"none",border:"none",cursor:"pointer",fontSize:13,color:"#999",fontWeight:600,marginTop:12,padding:0}}>← Change Aadhaar number</button>
+            </>
+          )}
+
+          {(step==="verifying"||step==="success")&&(
+            <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"24px 0 8px"}}>
+              <div style={{width:72,height:72,borderRadius:"50%",background:step==="success"?"#ECFDF5":"#F5F5F7",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:16}}>
+                {step==="success"?<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>:<div style={{width:32,height:32,borderRadius:"50%",border:"3px solid #F59E0B",borderTopColor:"transparent",animation:"spin 0.8s linear infinite"}}/>}
+              </div>
+              <p style={{margin:"0 0 6px",fontSize:18,fontWeight:800,color:"#111"}}>{step==="success"?"You're verified! 🎉":"Verifying..."}</p>
+              <p style={{margin:0,fontSize:13,color:"#999"}}>{step==="success"?"Seamless check-in is now enabled":"This will only take a moment"}</p>
+              <style>{`@keyframes spin{to{transform:rotate(360deg);}}`}</style>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── E-KYC Banner (Option 3 — persistent nudge on Home for skipped users) ──
+function EKYCBanner({ onTap }) {
+  const [dismissed, setDismissed] = useState(false);
+  if (dismissed) return null;
+  return (
+    <div style={{margin:"12px 16px 0",position:"relative"}}>
+      <div onClick={onTap} style={{background:"linear-gradient(135deg,#FFFBEB,#FEF3C7)",border:"1.5px solid #FDE68A",borderRadius:16,padding:"12px 14px",display:"flex",alignItems:"center",gap:12,cursor:"pointer"}}>
+        <div style={{width:36,height:36,borderRadius:10,background:"#F59E0B",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div style={{flex:1,minWidth:0}}>
+          <p style={{margin:"0 0 1px",fontSize:13,fontWeight:800,color:"#92400E"}}>Complete your E-KYC</p>
+          <p style={{margin:0,fontSize:11,color:"#B45309"}}>Enable instant, queue-free check-in at all spaces</p>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <button onClick={e=>{e.stopPropagation();setDismissed(true);}} style={{position:"absolute",top:-6,right:-6,background:"#fff",border:"1.5px solid #E0E0E0",borderRadius:"50%",width:20,height:20,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:10,color:"#bbb",padding:0,boxShadow:"0 1px 4px rgba(0,0,0,0.08)"}}>✕</button>
+    </div>
+  );
+}
+
+function QRSheet({ pass, onClose }) {
+  const [bright, setBright] = useState(false);
+  return (
+    <div style={{position:"absolute",inset:0,zIndex:50,display:"flex",flexDirection:"column",justifyContent:"flex-end"}}>
+      <div onClick={onClose} style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(4px)"}}/>
+      <div style={{position:"relative",background:"#fff",borderRadius:"28px 28px 0 0",padding:"0 0 32px",zIndex:1}}>
+        <div style={{display:"flex",justifyContent:"center",padding:"12px 0 4px"}}><div style={{width:36,height:4,background:"#E0E0E0",borderRadius:2}}/></div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 20px 16px"}}>
+          <div><p style={{margin:0,fontSize:11,color:"#999",fontWeight:500,letterSpacing:0.3,textTransform:"uppercase"}}>Active Pass</p><p style={{margin:"3px 0 0",fontSize:20,fontWeight:800,color:"#111",letterSpacing:-0.5}}>{pass.shortName}</p></div>
+          <button onClick={onClose} style={{background:"#F2F2F2",border:"none",borderRadius:"50%",width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:16,color:"#666"}}>✕</button>
+        </div>
+        <div style={{margin:"0 20px 20px",background:"#ECFDF5",border:"1px solid #A7F3D0",borderRadius:12,padding:"10px 14px",display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:8,height:8,borderRadius:"50%",background:"#10B981",boxShadow:"0 0 0 3px rgba(16,185,129,0.2)"}}/>
+          <div style={{flex:1}}><p style={{margin:0,fontSize:13,fontWeight:700,color:"#065F46"}}>Valid Today — {pass.date}</p><p style={{margin:"1px 0 0",fontSize:11,color:"#34D399"}}>{pass.type} · Expires at midnight</p></div>
+          <span style={{fontSize:18}}>✅</span>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"0 20px",maxHeight:480,overflowY:"auto"}}>
+          <div style={{background:bright?"#fff":"#FAFAFA",border:`2px solid ${bright?"#F59E0B":"#F0F0F0"}`,borderRadius:20,padding:20,marginBottom:16,transition:"all 0.2s",boxShadow:bright?"0 0 40px rgba(245,158,11,0.3)":"0 4px 20px rgba(0,0,0,0.06)"}}><QRCode size={190}/></div>
+          <div style={{background:"#F8F8F8",borderRadius:10,padding:"8px 16px",marginBottom:16}}><span style={{fontSize:12,color:"#999"}}>Booking ID: </span><span style={{fontSize:12,fontWeight:700,color:"#111",letterSpacing:1}}>BHV-{pass.id}</span></div>
+          <button onClick={()=>setBright(!bright)} style={{background:bright?"#111":"#F2F2F2",color:bright?"#fff":"#555",border:"none",borderRadius:12,padding:"11px 24px",fontSize:13,fontWeight:700,cursor:"pointer",width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginBottom:10}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            {bright?"Brightness Boosted":"Boost Brightness for Scanning"}
+          </button>
+          <div style={{width:"100%",background:"#F8F8F8",borderRadius:16,padding:"12px 14px",display:"flex",alignItems:"center",gap:12,marginBottom:10}}>
+            <div style={{position:"relative",flexShrink:0}}>
+              <div style={{width:42,height:42,borderRadius:"50%",background:"linear-gradient(135deg,#F59E0B,#D97706)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:800,color:"#fff"}}>RP</div>
+              <div style={{position:"absolute",bottom:1,right:1,width:10,height:10,borderRadius:"50%",background:"#10B981",border:"2px solid #F8F8F8"}}/>
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <p style={{margin:0,fontSize:13,fontWeight:700,color:"#111"}}>Ravi Prakash</p>
+              <p style={{margin:"1px 0 0",fontSize:11,color:"#999"}}>Community Manager · Church Street</p>
+              <p style={{margin:"1px 0 0",fontSize:11,color:"#10B981",fontWeight:600}}>● Online now</p>
+            </div>
+            <button style={{background:"#111",border:"none",borderRadius:12,width:42,height:42,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HomeScreen({ onNavigate, onShowQR, kycDone, onStartKYC }) {
+  const [notifySheet, setNotifySheet] = useState(null);
+  const [notified, setNotified] = useState([]);
+  const products = [
+    { id:"hotdesk", label:"Hot Desk", sub:"Flexible seating on demand", discount:"50% OFF", price:"₹60", emoji:"🪑", full:true, comingSoon:true },
+    { id:"allaccess", label:"All Access", sub:"Unlimited access to all locations", discount:"45% OFF", price:"₹3,600", emoji:"🏢", full:true, comingSoon:true },
+    { id:"daypass", label:"Day / Bulk Day Pass", sub:"Book by the day or in bulk", price:"₹75", emoji:"🎫", full:false },
+    { id:"meeting", label:"Meeting Rooms", sub:"Book rooms on the go", discount:"10% OFF", tag:"NEW", emoji:"📅", full:false },
+  ];
+  const fullCards = products.filter(p=>p.full);
+  const halfCards = products.filter(p=>!p.full);
+
+  return (
+    <div style={{flex:1,overflowY:"auto",background:"#F5F5F7",position:"relative"}}>
+      <div style={{background:"#fff",padding:"12px 20px 14px"}}>
+        <p style={{margin:0,fontSize:11,color:"#999",fontWeight:500,letterSpacing:0.3,textTransform:"uppercase"}}>Your location</p>
+        <div style={{display:"flex",alignItems:"center",gap:6,marginTop:2}}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span style={{fontWeight:800,fontSize:20,color:"#111",letterSpacing:-0.5}}>Bengaluru</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <p style={{margin:"2px 0 0",fontSize:12,color:"#999"}}>All Locations · 12 spaces near you</p>
+      </div>
+
+      {/* Option 3 — persistent KYC nudge banner for skipped users */}
+      {!kycDone && <EKYCBanner onTap={onStartKYC}/>}
+
+      <div style={{padding:"16px 0 8px"}}>
+        <div style={{margin:"0 16px 20px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <span style={{fontWeight:700,fontSize:15,color:"#111"}}>Your Passes</span>
+            <button onClick={()=>onNavigate("activity")} style={{background:"none",border:"none",cursor:"pointer",fontSize:12,color:"#F59E0B",fontWeight:600,padding:0}}>View all →</button>
+          </div>
+          <div style={{display:"flex",gap:10,overflowX:"auto",scrollbarWidth:"none",paddingBottom:4}}>
+            <div onClick={onShowQR} style={{background:"linear-gradient(135deg,#111 0%,#2d2d2d 100%)",borderRadius:18,padding:"14px",flexShrink:0,width:220,cursor:"pointer",position:"relative",overflow:"hidden"}}>
+              <div style={{position:"absolute",top:-15,right:-15,width:80,height:80,borderRadius:"50%",background:"rgba(245,158,11,0.15)"}}/>
+              <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}>
+                <div style={{width:6,height:6,borderRadius:"50%",background:"#10B981",boxShadow:"0 0 0 2px rgba(16,185,129,0.25)"}}/>
+                <span style={{fontSize:10,color:"#10B981",fontWeight:700,textTransform:"uppercase",letterSpacing:0.4}}>Active Now</span>
+              </div>
+              <p style={{margin:"0 0 2px",fontSize:13,fontWeight:800,color:"#fff"}}>Church Street</p>
+              <p style={{margin:"0 0 12px",fontSize:11,color:"rgba(255,255,255,0.5)"}}>Day Pass · Today</p>
+              <div style={{background:"#F59E0B",display:"inline-flex",alignItems:"center",gap:5,borderRadius:8,padding:"5px 10px"}}><span style={{fontSize:11,fontWeight:800,color:"#fff"}}>Tap for QR</span></div>
+            </div>
+            <div style={{background:"#fff",borderRadius:18,padding:"14px",flexShrink:0,width:220,boxShadow:"0 2px 12px rgba(0,0,0,0.07)",border:"1.5px solid #EFF6FF"}}>
+              <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}>
+                <div style={{width:6,height:6,borderRadius:"50%",background:"#3B82F6"}}/>
+                <span style={{fontSize:10,color:"#3B82F6",fontWeight:700,textTransform:"uppercase",letterSpacing:0.4}}>Upcoming</span>
+              </div>
+              <p style={{margin:"0 0 2px",fontSize:13,fontWeight:800,color:"#111"}}>HSR Layout</p>
+              <p style={{margin:"0 0 12px",fontSize:11,color:"#999"}}>Bulk Pass · 20 Feb</p>
+              <div style={{background:"#EFF6FF",display:"inline-flex",borderRadius:8,padding:"5px 10px"}}><span style={{fontSize:11,fontWeight:700,color:"#3B82F6"}}>8 days remaining</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{padding:"0 16px"}}>
+          <div style={{background:"linear-gradient(135deg,#0f0f1a 0%,#1a1a2e 60%,#16213e 100%)",borderRadius:20,overflow:"hidden",marginBottom:20,position:"relative",minHeight:130}}>
+            <div style={{padding:"20px 20px 18px",position:"relative",zIndex:2,maxWidth:"62%"}}>
+              <div style={{display:"inline-flex",background:"#E53935",color:"#fff",fontSize:9,fontWeight:800,padding:"3px 8px",borderRadius:4,marginBottom:10,letterSpacing:0.8,textTransform:"uppercase"}}>Limited Period Offer</div>
+              <p style={{color:"rgba(255,255,255,0.65)",fontSize:11,margin:"0 0 5px",lineHeight:1.5}}>Premium address in Bellandur</p>
+              <p style={{color:"#fff",fontSize:16,fontWeight:800,margin:"0 0 12px",lineHeight:1.25}}>BHIVE Premium Bellandur</p>
+              <div style={{background:"#F59E0B",display:"inline-block",color:"#111",fontSize:12,fontWeight:800,padding:"6px 12px",borderRadius:8}}>1 Month Rent Free*</div>
+            </div>
+            <div style={{position:"absolute",right:-20,top:-20,width:130,height:130,borderRadius:"50%",background:"rgba(245,158,11,0.12)"}}/>
+            <div style={{position:"absolute",right:38,top:38,fontSize:32}}>🏙️</div>
+          </div>
+
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+            <span style={{fontWeight:700,fontSize:16,color:"#111"}}>Explore Plans</span>
+            <span style={{fontSize:12,color:"#F59E0B",fontWeight:600}}>View all →</span>
+          </div>
+
+          {fullCards.map(p=>(
+            <div key={p.id} style={{background:"#FAFAFA",borderRadius:18,padding:"16px",marginBottom:12,boxShadow:"0 2px 14px rgba(0,0,0,0.055)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div style={{flex:1}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <span style={{fontWeight:700,fontSize:16,color:"#111"}}>{p.label}</span>
+                  <span style={{background:"#F0F0F0",color:"#888",fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:20}}>COMING SOON</span>
+                </div>
+                <p style={{color:"#999",fontSize:12,margin:"0 0 14px"}}>{p.sub}</p>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+                  <div style={{background:"#F5F5F5",border:"1px solid #E8E8E8",borderRadius:8,padding:"6px 10px"}}><div style={{color:"#bbb",fontWeight:800,fontSize:13}}>{p.discount}</div></div>
+                  <div><span style={{fontSize:11,color:"#bbb"}}>Starts at </span><span style={{fontSize:14,fontWeight:700,color:"#bbb"}}>{p.price}*</span></div>
+                </div>
+                <button onClick={()=>onNavigate("compare")} style={{background:"#ECFDF5",border:"1.5px solid #6EE7B7",borderRadius:10,padding:"8px 16px",fontSize:12,fontWeight:700,color:"#059669",cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
+                  📊 Compare with other products
+                </button>
+              </div>
+              <div style={{fontSize:46,marginLeft:12,opacity:0.5}}>{p.emoji}</div>
+            </div>
+          ))}
+
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>
+            {halfCards.map(p=>(
+              <div key={p.id} onClick={()=>p.id==="daypass"&&onNavigate("daypass")} style={{background:"#fff",borderRadius:18,padding:"16px",boxShadow:"0 2px 14px rgba(0,0,0,0.055)",cursor:p.id==="daypass"?"pointer":"default",position:"relative"}}>
+                {p.tag&&<div style={{position:"absolute",top:12,right:12}}><span style={{background:"#FFF0F0",color:"#E53935",fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:20}}>{p.tag}</span></div>}
+                <div style={{fontSize:32,marginBottom:10}}>{p.emoji}</div>
+                <div style={{fontWeight:700,fontSize:14,color:"#111",marginBottom:4}}>{p.label}</div>
+                <p style={{color:"#999",fontSize:11,margin:"0 0 12px"}}>{p.sub}</p>
+                <div style={{background:"#FFFBEB",border:"1px solid #FDE68A",borderRadius:8,padding:"6px 10px",display:"inline-block"}}>
+                  <div style={{color:"#D97706",fontWeight:800,fontSize:12}}>{p.discount||`From ${p.price}*`}</div>
+                </div>
+                {p.id==="daypass"&&<div style={{marginTop:10,fontSize:11,color:"#F59E0B",fontWeight:600}}>Explore spaces →</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {notifySheet&&(
+        <div style={{position:"absolute",inset:0,zIndex:50,display:"flex",flexDirection:"column",justifyContent:"flex-end"}}>
+          <div onClick={()=>setNotifySheet(null)} style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.45)",backdropFilter:"blur(4px)"}}/>
+          <div style={{position:"relative",background:"#fff",borderRadius:"28px 28px 0 0",padding:"0 24px 40px",zIndex:1}}>
+            <div style={{display:"flex",justifyContent:"center",padding:"12px 0 4px"}}><div style={{width:36,height:4,background:"#E0E0E0",borderRadius:2}}/></div>
+            <div style={{textAlign:"center",padding:"16px 0 24px"}}>
+              <div style={{fontSize:48,marginBottom:12}}>{products.find(p=>p.id===notifySheet)?.emoji}</div>
+              <p style={{margin:"0 0 6px",fontSize:20,fontWeight:800,color:"#111",letterSpacing:-0.5}}>{products.find(p=>p.id===notifySheet)?.label} is coming soon</p>
+              <p style={{margin:"0 0 24px",fontSize:14,color:"#999",lineHeight:1.6}}>We're putting the finishing touches on this.<br/>Tap below and we'll notify you the moment it goes live.</p>
+              <button onClick={()=>{setNotified(prev=>[...prev,notifySheet]);setNotifySheet(null);}} style={{width:"100%",background:"#111",border:"none",borderRadius:14,padding:"15px",fontSize:15,fontWeight:800,color:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginBottom:12}}>🔔 Notify Me When Live</button>
+              <button onClick={()=>setNotifySheet(null)} style={{width:"100%",background:"none",border:"none",fontSize:14,color:"#bbb",fontWeight:600,cursor:"pointer"}}>Maybe later</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BookingDetailScreen({ space, passType, onBack }) {
+  const [selectedDate, setSelectedDate] = useState("today");
+  const [passes, setPasses] = useState(1);
+  const [forSelf, setForSelf] = useState(true);
+  const [booked, setBooked] = useState(false);
+
+  const price = passType==="day" ? space.dayPass.discounted : space.bulkPass.discounted;
+  const total = passType==="day" ? price * passes : price;
+  const amenities = ["Security 24x7","Housekeeping","Parking","Cafeteria","High-Speed WiFi","Power Backup","Conference Room","Locker Space"];
+  const highlights = ["Meeting Rooms*","Vehicle Parking Space* (2W & 4W)","Cafeteria"];
+  const today = new Date();
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+  const fmtDate = d => d.toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+  const subtitle = space.name.includes("Koramangala") ? " (Near Nexus Mall)" : "";
+
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#fff",overflow:"hidden",position:"relative"}}>
+      <div style={{position:"relative",height:220,flexShrink:0}}>
+        <img src={space.image} alt={space.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+        <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(0,0,0,0.6) 0%,transparent 50%)"}}/>
+        <div style={{position:"absolute",top:14,left:16}}>
+          <button onClick={onBack} style={{background:"rgba(255,255,255,0.92)",border:"none",borderRadius:20,padding:"6px 14px",display:"flex",alignItems:"center",gap:4,cursor:"pointer",fontSize:14,fontWeight:700,color:"#111"}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+        </div>
+        <div style={{position:"absolute",bottom:12,left:14}}>
+          <div style={{display:"flex",alignItems:"baseline",gap:4}}>
+            <span style={{textDecoration:"line-through",fontSize:13,color:"rgba(255,255,255,0.65)",fontWeight:500}}>₹{passType==="day"?space.dayPass.original:space.bulkPass.original}</span>
+            <span style={{fontSize:22,fontWeight:900,color:"#fff"}}>₹{price}</span>
+            <span style={{fontSize:12,color:"rgba(255,255,255,0.75)"}}>/{passType==="day"?"Day":`${space.bulkPass.days}d`}</span>
+          </div>
+          {subtitle&&<div style={{fontSize:12,color:"rgba(255,255,255,0.7)",marginTop:1}}>{subtitle}</div>}
+        </div>
+        <div style={{position:"absolute",bottom:12,right:12,background:"rgba(255,255,255,0.95)",borderRadius:12,padding:"10px 12px",minWidth:160}}>
+          {highlights.map((h,i)=>(
+            <div key={i} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:i<highlights.length-1?6:0}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.5" style={{flexShrink:0,marginTop:1}}><polyline points="20 6 9 17 4 12"/></svg>
+              <span style={{fontSize:11,color:"#333",fontWeight:500,lineHeight:1.3}}>{h}</span>
+            </div>
+          ))}
+          <p style={{margin:"6px 0 0",fontSize:9,color:"#bbb",textAlign:"right",fontStyle:"italic"}}>*On Chargeable Basis</p>
+        </div>
+        <div style={{position:"absolute",bottom:52,left:"50%",transform:"translateX(-50%)",display:"flex",gap:5}}>
+          {[0,1,2,3,4,5,6,7].map(i=><div key={i} style={{width:i===0?16:6,height:6,borderRadius:3,background:i===0?"#fff":"rgba(255,255,255,0.45)"}}/>)}
+        </div>
+      </div>
+
+      <div style={{flex:1,overflowY:"auto",background:"#fff"}}>
+        <div style={{padding:"16px 16px 12px",borderBottom:"1px solid #F0F0F0"}}>
+          <h2 style={{margin:"0 0 4px",fontSize:18,fontWeight:800,color:"#111",lineHeight:1.3}}>{space.name}{subtitle}</h2>
+          <p style={{margin:0,fontSize:13,color:"#888"}}>Open for 12:00 AM – 11:59 PM</p>
+        </div>
+        <div style={{padding:"16px"}}>
+          <p style={{margin:"0 0 12px",fontSize:14,fontWeight:700,color:"#111"}}>Please enter the preferred date</p>
+          <div style={{display:"flex",gap:10,marginBottom:20}}>
+            <button onClick={()=>setSelectedDate("today")} style={{flex:1,padding:"13px 10px",borderRadius:12,border:`2px solid ${selectedDate==="today"?"#F59E0B":"#E8E8E8"}`,background:selectedDate==="today"?"#FFFBEB":"#FAFAFA",cursor:"pointer",textAlign:"left"}}>
+              <div style={{fontSize:14,fontWeight:800,color:selectedDate==="today"?"#92400E":"#111"}}>Today, {fmtDate(today)}</div>
+            </button>
+            <button onClick={()=>setSelectedDate("tomorrow")} style={{flex:1,padding:"13px 10px",borderRadius:12,border:`2px solid ${selectedDate==="tomorrow"?"#F59E0B":"#E8E8E8"}`,background:selectedDate==="tomorrow"?"#FFFBEB":"#FAFAFA",cursor:"pointer",textAlign:"left"}}>
+              <div style={{fontSize:14,fontWeight:800,color:selectedDate==="tomorrow"?"#92400E":"#111"}}>Tomorrow, {fmtDate(tomorrow)}</div>
+            </button>
+          </div>
+          <p style={{margin:"0 0 12px",fontSize:14,fontWeight:700,color:"#111"}}>Select number of passes</p>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}}>
+            <div style={{display:"flex",alignItems:"center",border:"1.5px solid #E8E8E8",borderRadius:12,overflow:"hidden"}}>
+              <button onClick={()=>setPasses(p=>Math.max(1,p-1))} style={{width:48,height:48,background:"#FAFAFA",border:"none",cursor:"pointer",fontSize:20,color:"#555",display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
+              <span style={{width:48,textAlign:"center",fontSize:17,fontWeight:800,color:"#111"}}>{String(passes).padStart(2,"0")}</span>
+              <button onClick={()=>setPasses(p=>Math.min(10,p+1))} style={{width:48,height:48,background:"#FAFAFA",border:"none",cursor:"pointer",fontSize:20,color:"#555",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:6,background:"#F5F5F7",borderRadius:20,padding:"7px 14px"}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span style={{fontSize:12,fontWeight:600,color:"#888"}}>10 Members Max</span>
+            </div>
+          </div>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingBottom:16,borderBottom:"1px solid #F0F0F0",marginBottom:20}}>
+            <span style={{fontSize:14,fontWeight:600,color:"#111"}}>Booking for yourself?</span>
+            <div onClick={()=>setForSelf(!forSelf)} style={{width:50,height:28,borderRadius:14,background:forSelf?"#F59E0B":"#DDD",position:"relative",cursor:"pointer",transition:"background 0.2s",flexShrink:0}}>
+              <div style={{position:"absolute",top:3,left:forSelf?25:3,width:22,height:22,borderRadius:"50%",background:"#fff",boxShadow:"0 1px 4px rgba(0,0,0,0.2)",transition:"left 0.2s"}}/>
+            </div>
+          </div>
+          <p style={{margin:"0 0 12px",fontSize:14,fontWeight:700,color:"#111"}}>Amenities</p>
+          <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:24}}>
+            {amenities.map(a=>(
+              <div key={a} style={{background:"#F5F5F7",borderRadius:20,padding:"7px 14px"}}>
+                <span style={{fontSize:12,color:"#555",fontWeight:500}}>{a}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{padding:"12px 16px 20px",background:"#fff",borderTop:"1px solid #F0F0F0",flexShrink:0}}>
+        <button onClick={()=>setBooked(true)} style={{width:"100%",background:"#F59E0B",border:"none",borderRadius:16,padding:"16px",fontSize:16,fontWeight:800,color:"#fff",cursor:"pointer"}}>
+          Book @ ₹{total}
+        </button>
+      </div>
+
+      {booked&&(
+        <div style={{position:"absolute",inset:0,zIndex:100,background:"#fff",display:"flex",flexDirection:"column"}}>
+          <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none"}}>
+            {["#F59E0B","#10B981","#3B82F6","#E53935","#8B5CF6","#F59E0B","#10B981","#3B82F6"].map((c,i)=>(
+              <div key={i} style={{position:"absolute",width:10,height:10,borderRadius:"50%",background:c,top:`${10+i*10}%`,left:`${8+i*11}%`,opacity:0.7}}/>
+            ))}
+          </div>
+          <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"0 32px",textAlign:"center"}}>
+            <div style={{width:100,height:100,borderRadius:"50%",background:"linear-gradient(135deg,#ECFDF5,#D1FAE5)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:28,boxShadow:"0 0 0 12px rgba(16,185,129,0.1),0 0 0 24px rgba(16,185,129,0.05)"}}>
+              <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <p style={{margin:"0 0 8px",fontSize:26,fontWeight:900,color:"#111",letterSpacing:-0.5}}>Booking Confirmed!</p>
+            <p style={{margin:"0 0 28px",fontSize:14,color:"#999",lineHeight:1.6}}>Your {passType==="day"?"Day Pass":"Bulk Pass"} for<br/><span style={{fontWeight:700,color:"#111"}}>{space.name}</span><br/>is all set for {selectedDate==="today"?"today":"tomorrow"}.</p>
+            <div style={{width:"100%",background:"#F8F8F8",borderRadius:20,padding:"18px 20px",marginBottom:28,textAlign:"left"}}>
+              {[["Space",space.name],["Date",selectedDate==="today"?"Today":"Tomorrow"],["Pass Type",passType==="day"?"Day Pass":`Bulk Pass (${space.bulkPass.days} days)`],["Passes",passes],["Amount Paid",`₹${total}`],["Booking ID",`BHV-${Math.floor(20500+Math.random()*100)}`]].map(([k,v],i,arr)=>(
+                <div key={k} style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:i<arr.length-1?12:0,marginBottom:i<arr.length-1?12:0,borderBottom:i<arr.length-1?"1px solid #EFEFEF":"none"}}>
+                  <span style={{fontSize:12,color:"#999"}}>{k}</span>
+                  <span style={{fontSize:13,fontWeight:k==="Amount Paid"||k==="Booking ID"?800:600,color:k==="Amount Paid"?"#10B981":"#111",letterSpacing:k==="Booking ID"?0.5:0}}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{width:"100%",background:"linear-gradient(135deg,#111,#1e1e1e)",borderRadius:20,padding:"18px 20px",marginBottom:12,textAlign:"left",position:"relative",overflow:"hidden"}}>
+              <div style={{position:"absolute",top:-20,right:-20,width:100,height:100,borderRadius:"50%",background:"rgba(245,158,11,0.12)"}}/>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+                <div style={{width:34,height:34,borderRadius:10,background:"#F59E0B",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div>
+                  <p style={{margin:0,fontSize:11,color:"rgba(255,255,255,0.5)",fontWeight:600,letterSpacing:0.4,textTransform:"uppercase"}}>For seamless check-in</p>
+                  <p style={{margin:0,fontSize:15,fontWeight:800,color:"#fff",letterSpacing:-0.3}}>Complete your E-KYC now</p>
+                </div>
+              </div>
+              <p style={{margin:"0 0 14px",fontSize:12,color:"rgba(255,255,255,0.55)",lineHeight:1.6}}>Skip the queue at reception. Verify once and walk in instantly every time.</p>
+              <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
+                {["⚡ Instant entry","🔒 100% secure","✅ One-time only"].map(t=>(
+                  <div key={t} style={{background:"rgba(255,255,255,0.08)",borderRadius:20,padding:"5px 10px"}}>
+                    <span style={{fontSize:11,color:"rgba(255,255,255,0.7)",fontWeight:600}}>{t}</span>
+                  </div>
+                ))}
+              </div>
+              <button style={{width:"100%",background:"#F59E0B",border:"none",borderRadius:12,padding:"13px",fontSize:14,fontWeight:800,color:"#fff",cursor:"pointer"}}>
+                Start E-KYC Verification →
+              </button>
+            </div>
+            <button onClick={()=>{setBooked(false);onBack();}} style={{width:"100%",background:"none",border:"none",fontSize:13,color:"#bbb",fontWeight:600,cursor:"pointer",padding:"8px 0"}}>
+              I'll do this later
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DayPassScreen({ onNavigate, onShowQR }) {
+  const [activeFilter, setActiveFilter] = useState("All");
+  const [bookingSpace, setBookingSpace] = useState(null);
+  const [bookingType, setBookingType] = useState("day");
+  const filtered = activeFilter==="All"?spaces:spaces.filter(s=>s.cluster===activeFilter);
+
+  if (bookingSpace) {
+    return <BookingDetailScreen space={bookingSpace} passType={bookingType} onBack={()=>setBookingSpace(null)}/>;
+  }
+  return (
+    <div style={{flex:1,overflowY:"auto",background:"#F5F5F7"}}>
+      <div style={{background:"#fff",padding:"12px 20px 0",borderBottom:"1px solid #F0F0F0"}}>
+        <div style={{display:"flex",alignItems:"center",marginBottom:14}}>
+          <div style={{marginRight:12}}><BackBtn onPress={()=>onNavigate("home")}/></div>
+          <span style={{fontWeight:800,fontSize:18,color:"#111",flex:1}}>Day Pass</span>
+        </div>
+        <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:14,scrollbarWidth:"none"}}>
+          {filters.map(f=><button key={f} onClick={()=>setActiveFilter(f)} style={{padding:"7px 16px",borderRadius:20,border:"none",cursor:"pointer",whiteSpace:"nowrap",fontSize:13,fontWeight:600,flexShrink:0,background:activeFilter===f?"#111":"#F2F2F2",color:activeFilter===f?"#fff":"#666"}}>{f}</button>)}
+        </div>
+      </div>
+      <div onClick={onShowQR} style={{margin:"12px 16px 4px",background:"linear-gradient(90deg,#111 0%,#2d2d2d 100%)",borderRadius:14,padding:"10px 14px",display:"flex",alignItems:"center",gap:10,cursor:"pointer"}}>
+        <div style={{width:6,height:6,borderRadius:"50%",background:"#10B981",flexShrink:0}}/>
+        <span style={{flex:1,fontSize:13,fontWeight:700,color:"#fff"}}>Active pass: {activePass.shortName}</span>
+        <div style={{background:"#F59E0B",borderRadius:8,padding:"5px 10px",fontSize:11,fontWeight:800,color:"#fff"}}>QR</div>
+      </div>
+      <div style={{padding:"4px 16px 20px"}}>
+        <div style={{padding:"8px 4px 4px"}}><span style={{fontSize:13,color:"#999",fontWeight:500}}>{filtered.length} workspaces available</span></div>
+        {filtered.map(space=>(
+          <div key={space.id} style={{background:"#fff",borderRadius:22,marginBottom:16,boxShadow:"0 4px 20px rgba(0,0,0,0.07)",overflow:"hidden"}}>
+            <div style={{position:"relative",height:190}}>
+              <img src={space.image} alt={space.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+              <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 50%)"}}/>
+              <div style={{position:"absolute",top:12,left:12}}>
+                <div style={{background:space.available<=3?"rgba(229,57,53,0.9)":"rgba(34,197,94,0.9)",borderRadius:20,padding:"4px 10px",fontSize:11,fontWeight:700,color:"#fff"}}>
+                  {space.available<=3?`Only ${space.available} left!`:`${space.available} seats free`}
+                </div>
+              </div>
+              <div style={{position:"absolute",bottom:12,left:14,right:14}}>
+                <div style={{fontWeight:800,fontSize:16,color:"#fff",marginBottom:4}}>{space.name}</div>
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="#F59E0B"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <span style={{fontSize:12,fontWeight:600,color:"#fff"}}>{space.rating}</span>
+                  <span style={{fontSize:11,color:"rgba(255,255,255,0.7)"}}>({space.reviews})</span>
+                </div>
+              </div>
+            </div>
+            <div style={{padding:"14px"}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                <div style={{background:"#F8F8F8",borderRadius:16,padding:"14px",border:"1.5px solid #EFEFEF"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
+                    <span style={{fontSize:12,fontWeight:600,color:"#666"}}>Day Pass</span>
+                    <span style={{background:"#111",color:"#fff",fontSize:9,fontWeight:800,padding:"2px 7px",borderRadius:20}}>{space.dayPass.discount}% OFF</span>
+                  </div>
+                  <span style={{textDecoration:"line-through",color:"#bbb",fontSize:11}}>₹{space.dayPass.original}</span>
+                  <div style={{display:"flex",alignItems:"baseline",gap:2,margin:"2px 0 12px"}}>
+                    <span style={{fontWeight:800,fontSize:22,color:"#111"}}>₹{space.dayPass.discounted}</span>
+                    <span style={{color:"#999",fontSize:11}}>/day</span>
+                  </div>
+                  <button onClick={()=>{setBookingSpace(space);setBookingType("day");}} style={{background:"#111",color:"#fff",border:"none",borderRadius:10,padding:"9px 0",fontSize:12,fontWeight:700,cursor:"pointer",width:"100%"}}>Book Now</button>
+                </div>
+                <div style={{background:"#FFFBEB",borderRadius:16,padding:"14px",border:"1.5px solid #FDE68A",position:"relative",overflow:"hidden"}}>
+                  <div style={{position:"absolute",top:0,right:0,background:"#F59E0B",color:"#fff",fontSize:9,fontWeight:800,padding:"4px 10px 4px 14px",borderBottomLeftRadius:10}}>BEST VALUE</div>
+                  <div style={{marginBottom:8,marginTop:2}}><span style={{fontSize:12,fontWeight:600,color:"#92400E"}}>Bulk Pass</span></div>
+                  <span style={{textDecoration:"line-through",color:"#D97706",fontSize:11,opacity:0.6}}>₹{space.bulkPass.original}</span>
+                  <div style={{display:"flex",alignItems:"baseline",gap:2,margin:"2px 0 12px"}}>
+                    <span style={{fontWeight:800,fontSize:22,color:"#111"}}>₹{space.bulkPass.discounted}</span>
+                    <span style={{color:"#92400E",fontSize:11}}>/{space.bulkPass.days}d</span>
+                  </div>
+                  <button onClick={()=>{setBookingSpace(space);setBookingType("bulk");}} style={{background:"#F59E0B",color:"#fff",border:"none",borderRadius:10,padding:"9px 0",fontSize:12,fontWeight:700,cursor:"pointer",width:"100%"}}>Book Now</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MyActivityScreen({ onBack, onShowQR }) {
+  const [tab, setTab] = useState("bookings");
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#F5F5F7",overflow:"hidden"}}>
+      <div style={{background:"#fff",padding:"12px 20px 0",borderBottom:"1px solid #F0F0F0",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",marginBottom:14}}>
+          <div style={{marginRight:12}}><BackBtn onPress={onBack}/></div>
+          <span style={{fontWeight:800,fontSize:18,color:"#111"}}>My Activity</span>
+        </div>
+        <div style={{display:"flex"}}>
+          {["bookings","transactions"].map(t=><button key={t} onClick={()=>setTab(t)} style={{flex:1,background:"none",border:"none",cursor:"pointer",padding:"10px 0",fontSize:14,fontWeight:700,color:tab===t?"#111":"#aaa",borderBottom:`2.5px solid ${tab===t?"#111":"transparent"}`,transition:"all 0.18s"}}>{t==="bookings"?"Bookings":"Transactions"}</button>)}
+        </div>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:"16px"}}>
+        {tab==="bookings"?(
+          <>
+            <div style={{display:"flex",gap:8,marginBottom:16,overflowX:"auto",scrollbarWidth:"none"}}>
+              {[{label:"1 Active",color:"#059669",bg:"#ECFDF5"},{label:"1 Upcoming",color:"#3B82F6",bg:"#EFF6FF"},{label:"2 Completed",color:"#888",bg:"#F5F5F5"}].map(c=>(
+                <div key={c.label} style={{background:c.bg,borderRadius:20,padding:"5px 12px",whiteSpace:"nowrap",flexShrink:0}}><span style={{fontSize:12,fontWeight:700,color:c.color}}>{c.label}</span></div>
+              ))}
+            </div>
+            {bookings.map(b=>(
+              <div key={b.id} style={{background:"#fff",borderRadius:18,marginBottom:10,padding:"14px 16px",boxShadow:"0 2px 12px rgba(0,0,0,0.05)"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+                  <div style={{flex:1,marginRight:8}}><p style={{margin:"0 0 3px",fontSize:14,fontWeight:700,color:"#111"}}>{b.workspace}</p><p style={{margin:0,fontSize:12,color:"#999"}}>{b.type} · {b.location}</p></div>
+                  <StatusPill status={b.status}/>
+                </div>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <span style={{fontSize:12,color:"#999"}}>{b.date}</span>
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <span style={{fontSize:13,fontWeight:700,color:"#111"}}>₹{b.amount}</span>
+                    {b.status==="active"&&<button onClick={onShowQR} style={{background:"#111",color:"#fff",border:"none",borderRadius:8,padding:"5px 12px",fontSize:11,fontWeight:700,cursor:"pointer"}}>QR</button>}
+                    {b.status==="upcoming"&&<span style={{fontSize:11,color:"#3B82F6",fontWeight:600}}>{b.daysLeft} days left</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </>
+        ):(
+          <>
+            <div style={{background:"linear-gradient(135deg,#111 0%,#2d2d2d 100%)",borderRadius:18,padding:"18px 20px",marginBottom:16,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div><p style={{margin:"0 0 4px",fontSize:12,color:"rgba(255,255,255,0.5)",fontWeight:500,textTransform:"uppercase",letterSpacing:0.3}}>Wallet Credits</p><p style={{margin:0,fontSize:28,fontWeight:800,color:"#fff",letterSpacing:-0.5}}>₹240</p></div>
+              <div style={{textAlign:"right"}}><p style={{margin:"0 0 4px",fontSize:12,color:"rgba(255,255,255,0.5)",fontWeight:500,textTransform:"uppercase",letterSpacing:0.3}}>Total Spent</p><p style={{margin:0,fontSize:20,fontWeight:700,color:"#F59E0B"}}>₹1,365</p></div>
+            </div>
+            {transactions.map(t=>(
+              <div key={t.id} style={{background:"#fff",borderRadius:16,marginBottom:8,padding:"13px 16px",boxShadow:"0 2px 10px rgba(0,0,0,0.04)",display:"flex",alignItems:"center",gap:12}}>
+                <div style={{width:40,height:40,borderRadius:12,background:t.type==="credit"?"#ECFDF5":"#F5F5F7",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:18}}>
+                  {t.method==="UPI"?"📱":t.method==="Credit Card"?"💳":t.method==="Wallet"?"👛":t.method==="Credits"?"🎁":"↩️"}
+                </div>
+                <div style={{flex:1,minWidth:0}}><p style={{margin:"0 0 2px",fontSize:13,fontWeight:700,color:"#111",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.desc}</p><p style={{margin:0,fontSize:11,color:"#bbb"}}>{t.date} · {t.method}</p></div>
+                <div style={{textAlign:"right",flexShrink:0}}><p style={{margin:"0 0 3px",fontSize:15,fontWeight:800,color:t.type==="credit"?"#059669":"#111"}}>{t.type==="credit"?"+":"−"}₹{t.amount}</p><button style={{background:"#F5F5F7",border:"none",borderRadius:6,padding:"3px 8px",fontSize:10,fontWeight:600,color:"#888",cursor:"pointer"}}>Invoice</button></div>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function NotificationsScreen({ onBack, onNavigate, onShowQR, onMarkAllRead }) {
+  const [notifs, setNotifs] = useState(notificationsData);
+  const unread = notifs.filter(n=>n.unread).length;
+  const groups = ["Today","This Week","Earlier"];
+  const markRead = id => setNotifs(prev=>prev.map(n=>n.id===id?{...n,unread:false}:n));
+  const markAll = () => { setNotifs(prev=>prev.map(n=>({...n,unread:false}))); onMarkAllRead(); };
+  const actionLabel = { show_qr:"Show QR", rsvp:"RSVP", book:"Book Now", register:"Register" };
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#F5F5F7",overflow:"hidden"}}>
+      <div style={{background:"#fff",padding:"12px 20px 14px",borderBottom:"1px solid #F0F0F0",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <BackBtn onPress={onBack}/>
+            <span style={{fontWeight:800,fontSize:18,color:"#111"}}>Notifications</span>
+            {unread>0&&<div style={{background:"#E53935",borderRadius:"50%",minWidth:20,height:20,display:"flex",alignItems:"center",justifyContent:"center",padding:"0 5px"}}><span style={{fontSize:11,fontWeight:800,color:"#fff"}}>{unread}</span></div>}
+          </div>
+          {unread>0&&<button onClick={markAll} style={{background:"none",border:"none",cursor:"pointer",fontSize:12,color:"#F59E0B",fontWeight:600,padding:0}}>Mark all read</button>}
+        </div>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:"12px 16px 20px"}}>
+        {groups.map(group=>{
+          const items=notifs.filter(n=>n.group===group);
+          if(!items.length) return null;
+          return (
+            <div key={group} style={{marginBottom:8}}>
+              <p style={{margin:"0 0 8px 4px",fontSize:12,fontWeight:700,color:"#999",letterSpacing:0.5,textTransform:"uppercase"}}>{group}</p>
+              {items.map(n=>(
+                <div key={n.id} onClick={()=>markRead(n.id)} style={{background:n.unread?"#fff":"#FAFAFA",borderRadius:16,marginBottom:8,padding:"13px 14px",boxShadow:n.unread?"0 2px 14px rgba(0,0,0,0.08)":"0 1px 6px rgba(0,0,0,0.04)",border:n.unread?"1.5px solid #F0F0F0":"1.5px solid transparent",cursor:"pointer"}}>
+                  <div style={{display:"flex",gap:12,alignItems:"flex-start"}}>
+                    <div style={{width:42,height:42,borderRadius:14,background:typeBg[n.type],display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0,position:"relative"}}>
+                      {n.icon}
+                      {n.unread&&<div style={{position:"absolute",top:-2,right:-2,width:10,height:10,borderRadius:"50%",background:"#E53935",border:"2px solid #fff"}}/>}
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:2}}>
+                        <p style={{margin:0,fontSize:13,fontWeight:n.unread?800:600,color:"#111",lineHeight:1.3,paddingRight:8}}>{n.title}</p>
+                        <span style={{fontSize:10,color:"#bbb",whiteSpace:"nowrap",flexShrink:0,marginTop:1}}>{n.time}</span>
+                      </div>
+                      <p style={{margin:"0 0 8px",fontSize:12,color:"#888",lineHeight:1.45}}>{n.body}</p>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <span style={{background:typeBg[n.type],color:typeColor[n.type],fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:20}}>{typeLabel[n.type]}</span>
+                        {n.action&&<button onClick={e=>{e.stopPropagation();if(n.action==="show_qr")onShowQR();markRead(n.id);}} style={{background:"#111",color:"#fff",border:"none",borderRadius:8,padding:"4px 12px",fontSize:11,fontWeight:700,cursor:"pointer"}}>{actionLabel[n.action]}</button>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+        <div onClick={()=>onNavigate("notif_prefs")} style={{background:"#fff",borderRadius:16,padding:"13px 16px",display:"flex",alignItems:"center",gap:12,cursor:"pointer",boxShadow:"0 1px 6px rgba(0,0,0,0.04)",marginTop:4}}>
+          <div style={{width:38,height:38,borderRadius:12,background:"#F5F5F7",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>⚙️</div>
+          <div style={{flex:1}}><p style={{margin:0,fontSize:14,fontWeight:700,color:"#111"}}>Notification Settings</p><p style={{margin:"1px 0 0",fontSize:12,color:"#999"}}>Manage what you receive</p></div>
+          <ChevronRight/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NotifPrefsScreen({ onBack }) {
+  const [prefs, setPrefs] = useState(notifPrefsData);
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#F5F5F7",overflow:"hidden"}}>
+      <div style={{background:"#fff",padding:"12px 20px 16px",borderBottom:"1px solid #F0F0F0",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}><BackBtn onPress={onBack}/><span style={{fontWeight:800,fontSize:18,color:"#111"}}>Notification Settings</span></div>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:"16px"}}>
+        <p style={{margin:"0 0 14px 4px",fontSize:13,color:"#999",lineHeight:1.5}}>Manage what BHIVE can notify you about. Booking & payment alerts cannot be turned off.</p>
+        <div style={{background:"#fff",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,0.05)"}}>
+          {prefs.map((pref,i)=>(
+            <div key={pref.id}>
+              <div style={{display:"flex",alignItems:"center",padding:"14px 16px",gap:14}}>
+                <div style={{width:42,height:42,borderRadius:12,background:"#F5F5F7",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>{pref.icon}</div>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:6}}>
+                    <p style={{margin:0,fontSize:14,fontWeight:700,color:"#111"}}>{pref.label}</p>
+                    {pref.locked&&<span style={{background:"#F5F5F5",color:"#999",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:6}}>REQUIRED</span>}
+                  </div>
+                  <p style={{margin:"2px 0 0",fontSize:12,color:"#999"}}>{pref.sub}</p>
+                </div>
+                <Toggle on={pref.on} locked={pref.locked} onChange={val=>setPrefs(p=>p.map(x=>x.id===pref.id?{...x,on:val}:x))}/>
+              </div>
+              {i<prefs.length-1&&<div style={{height:1,background:"#F5F5F7",marginLeft:72}}/>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RaiseTicketScreen({ onBack }) {
+  const [step, setStep] = useState("form");
+  const [category, setCategory] = useState(null);
+  const [priority, setPriority] = useState("medium");
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+  const [error, setError] = useState("");
+  const submit = () => {
+    if (!category) { setError("Please select a category."); return; }
+    if (!title.trim()) { setError("Please add a short title."); return; }
+    setError(""); setStep("submitting");
+    setTimeout(()=>onBack("ticket_success"),1600);
+  };
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#F5F5F7",overflow:"hidden"}}>
+      <div style={{background:"#fff",padding:"12px 20px 16px",borderBottom:"1px solid #F0F0F0",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}><BackBtn onPress={()=>onBack()}/><span style={{fontWeight:800,fontSize:18,color:"#111"}}>Raise a Ticket</span></div>
+      </div>
+      {step==="submitting"?(
+        <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:16}}>
+          <div style={{width:64,height:64,borderRadius:"50%",background:"#F5F5F7",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <div style={{width:32,height:32,borderRadius:"50%",border:"3px solid #F59E0B",borderTopColor:"transparent",animation:"spin 0.8s linear infinite"}}/>
+          </div>
+          <p style={{margin:0,fontSize:15,fontWeight:700,color:"#111"}}>Submitting your ticket...</p>
+          <style>{`@keyframes spin{to{transform:rotate(360deg);}}`}</style>
+        </div>
+      ):(
+        <div style={{flex:1,overflowY:"auto",padding:"16px"}}>
+          <div style={{background:"#fff",borderRadius:16,padding:"13px 16px",marginBottom:12,boxShadow:"0 2px 10px rgba(0,0,0,0.04)",display:"flex",alignItems:"center",gap:12}}>
+            <div style={{width:38,height:38,borderRadius:12,background:"#ECFDF5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>📍</div>
+            <div style={{flex:1}}><p style={{margin:0,fontSize:11,color:"#999",fontWeight:600,textTransform:"uppercase",letterSpacing:0.3}}>Reporting for</p><p style={{margin:"2px 0 0",fontSize:14,fontWeight:700,color:"#111"}}>BHIVE Platinum Church Street</p></div>
+            <span style={{background:"#ECFDF5",color:"#059669",fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20}}>Active</span>
+          </div>
+          <p style={{margin:"0 0 10px 4px",fontSize:13,fontWeight:700,color:"#555",letterSpacing:0.3,textTransform:"uppercase"}}>What's the issue?</p>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:16}}>
+            {ticketCategories.map(c=>(
+              <div key={c.id} onClick={()=>{setCategory(c.id);setError("");}} style={{background:category===c.id?"#111":"#fff",borderRadius:14,padding:"12px",cursor:"pointer",border:`1.5px solid ${category===c.id?"#111":"#EFEFEF"}`,transition:"all 0.15s",boxShadow:"0 2px 8px rgba(0,0,0,0.04)"}}>
+                <div style={{fontSize:20,marginBottom:6}}>{c.icon}</div>
+                <p style={{margin:"0 0 2px",fontSize:13,fontWeight:700,color:category===c.id?"#fff":"#111"}}>{c.label}</p>
+                <p style={{margin:0,fontSize:10,color:category===c.id?"rgba(255,255,255,0.6)":"#999"}}>{c.sub}</p>
+              </div>
+            ))}
+          </div>
+          <p style={{margin:"0 0 10px 4px",fontSize:13,fontWeight:700,color:"#555",letterSpacing:0.3,textTransform:"uppercase"}}>Priority</p>
+          <div style={{display:"flex",gap:8,marginBottom:16}}>
+            {priorities.map(p=>(
+              <div key={p.id} onClick={()=>setPriority(p.id)} style={{flex:1,background:priority===p.id?p.bg:"#fff",border:`1.5px solid ${priority===p.id?p.color:"#EFEFEF"}`,borderRadius:12,padding:"10px 8px",cursor:"pointer",textAlign:"center"}}>
+                <p style={{margin:"0 0 2px",fontSize:13,fontWeight:800,color:priority===p.id?p.color:"#999"}}>{p.label}</p>
+                <p style={{margin:0,fontSize:10,color:priority===p.id?p.color:"#bbb"}}>{p.sub}</p>
+              </div>
+            ))}
+          </div>
+          <p style={{margin:"0 0 8px 4px",fontSize:13,fontWeight:700,color:"#555",letterSpacing:0.3,textTransform:"uppercase"}}>Short Title</p>
+          <input value={title} onChange={e=>{setTitle(e.target.value);setError("");}} placeholder="e.g. AC not working in zone B" style={{width:"100%",border:`2px solid ${error&&!title?"#E53935":"#E8E8E8"}`,borderRadius:12,padding:"12px 14px",fontSize:14,color:"#111",outline:"none",background:"#fff",boxSizing:"border-box",marginBottom:12}}/>
+          <p style={{margin:"0 0 8px 4px",fontSize:13,fontWeight:700,color:"#555",letterSpacing:0.3,textTransform:"uppercase"}}>Details <span style={{color:"#bbb",fontWeight:500,textTransform:"none"}}>(optional)</span></p>
+          <textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Add extra details to help us resolve faster..." rows={3} style={{width:"100%",border:"2px solid #E8E8E8",borderRadius:12,padding:"12px 14px",fontSize:14,color:"#111",outline:"none",background:"#fff",boxSizing:"border-box",resize:"none",fontFamily:"inherit",marginBottom:4}}/>
+          {error&&<p style={{margin:"4px 0 12px",fontSize:12,color:"#E53935",fontWeight:600}}>{error}</p>}
+          <button onClick={submit} style={{width:"100%",background:"#111",border:"none",borderRadius:14,padding:"15px",fontSize:15,fontWeight:800,color:"#fff",cursor:"pointer",marginTop:8}}>Submit Ticket</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TicketSuccessScreen({ onBack, onView }) {
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#F5F5F7",overflow:"hidden"}}>
+      <div style={{background:"#fff",padding:"12px 20px 16px",borderBottom:"1px solid #F0F0F0",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}><BackBtn onPress={onBack}/><span style={{fontWeight:800,fontSize:18,color:"#111"}}>Ticket Raised</span></div>
+      </div>
+      <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"0 28px 40px"}}>
+        <div style={{width:80,height:80,borderRadius:"50%",background:"#ECFDF5",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:20}}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <p style={{margin:"0 0 8px",fontSize:22,fontWeight:800,color:"#111",textAlign:"center",letterSpacing:-0.5}}>Ticket Submitted!</p>
+        <p style={{margin:"0 0 6px",fontSize:14,color:"#999",textAlign:"center",lineHeight:1.6}}>Our team will look into this and get back to you shortly.</p>
+        <div style={{background:"#fff",borderRadius:16,padding:"14px 18px",marginTop:20,marginBottom:32,width:"100%",boxSizing:"border-box",boxShadow:"0 2px 12px rgba(0,0,0,0.06)"}}>
+          {[["Ticket ID","TKT-1043"],["Location","Church Street"],["Est. Response","Within 2 hours"]].map(([k,v])=>(
+            <div key={k} style={{display:"flex",justifyContent:"space-between",marginBottom:k==="Est. Response"?0:10}}>
+              <span style={{fontSize:12,color:"#999"}}>{k}</span>
+              <span style={{fontSize:13,fontWeight:k==="Ticket ID"?800:600,color:k==="Est. Response"?"#10B981":"#111",letterSpacing:k==="Ticket ID"?1:0}}>{v}</span>
+            </div>
+          ))}
+        </div>
+        <button onClick={onView} style={{width:"100%",background:"#111",border:"none",borderRadius:14,padding:"15px",fontSize:15,fontWeight:800,color:"#fff",cursor:"pointer",marginBottom:12}}>View My Tickets</button>
+        <button onClick={onBack} style={{width:"100%",background:"none",border:"2px solid #E8E8E8",borderRadius:14,padding:"13px",fontSize:14,fontWeight:700,color:"#555",cursor:"pointer"}}>Back to Profile</button>
+      </div>
+    </div>
+  );
+}
+
+function MyTicketsScreen({ onBack }) {
+  const sMap = { open:{label:"Open",color:"#3B82F6",bg:"#EFF6FF"}, inprogress:{label:"In Progress",color:"#F59E0B",bg:"#FFFBEB"}, resolved:{label:"Resolved",color:"#10B981",bg:"#ECFDF5"}, closed:{label:"Closed",color:"#999",bg:"#F5F5F5"} };
+  const pColor = { low:"#10B981", medium:"#F59E0B", high:"#E53935" };
+  const tickets = [{ id:"TKT-1043", category:"Facilities", title:"AC not working in zone A", location:"Church Street", date:"Today", status:"open", priority:"high" }, ...pastTickets];
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#F5F5F7",overflow:"hidden"}}>
+      <div style={{background:"#fff",padding:"12px 20px 16px",borderBottom:"1px solid #F0F0F0",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}><BackBtn onPress={onBack}/><span style={{fontWeight:800,fontSize:18,color:"#111"}}>My Tickets</span></div>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:"14px 16px 24px"}}>
+        {tickets.map(t=>{
+          const s=sMap[t.status]||sMap.open;
+          return (
+            <div key={t.id} style={{background:"#fff",borderRadius:18,marginBottom:10,padding:"14px 16px",boxShadow:"0 2px 12px rgba(0,0,0,0.05)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+                <div style={{flex:1,marginRight:8}}><p style={{margin:"0 0 3px",fontSize:14,fontWeight:700,color:"#111"}}>{t.title}</p><p style={{margin:0,fontSize:12,color:"#999"}}>{t.category} · {t.location}</p></div>
+                <span style={{background:s.bg,color:s.color,fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20,flexShrink:0}}>{s.label}</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:11,color:"#bbb"}}>{t.date}</span><span style={{fontSize:10,color:"#bbb"}}>·</span><span style={{fontSize:11,color:"#bbb"}}>{t.id}</span></div>
+                <div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:"50%",background:pColor[t.priority]}}/><span style={{fontSize:11,fontWeight:600,color:pColor[t.priority],textTransform:"capitalize"}}>{t.priority}</span></div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const comparisonFeatures = [
+  { label:"Enclosed Cabin",                        cabin:true,  desk:false, hot:false, all:false, day:false },
+  { label:"Dedicated Desk / personalization desk", cabin:true,  desk:true,  hot:false, all:false, day:false },
+  { label:"Unlimited coffee/tea",                  cabin:true,  desk:true,  hot:true,  all:true,  day:true  },
+  { label:"Sport zones + shower rooms",            cabin:true,  desk:true,  hot:true,  all:true,  day:false },
+  { label:"Recreational zones",                   cabin:true,  desk:true,  hot:true,  all:true,  day:false },
+  { label:"Free meeting room credits",             cabin:true,  desk:true,  hot:true,  all:true,  day:false },
+  { label:"Dedicated access cards - fast check-in",cabin:true, desk:true,  hot:true,  all:true,  day:false },
+  { label:"Ultra fast internet",                  cabin:true,  desk:true,  hot:true,  all:true,  day:false },
+  { label:"WFA",                                  cabin:true,  desk:true,  hot:false, all:true,  day:false },
+  { label:"Member community events & activities", cabin:true,  desk:true,  hot:true,  all:true,  day:false },
+  { label:"Priority Zones",                       cabin:true,  desk:true,  hot:true,  all:true,  day:false },
+  { label:"Free access for guests/visitors",      cabin:true,  desk:true,  hot:true,  all:true,  day:false },
+  { label:"Storage space",                        cabin:true,  desk:true,  hot:false, all:false, day:false },
+  { label:"Dedicated relationship manager",       cabin:true,  desk:true,  hot:true,  all:true,  day:false },
+  { label:"Cafe discounts",                       cabin:true,  desk:true,  hot:true,  all:true,  day:false },
+  { label:"Third party partner benefits",         cabin:true,  desk:true,  hot:true,  all:true,  day:false },
+  { label:"BHIVE Weekend club",                   cabin:true,  desk:true,  hot:true,  all:true,  day:false },
+];
+
+const planCards = [
+  { key:"cabin", label:"Cabin CW",         emoji:"🏠", color:"#7C3AED", bg:"#F5F3FF", border:"#DDD6FE", desc:"Private enclosed cabin with full personalization", tag:"Premium" },
+  { key:"desk",  label:"Dedicated Desk",   emoji:"🪑", color:"#2563EB", bg:"#EFF6FF", border:"#BFDBFE", desc:"Your own fixed desk, same seat every day",          tag:"Popular" },
+  { key:"hot",   label:"Hot Desk",         emoji:"💻", color:"#059669", bg:"#ECFDF5", border:"#A7F3D0", desc:"Flexible seating anywhere in the space",            tag:"Flexible" },
+  { key:"all",   label:"All Access",       emoji:"🏢", color:"#D97706", bg:"#FFFBEB", border:"#FDE68A", desc:"Unlimited access across all BHIVE locations",       tag:"Best Value" },
+  { key:"day",   label:"Day / Bulk Pass",  emoji:"🎫", color:"#E53935", bg:"#FFF0F0", border:"#FECACA", desc:"Book by the day or in bulk, pay as you go",         tag:"On Demand" },
+];
+
+function ProductComparison4Screen({ onBack }) {
+  const [webOpen, setWebOpen] = useState(false);
+
+  const products = [
+    { name:"Cabin CW", emoji:"🏠", color:"#7C3AED", bg:"#F5F3FF", price:"From ₹18,000/mo", tag:"Most Private", desc:"A fully enclosed private cabin with dedicated desk, personalization, and priority access. Ideal for founders and senior professionals who need focus and privacy.", highlights:["Private enclosed space","Dedicated desk included","Priority zones access","Storage locker","Dedicated relationship manager"] },
+    { name:"Dedicated Desk", emoji:"🪑", color:"#2563EB", bg:"#EFF6FF", price:"From ₹8,000/mo", tag:"Most Popular", desc:"Your own fixed desk in a vibrant shared environment. Same seat every day, fully personalized with your setup. Perfect for professionals who want consistency.", highlights:["Fixed seat, every day","Personalization allowed","Free meeting room credits","WFA benefits","Community events access"] },
+    { name:"Hot Desk", emoji:"💻", color:"#059669", bg:"#ECFDF5", price:"From ₹5,000/mo", tag:"Most Flexible", desc:"Choose any available seat every day across any BHIVE location. Great for those who love variety and flexibility in their work environment.", highlights:["Any seat, any day","Access to all zones","Unlimited coffee & tea","Community events","Fast internet"] },
+    { name:"All Access", emoji:"🏢", color:"#D97706", bg:"#FFFBEB", price:"From ₹12,000/mo", tag:"Best Value", desc:"Unlimited access to every BHIVE location across Bengaluru. Walk into any space, any time. Ideal for professionals who move across the city.", highlights:["All BHIVE locations","No booking needed","WFA benefits","Member events","Recreational zones"] },
+    { name:"Day Pass / Bulk Pass", emoji:"🎫", color:"#E53935", bg:"#FFF0F0", price:"From ₹100/day", tag:"Pay As You Go", desc:"Book a desk for a day or buy in bulk at a discounted rate. No commitment, no contract. Perfect for freelancers and occasional remote workers.", highlights:["No monthly commitment","Bulk discount available","Unlimited coffee & tea","Fast internet","Flexible dates"] },
+  ];
+
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#F5F5F7",overflow:"hidden",position:"relative"}}>
+      {/* Header */}
+      <div style={{background:"#fff",padding:"12px 20px 16px",borderBottom:"1px solid #F0F0F0",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <BackBtn onPress={onBack}/>
+        <span style={{fontWeight:800,fontSize:17,color:"#111"}}>Product Comparison 4</span>
+        <button onClick={()=>setWebOpen(true)} style={{background:"#111",border:"none",borderRadius:10,padding:"8px 16px",fontSize:13,fontWeight:700,color:"#fff",cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open
+        </button>
+      </div>
+
+      {/* Scrollable product details */}
+      <div style={{flex:1,overflowY:"auto",padding:"16px"}}>
+        {/* Intro banner */}
+        <div style={{background:"linear-gradient(135deg,#111,#1e1e1e)",borderRadius:20,padding:"20px",marginBottom:20,position:"relative",overflow:"hidden"}}>
+          <div style={{position:"absolute",top:-20,right:-20,width:120,height:120,borderRadius:"50%",background:"rgba(245,158,11,0.12)"}}/>
+          <p style={{margin:"0 0 6px",fontSize:11,color:"rgba(255,255,255,0.5)",fontWeight:600,letterSpacing:0.4,textTransform:"uppercase"}}>BHIVE Workspace</p>
+          <p style={{margin:"0 0 8px",fontSize:20,fontWeight:900,color:"#fff",letterSpacing:-0.5}}>Find the right plan for you</p>
+          <p style={{margin:"0 0 14px",fontSize:13,color:"rgba(255,255,255,0.6)",lineHeight:1.6}}>From private cabins to flexible day passes — BHIVE has a workspace for every kind of professional.</p>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            {["12 Locations","5 Plan Types","10,000+ Members"].map(t=>(
+              <div key={t} style={{background:"rgba(255,255,255,0.1)",borderRadius:20,padding:"5px 12px"}}>
+                <span style={{fontSize:11,color:"rgba(255,255,255,0.8)",fontWeight:600}}>{t}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Product cards */}
+        {products.map((p,i)=>(
+          <div key={i} style={{background:"#fff",borderRadius:22,marginBottom:16,overflow:"hidden",boxShadow:"0 4px 20px rgba(0,0,0,0.07)"}}>
+            {/* Card header */}
+            <div style={{background:`linear-gradient(135deg,${p.color},${p.color}bb)`,padding:"18px 18px 16px",position:"relative",overflow:"hidden"}}>
+              <div style={{position:"absolute",bottom:-10,right:10,fontSize:60,opacity:0.15}}>{p.emoji}</div>
+              <div style={{display:"inline-flex",background:"rgba(255,255,255,0.18)",borderRadius:20,padding:"4px 12px",marginBottom:10}}>
+                <span style={{fontSize:10,fontWeight:700,color:"#fff",letterSpacing:0.3}}>{p.tag}</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
+                <span style={{fontSize:26}}>{p.emoji}</span>
+                <p style={{margin:0,fontSize:20,fontWeight:900,color:"#fff",letterSpacing:-0.3}}>{p.name}</p>
+              </div>
+              <p style={{margin:0,fontSize:18,fontWeight:800,color:"rgba(255,255,255,0.9)"}}>{p.price}</p>
+            </div>
+            {/* Description */}
+            <div style={{padding:"14px 16px 0"}}>
+              <p style={{margin:"0 0 12px",fontSize:13,color:"#666",lineHeight:1.6}}>{p.desc}</p>
+              <p style={{margin:"0 0 8px",fontSize:11,fontWeight:700,color:"#999",letterSpacing:0.3,textTransform:"uppercase"}}>Key highlights</p>
+              {p.highlights.map((h,hi)=>(
+                <div key={hi} style={{display:"flex",alignItems:"center",gap:10,paddingBottom:hi<p.highlights.length-1?10:0,marginBottom:hi<p.highlights.length-1?10:0,borderBottom:hi<p.highlights.length-1?"1px solid #F5F5F7":"none"}}>
+                  <div style={{width:22,height:22,borderRadius:6,background:p.bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={p.color} strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <span style={{fontSize:13,color:"#333",fontWeight:500}}>{h}</span>
+                </div>
+              ))}
+              <button style={{width:"100%",background:p.bg,border:`1.5px solid ${p.color}33`,borderRadius:12,padding:"12px",fontSize:13,fontWeight:800,color:p.color,cursor:"pointer",marginTop:14,marginBottom:16}}>
+                Learn more about {p.name} →
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* In-app WebView overlay */}
+      {webOpen && (
+        <div style={{position:"absolute",inset:0,zIndex:100,display:"flex",flexDirection:"column",background:"#fff"}}>
+          {/* Browser bar */}
+          <div style={{background:"#fff",padding:"12px 16px",borderBottom:"1px solid #F0F0F0",flexShrink:0,display:"flex",alignItems:"center",gap:10}}>
+            <button onClick={()=>setWebOpen(false)} style={{background:"#F2F2F2",border:"none",borderRadius:10,width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div style={{flex:1,background:"#F5F5F7",borderRadius:10,padding:"8px 12px",display:"flex",alignItems:"center",gap:8}}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span style={{fontSize:12,color:"#666",fontWeight:500}}>bhiveworkspace.com</span>
+            </div>
+            <button onClick={()=>setWebOpen(false)} style={{background:"none",border:"none",padding:4,cursor:"pointer",flexShrink:0}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          {/* iframe */}
+          <iframe
+            src="https://bhiveworkspace.com"
+            style={{flex:1,border:"none",width:"100%"}}
+            title="BHIVE Workspace"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProductComparison3Screen({ onBack }) {
+  const [idx, setIdx] = useState(0);
+  const [liked, setLiked] = useState([]);
+  const [disliked, setDisliked] = useState([]);
+  const [swipeDir, setSwipeDir] = useState(null); // "left" | "right"
+  const [animating, setAnimating] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const plan = planCards[idx];
+  const included = comparisonFeatures.filter(f => f[plan?.key]);
+  const excluded = comparisonFeatures.filter(f => !f[plan?.key]);
+
+  const swipe = (dir) => {
+    if (animating || done) return;
+    setSwipeDir(dir);
+    setAnimating(true);
+    setTimeout(() => {
+      if (dir === "right") setLiked(p => [...p, planCards[idx].key]);
+      else setDisliked(p => [...p, planCards[idx].key]);
+      const next = idx + 1;
+      if (next >= planCards.length) setDone(true);
+      else setIdx(next);
+      setSwipeDir(null);
+      setAnimating(false);
+    }, 320);
+  };
+
+  const reset = () => { setIdx(0); setLiked([]); setDisliked([]); setDone(false); setSwipeDir(null); };
+
+  const cardStyle = {
+    position:"relative",
+    transform: swipeDir === "right" ? "translateX(120%) rotate(18deg)" : swipeDir === "left" ? "translateX(-120%) rotate(-18deg)" : "translateX(0) rotate(0deg)",
+    transition: animating ? "transform 0.32s cubic-bezier(0.4,0,0.2,1)" : "none",
+    zIndex: 10,
+  };
+
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#F5F5F7",overflow:"hidden"}}>
+      {/* Header */}
+      <div style={{background:"#fff",padding:"12px 20px 16px",borderBottom:"1px solid #F0F0F0",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <BackBtn onPress={onBack}/>
+          <div>
+            <span style={{fontWeight:800,fontSize:18,color:"#111"}}>Find Your Plan</span>
+            {!done && <p style={{margin:"2px 0 0",fontSize:11,color:"#999"}}>👍 swipe right to shortlist · 👎 swipe left to skip</p>}
+          </div>
+        </div>
+      </div>
+
+      {done ? (
+        /* Results screen */
+        <div style={{flex:1,overflowY:"auto",padding:"24px 20px"}}>
+          <div style={{textAlign:"center",marginBottom:24}}>
+            <div style={{fontSize:52,marginBottom:12}}>🎉</div>
+            <p style={{margin:"0 0 6px",fontSize:22,fontWeight:900,color:"#111",letterSpacing:-0.5}}>You're done!</p>
+            <p style={{margin:0,fontSize:13,color:"#999",lineHeight:1.6}}>Here's what you shortlisted</p>
+          </div>
+
+          {liked.length > 0 ? (
+            <>
+              <p style={{margin:"0 0 10px",fontSize:13,fontWeight:700,color:"#059669"}}>✅ Shortlisted ({liked.length})</p>
+              {liked.map(k => {
+                const p = planCards.find(x => x.key === k);
+                return (
+                  <div key={k} style={{background:"#fff",borderRadius:18,padding:"14px 16px",marginBottom:10,display:"flex",alignItems:"center",gap:12,boxShadow:"0 2px 12px rgba(0,0,0,0.06)",border:`1.5px solid ${p.border}`}}>
+                    <div style={{width:44,height:44,borderRadius:14,background:p.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{p.emoji}</div>
+                    <div style={{flex:1}}>
+                      <p style={{margin:"0 0 2px",fontSize:14,fontWeight:800,color:"#111"}}>{p.label}</p>
+                      <p style={{margin:0,fontSize:11,color:"#999"}}>{p.desc}</p>
+                    </div>
+                    <button style={{background:p.color,border:"none",borderRadius:10,padding:"7px 14px",fontSize:12,fontWeight:800,color:"#fff",cursor:"pointer",flexShrink:0}}>Get →</button>
+                  </div>
+                );
+              })}
+            </>
+          ) : (
+            <div style={{textAlign:"center",padding:"20px 0"}}>
+              <p style={{fontSize:14,color:"#999"}}>You didn't shortlist any plans.</p>
+            </div>
+          )}
+
+          {disliked.length > 0 && (
+            <>
+              <p style={{margin:"16px 0 10px",fontSize:13,fontWeight:700,color:"#bbb"}}>Skipped ({disliked.length})</p>
+              {disliked.map(k => {
+                const p = planCards.find(x => x.key === k);
+                return (
+                  <div key={k} style={{background:"#FAFAFA",borderRadius:16,padding:"12px 16px",marginBottom:8,display:"flex",alignItems:"center",gap:10,border:"1.5px solid #F0F0F0"}}>
+                    <div style={{width:36,height:36,borderRadius:10,background:"#F0F0F0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0,opacity:0.5}}>{p.emoji}</div>
+                    <span style={{fontSize:13,color:"#bbb",fontWeight:600}}>{p.label}</span>
+                  </div>
+                );
+              })}
+            </>
+          )}
+
+          <button onClick={reset} style={{width:"100%",background:"#111",border:"none",borderRadius:14,padding:"15px",fontSize:15,fontWeight:800,color:"#fff",cursor:"pointer",marginTop:20}}>
+            Start Over
+          </button>
+        </div>
+      ) : (
+        <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+          {/* Progress */}
+          <div style={{padding:"12px 20px 0",flexShrink:0}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <span style={{fontSize:11,color:"#999",fontWeight:600}}>{idx + 1} of {planCards.length}</span>
+              <span style={{fontSize:11,color:"#999",fontWeight:600}}>{liked.length} shortlisted</span>
+            </div>
+            <div style={{height:4,background:"#E8E8E8",borderRadius:2,overflow:"hidden"}}>
+              <div style={{height:"100%",width:`${((idx)/planCards.length)*100}%`,background:"#111",borderRadius:2,transition:"width 0.3s"}}/>
+            </div>
+          </div>
+
+          {/* Card area */}
+          <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"16px",position:"relative",overflow:"hidden"}}>
+
+            {/* Ghost next card */}
+            {idx + 1 < planCards.length && (
+              <div style={{position:"absolute",width:"calc(100% - 48px)",borderRadius:24,background:"#fff",height:200,top:"50%",transform:"translateY(-46%) scale(0.94)",boxShadow:"0 4px 20px rgba(0,0,0,0.08)",zIndex:1}}/>
+            )}
+
+            {/* Active card */}
+            <div style={{...cardStyle, width:"100%"}}>
+              {/* Swipe indicators */}
+              {swipeDir === "right" && (
+                <div style={{position:"absolute",top:20,left:20,zIndex:20,background:"#ECFDF5",border:"3px solid #10B981",borderRadius:12,padding:"6px 14px",transform:"rotate(-12deg)"}}>
+                  <span style={{fontSize:16,fontWeight:900,color:"#10B981"}}>👍 LIKE</span>
+                </div>
+              )}
+              {swipeDir === "left" && (
+                <div style={{position:"absolute",top:20,right:20,zIndex:20,background:"#FFF0F0",border:"3px solid #E53935",borderRadius:12,padding:"6px 14px",transform:"rotate(12deg)"}}>
+                  <span style={{fontSize:16,fontWeight:900,color:"#E53935"}}>👎 SKIP</span>
+                </div>
+              )}
+
+              <div style={{background:"#fff",borderRadius:24,boxShadow:"0 8px 32px rgba(0,0,0,0.12)",overflow:"hidden",position:"relative",zIndex:2}}>
+                {/* Plan hero */}
+                <div style={{background:`linear-gradient(145deg,${plan.color},${plan.color}bb)`,padding:"22px 22px 18px",position:"relative",overflow:"hidden"}}>
+                  <div style={{position:"absolute",top:-20,right:-20,width:100,height:100,borderRadius:"50%",background:"rgba(255,255,255,0.1)"}}/>
+                  <div style={{position:"absolute",bottom:-10,right:10,fontSize:70,opacity:0.15}}>{plan.emoji}</div>
+                  <div style={{display:"inline-flex",background:"rgba(255,255,255,0.18)",borderRadius:20,padding:"4px 12px",marginBottom:10}}>
+                    <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>{plan.tag}</span>
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
+                    <span style={{fontSize:28}}>{plan.emoji}</span>
+                    <p style={{margin:0,fontSize:22,fontWeight:900,color:"#fff",letterSpacing:-0.5}}>{plan.label}</p>
+                  </div>
+                  <p style={{margin:0,fontSize:12,color:"rgba(255,255,255,0.7)",lineHeight:1.5}}>{plan.desc}</p>
+                </div>
+
+                {/* Features preview */}
+                <div style={{padding:"14px 16px",maxHeight:260,overflowY:"auto"}}>
+                  {comparisonFeatures.map((f,fi) => {
+                    const has = f[plan.key];
+                    return (
+                      <div key={fi} style={{display:"flex",alignItems:"center",gap:10,paddingBottom:9,marginBottom:fi<comparisonFeatures.length-1?9:0,borderBottom:fi<comparisonFeatures.length-1?"1px solid #F5F5F7":"none"}}>
+                        <div style={{width:22,height:22,borderRadius:6,background:has?"#ECFDF5":"#FFF0F0",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                          {has
+                            ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            : <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#E53935" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          }
+                        </div>
+                        <span style={{fontSize:12,color:has?"#111":"#ccc",fontWeight:has?500:400}}>{f.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* < > nav arrows inside card bottom */}
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 16px 16px",borderTop:"1px solid #F0F0F0",background:"#FAFAFA"}}>
+                  <button onClick={()=>swipe("left")} disabled={animating} style={{width:44,height:44,borderRadius:12,background:"#fff",border:"1.5px solid #E8E8E8",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:"0 2px 8px rgba(0,0,0,0.07)"}}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <div style={{textAlign:"center"}}>
+                    <p style={{margin:"0 0 1px",fontSize:12,fontWeight:700,color:"#111"}}>{plan.label}</p>
+                    <p style={{margin:0,fontSize:10,color:"#bbb"}}>{included.length} features · {idx+1}/{planCards.length}</p>
+                  </div>
+                  <button onClick={()=>swipe("right")} disabled={animating} style={{width:44,height:44,borderRadius:12,background:"#fff",border:"1.5px solid #E8E8E8",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:"0 2px 8px rgba(0,0,0,0.07)"}}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{padding:"0 20px 28px",textAlign:"center",flexShrink:0}}>
+            <p style={{margin:"0 0 4px",fontSize:11,color:"#bbb",fontWeight:500}}>Use the arrows on the card to navigate</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProductComparisonTableScreen({ onBack }) {
+  const plans = ["Cabin CW","Dedicated Desk","Hot Desk","All Access","Day Pass/\nBulk Pass"];
+  const planKeys = ["cabin","desk","hot","all","day"];
+  const planColors = ["#7C3AED","#2563EB","#059669","#D97706","#E53935"];
+
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#F5F5F7",overflow:"hidden"}}>
+      <div style={{background:"#fff",padding:"12px 20px 16px",borderBottom:"1px solid #F0F0F0",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <BackBtn onPress={onBack}/>
+          <span style={{fontWeight:800,fontSize:18,color:"#111"}}>Product Comparison</span>
+        </div>
+      </div>
+
+      <div style={{flex:1,overflow:"auto"}}>
+        <table style={{borderCollapse:"collapse",minWidth:620,width:"100%",fontSize:12}}>
+          {/* Header row */}
+          <thead>
+            <tr>
+              <th style={{background:"#DBEAFE",padding:"14px 12px",textAlign:"center",fontWeight:700,fontSize:13,color:"#1e3a5f",borderRight:"1px solid #bcd",borderBottom:"2px solid #93C5FD",position:"sticky",left:0,zIndex:2,minWidth:160}}>
+                Features
+              </th>
+              {plans.map((p,i)=>(
+                <th key={i} style={{background:i===plans.length-1?"#BBF7D0":"#DBEAFE",padding:"12px 8px",textAlign:"center",fontWeight:700,fontSize:12,color:i===plans.length-1?"#065F46":"#1e3a5f",borderRight:i<plans.length-1?"1px solid #bcd":"none",borderBottom:"2px solid #93C5FD",minWidth:90,whiteSpace:"pre-line",lineHeight:1.3,borderLeft:i===plans.length-1?"2px solid #10B981":"none"}}>
+                  {p}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {comparisonFeatures.map((f,fi)=>{
+              const isYellow = fi < 8;
+              const isPink = fi >= 14;
+              const rowBg = isYellow ? "#FEFCE8" : isPink ? "#FFF0F0" : "#fff";
+              const featureFontWeight = 700;
+              return (
+                <tr key={f.label}>
+                  <td style={{background:rowBg,padding:"10px 12px",fontWeight:featureFontWeight,fontSize:12,color:"#111",borderRight:"1px solid #E0E0E0",borderBottom:"1px solid #EFEFEF",position:"sticky",left:0,zIndex:1}}>
+                    {f.label}
+                  </td>
+                  {planKeys.map((k,ki)=>{
+                    const has = f[k];
+                    const isLast = ki === planKeys.length - 1;
+                    return (
+                      <td key={k} style={{background:has?"#DCFCE7":"#FFE4E6",textAlign:"center",padding:"10px 8px",borderRight:ki<planKeys.length-1?"1px solid #E0E0E0":"none",borderBottom:"1px solid #EFEFEF",borderLeft:isLast?"2px solid #10B981":"none"}}>
+                        {has ? (
+                          <div style={{width:22,height:22,borderRadius:5,border:"2px solid #16A34A",background:"#DCFCE7",display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                          </div>
+                        ) : (
+                          <div style={{width:22,height:22,borderRadius:5,border:"2px solid #F87171",background:"#FFE4E6",display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          </div>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function ProductComparisonTab() {
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#F5F5F7",overflow:"hidden"}}>
+      {/* Header */}
+      <div style={{background:"#fff",padding:"16px 20px 12px",borderBottom:"1px solid #F0F0F0",flexShrink:0}}>
+        <p style={{margin:"0 0 2px",fontSize:11,color:"#999",fontWeight:600,letterSpacing:0.4,textTransform:"uppercase"}}>Swipe to explore</p>
+        <p style={{margin:"0 0 12px",fontSize:18,fontWeight:800,color:"#111"}}>Product Comparison</p>
+        {/* Dot indicators */}
+        <div style={{display:"flex",justifyContent:"center",gap:6}}>
+          {planCards.map((p,i)=>(
+            <div key={p.key} onClick={()=>setActiveIdx(i)} style={{width:i===activeIdx?22:7,height:7,borderRadius:4,background:i===activeIdx?planCards[activeIdx].color:"#DDD",transition:"all 0.25s",cursor:"pointer"}}/>
+          ))}
+        </div>
+      </div>
+
+      {/* Single card carousel */}
+      <div style={{flex:1,overflowY:"auto",padding:"20px 16px 24px"}}>
+        {planCards.map((plan,i)=>{
+          if(i!==activeIdx) return null;
+          const included = comparisonFeatures.filter(f=>f[plan.key]);
+          const excluded = comparisonFeatures.filter(f=>!f[plan.key]);
+          return (
+            <div key={plan.key}>
+              {/* Plan card */}
+              <div style={{background:`linear-gradient(145deg,${plan.color},${plan.color}cc)`,borderRadius:24,padding:"24px 22px",marginBottom:20,position:"relative",overflow:"hidden"}}>
+                <div style={{position:"absolute",top:-30,right:-30,width:140,height:140,borderRadius:"50%",background:"rgba(255,255,255,0.08)"}}/>
+                <div style={{position:"absolute",bottom:-20,right:10,fontSize:90,opacity:0.15,lineHeight:1}}>{plan.emoji}</div>
+                <div style={{display:"inline-flex",background:"rgba(255,255,255,0.18)",borderRadius:20,padding:"4px 14px",marginBottom:14}}>
+                  <span style={{fontSize:11,fontWeight:700,color:"#fff",letterSpacing:0.3}}>{plan.tag}</span>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+                  <span style={{fontSize:32}}>{plan.emoji}</span>
+                  <p style={{margin:0,fontSize:24,fontWeight:900,color:"#fff",letterSpacing:-0.5}}>{plan.label}</p>
+                </div>
+                <p style={{margin:"0 0 20px",fontSize:13,color:"rgba(255,255,255,0.72)",lineHeight:1.55}}>{plan.desc}</p>
+                <div style={{display:"flex",gap:10}}>
+                  <div style={{background:"rgba(255,255,255,0.14)",borderRadius:14,padding:"12px",flex:1,textAlign:"center"}}>
+                    <p style={{margin:"0 0 2px",fontSize:22,fontWeight:900,color:"#fff"}}>{included.length}</p>
+                    <p style={{margin:0,fontSize:11,color:"rgba(255,255,255,0.65)"}}>Included</p>
+                  </div>
+                  <div style={{background:"rgba(255,255,255,0.14)",borderRadius:14,padding:"12px",flex:1,textAlign:"center"}}>
+                    <p style={{margin:"0 0 2px",fontSize:22,fontWeight:900,color:"#fff"}}>{excluded.length}</p>
+                    <p style={{margin:0,fontSize:11,color:"rgba(255,255,255,0.65)"}}>Not included</p>
+                  </div>
+                  <div style={{background:"rgba(255,255,255,0.14)",borderRadius:14,padding:"12px",flex:1,textAlign:"center"}}>
+                    <p style={{margin:"0 0 2px",fontSize:22,fontWeight:900,color:"#fff"}}>{comparisonFeatures.length}</p>
+                    <p style={{margin:0,fontSize:11,color:"rgba(255,255,255,0.65)"}}>Total</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Features list — all in one card, no sub-sections */}
+              <div style={{background:"#fff",borderRadius:20,overflow:"hidden",boxShadow:"0 2px 16px rgba(0,0,0,0.06)",marginBottom:20}}>
+                {comparisonFeatures.map((f,fi)=>{
+                  const has = f[plan.key];
+                  return (
+                    <div key={f.label} style={{display:"flex",alignItems:"center",gap:12,padding:"13px 16px",borderBottom:fi<comparisonFeatures.length-1?"1px solid #F5F5F7":"none",background:has?"#fff":"#FAFAFA"}}>
+                      <div style={{width:30,height:30,borderRadius:9,background:has?"#ECFDF5":"#FFF0F0",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                        {has
+                          ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                          : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#E53935" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        }
+                      </div>
+                      <span style={{fontSize:13,fontWeight:has?600:400,color:has?"#111":"#bbb",lineHeight:1.4,flex:1}}>{f.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Nav arrows + CTA */}
+              <div style={{display:"flex",gap:10,marginBottom:16}}>
+                <button onClick={()=>setActiveIdx(i=>Math.max(0,i-1))} disabled={activeIdx===0} style={{width:48,height:48,borderRadius:14,border:"2px solid #E8E8E8",background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",cursor:activeIdx===0?"not-allowed":"pointer",opacity:activeIdx===0?0.4:1,flexShrink:0}}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <button style={{flex:1,background:plan.color,border:"none",borderRadius:14,padding:"14px",fontSize:14,fontWeight:800,color:"#fff",cursor:"pointer"}}>
+                  Get {plan.label} →
+                </button>
+                <button onClick={()=>setActiveIdx(i=>Math.min(planCards.length-1,i+1))} disabled={activeIdx===planCards.length-1} style={{width:48,height:48,borderRadius:14,border:"2px solid #E8E8E8",background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",cursor:activeIdx===planCards.length-1?"not-allowed":"pointer",opacity:activeIdx===planCards.length-1?0.4:1,flexShrink:0}}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+
+              {/* Plan name pills for quick jump */}
+              <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"center"}}>
+                {planCards.map((p,pi)=>(
+                  <button key={p.key} onClick={()=>setActiveIdx(pi)} style={{padding:"5px 12px",borderRadius:20,border:`1.5px solid ${pi===activeIdx?p.color:"#E8E8E8"}`,background:pi===activeIdx?p.bg:"#fff",cursor:"pointer",fontSize:11,fontWeight:700,color:pi===activeIdx?p.color:"#bbb",transition:"all 0.15s"}}>
+                    {p.emoji} {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MoreScreen({ onNavigate, unreadCount, kycDone, onStartKYC, initialTab="profile" }) {
+  const [moreTab, setMoreTab] = useState(initialTab);
+
+  const menuItems = [
+    { label:"Notifications", sub:unreadCount>0?`${unreadCount} unread`:"All caught up", onTap:()=>onNavigate("notifications"), badge:unreadCount>0?unreadCount:null },
+    { label:"My Activity", sub:"Bookings & transactions", onTap:()=>onNavigate("activity") },
+    { label:"Raise a Ticket", sub:"Report an issue at your space", onTap:()=>onNavigate("ticket") },
+    { label:"Company / GSTIN", onTap:null },
+    { label:"Refer & Win", onTap:null },
+    { label:"Invite", onTap:null },
+    { label:"Product Comparison 2", sub:"Full feature table", onTap:()=>onNavigate("product_comparison") },
+    { label:"Product Comparison 3", sub:"Find your perfect plan", onTap:()=>onNavigate("product_comparison_3") },
+    { label:"Product Comparison 4", sub:"Explore all products", onTap:()=>onNavigate("product_comparison_4") },
+    { label:"View Center Locations on Map", onTap:null },
+    { label:"My Location", value:"Bengaluru" },
+    { label:"Settings", onTap:null },
+  ];
+
+  return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",background:"#F5F5F7",overflow:"hidden"}}>
+      {/* Tab bar */}
+      <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",flexShrink:0}}>
+        <div style={{display:"flex"}}>
+          {[{id:"profile",label:"Profile"},{id:"compare",label:"Product Comparison 1"}].map(t=>(
+            <button key={t.id} onClick={()=>setMoreTab(t.id)} style={{flex:1,background:"none",border:"none",cursor:"pointer",padding:"14px 8px 12px",fontSize:13,fontWeight:700,color:moreTab===t.id?"#111":"#aaa",borderBottom:`2.5px solid ${moreTab===t.id?"#111":"transparent"}`,transition:"all 0.18s",whiteSpace:"nowrap"}}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {moreTab==="compare" ? <ProductComparisonTab/> : (
+        <div style={{flex:1,overflowY:"auto",background:"#fff"}}>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"28px 20px 20px",borderBottom:"1px solid #E8E8E8"}}>
+            <div style={{position:"relative",marginBottom:14}}>
+              <div style={{width:82,height:82,borderRadius:"50%",background:"#E8A800",display:"flex",alignItems:"center",justifyContent:"center",fontSize:30,fontWeight:700,color:"#7A5500",letterSpacing:-1}}>SB</div>
+              {kycDone&&<div style={{position:"absolute",bottom:2,right:2,width:22,height:22,borderRadius:"50%",background:"#10B981",border:"2px solid #fff",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>}
+            </div>
+            <p style={{margin:"0 0 5px",fontSize:17,fontWeight:600,color:"#111"}}>Sridevi Bhat</p>
+            <p style={{margin:"0 0 10px",fontSize:13,color:"#888"}}>7204107760 | sridevi@bhiveworkspace.com</p>
+            {kycDone?(
+              <div style={{background:"#ECFDF5",border:"1.5px solid #A7F3D0",borderRadius:20,padding:"5px 14px",display:"flex",alignItems:"center",gap:6}}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span style={{fontSize:12,fontWeight:700,color:"#059669"}}>E-KYC Verified</span>
+              </div>
+            ):(
+              <div onClick={onStartKYC} style={{background:"#FFFBEB",border:"1.5px solid #FDE68A",borderRadius:20,padding:"6px 16px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span style={{fontSize:12,fontWeight:700,color:"#D97706"}}>Complete E-KYC →</span>
+              </div>
+            )}
+          </div>
+
+          {!kycDone&&(
+            <div onClick={onStartKYC} style={{margin:"12px 16px 0",background:"linear-gradient(135deg,#111,#1e1e1e)",borderRadius:16,padding:"14px 16px",display:"flex",alignItems:"center",gap:12,cursor:"pointer",position:"relative",overflow:"hidden"}}>
+              <div style={{position:"absolute",top:-16,right:-16,width:80,height:80,borderRadius:"50%",background:"rgba(245,158,11,0.12)"}}/>
+              <div style={{width:40,height:40,borderRadius:12,background:"#F59E0B",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div style={{flex:1}}>
+                <p style={{margin:"0 0 2px",fontSize:14,fontWeight:800,color:"#fff"}}>Verify your identity</p>
+                <p style={{margin:0,fontSize:12,color:"rgba(255,255,255,0.5)"}}>Enable instant check-in at all BHIVE spaces</p>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          )}
+
+          <div style={{borderBottom:"1px solid #E8E8E8",marginTop:12}}>
+            {menuItems.map((item,i)=>(
+              <div key={i} onClick={item.onTap||undefined} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"15px 20px",borderBottom:"1px solid #F0F0F0",cursor:item.onTap?"pointer":"default",background:"#fff"}}>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontSize:15,color:"#111"}}>{item.label}</span>
+                    {item.badge&&<div style={{background:"#E53935",borderRadius:"50%",minWidth:20,height:20,display:"flex",alignItems:"center",justifyContent:"center",padding:"0 5px"}}><span style={{fontSize:11,fontWeight:800,color:"#fff"}}>{item.badge}</span></div>}
+                  </div>
+                  {item.sub&&<p style={{margin:"2px 0 0",fontSize:12,color:item.badge?"#E53935":"#F59E0B",fontWeight:500}}>{item.sub}</p>}
+                </div>
+                {item.value?<div style={{border:"1px solid #888",borderRadius:8,padding:"4px 12px"}}><span style={{fontSize:14,color:"#111",fontWeight:500}}>{item.value}</span></div>:item.onTap?<ChevronRight/>:null}
+              </div>
+            ))}
+          </div>
+          <div style={{padding:"28px 20px"}}><button style={{background:"none",border:"none",cursor:"pointer",padding:0,width:"100%",textAlign:"center"}}><span style={{fontSize:17,color:"#E53935",fontWeight:500}}>Log out</span></button></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const StatusBar = () => (
+  <div style={{background:"#fff",padding:"16px 28px 8px",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
+    <span style={{fontWeight:700,fontSize:15,color:"#111"}}>9:41</span>
+    <div style={{display:"flex",gap:6,alignItems:"center"}}>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="#111"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.3"/></svg>
+      <svg width="16" height="12" viewBox="0 0 24 18" fill="#111"><path d="M12 4.5C8.1 4.5 4.8 6.1 2.5 8.7L0 6.2C3 3.1 7.3 1.1 12 1.1s9 2 12 5.1l-2.5 2.5C19.2 6.1 15.9 4.5 12 4.5zm0 5.4c-1.9 0-3.6.8-4.8 2L5 9.7C6.9 7.9 9.3 6.8 12 6.8s5.1 1.1 7 2.9l-2.2 2.2c-1.2-1.2-2.9-2-4.8-2zm2.8 4.6L12 17.2l-2.8-2.7c.7-.8 1.7-1.3 2.8-1.3s2.1.5 2.8 1.3z"/></svg>
+      <div style={{width:25,height:13,border:"1.5px solid #111",borderRadius:3.5,position:"relative",padding:2,display:"flex",alignItems:"center"}}>
+        <div style={{background:"#111",height:"100%",width:"80%",borderRadius:1.5}}/>
+        <div style={{position:"absolute",right:-4,width:3,height:7,background:"#111",borderRadius:"0 2px 2px 0",top:"50%",transform:"translateY(-50%)"}}/>
+      </div>
+    </div>
+  </div>
+);
+
+function BhiveApp() {
+  const [screen, setScreen] = useState("home");
+  const [activeTab, setActiveTab] = useState("home");
+  const [showQR, setShowQR] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(3);
+  const [kycDone, setKycDone] = useState(false);
+  const [showKYC, setShowKYC] = useState(true); // Option 2: show on app open
+
+  const [compareTab, setCompareTab] = useState("profile");
+  const navigate = s => {
+    if (s==="compare") { setCompareTab("compare"); setScreen("menu"); setActiveTab("menu"); return; }
+    setScreen(s);
+    if(["home","daypass","team","menu"].includes(s)) { setActiveTab(s); setCompareTab("profile"); }
+  };
+  const tabs = [
+    { id:"home", label:"Home", Ic:HomeIcon },
+    { id:"daypass", label:"Day Pass", Ic:PassIcon },
+    { id:"team", label:"Team", Ic:TeamIcon },
+    { id:"menu", label:"More", Ic:MenuIcon },
+  ];
+
+  const renderScreen = () => {
+    if (screen==="home") return <HomeScreen onNavigate={navigate} onShowQR={()=>setShowQR(true)} kycDone={kycDone} onStartKYC={()=>setShowKYC(true)}/>;
+    if (screen==="daypass") return <DayPassScreen onNavigate={navigate} onShowQR={()=>setShowQR(true)}/>;
+    if (screen==="menu") return <MoreScreen onNavigate={navigate} unreadCount={unreadCount} kycDone={kycDone} onStartKYC={()=>setShowKYC(true)} initialTab={compareTab}/>;
+    if (screen==="activity") return <MyActivityScreen onBack={()=>navigate("menu")} onShowQR={()=>setShowQR(true)}/>;
+    if (screen==="notifications") return <NotificationsScreen onBack={()=>navigate("menu")} onNavigate={navigate} onShowQR={()=>setShowQR(true)} onMarkAllRead={()=>setUnreadCount(0)}/>;
+    if (screen==="notif_prefs") return <NotifPrefsScreen onBack={()=>navigate("notifications")}/>;
+    if (screen==="ticket") return <RaiseTicketScreen onBack={next=>navigate(next||"menu")}/>;
+    if (screen==="ticket_success") return <TicketSuccessScreen onBack={()=>navigate("menu")} onView={()=>navigate("my_tickets")}/>;
+    if (screen==="my_tickets") return <MyTicketsScreen onBack={()=>navigate("menu")}/>;
+    if (screen==="product_comparison") return <ProductComparisonTableScreen onBack={()=>navigate("menu")}/>;
+    if (screen==="product_comparison_3") return <ProductComparison3Screen onBack={()=>navigate("menu")}/>;
+    if (screen==="product_comparison_4") return <ProductComparison4Screen onBack={()=>navigate("menu")}/>;
+    return <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12,color:"#bbb"}}><div style={{fontSize:48}}>🚧</div><p style={{margin:0,fontSize:14,fontWeight:600}}>Coming soon</p></div>;
+  };
+
+  return (
+    <div style={{display:"flex",justifyContent:"center",alignItems:"center",minHeight:"100vh",background:"linear-gradient(135deg,#1a1a2e 0%,#16213e 100%)",fontFamily:"-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif"}}>
+      <div style={{width:393,height:852,background:"#F5F5F7",borderRadius:50,overflow:"hidden",boxShadow:"0 40px 100px rgba(0,0,0,0.5),0 0 0 12px #0f0f0f,0 0 0 14px #2a2a2a",display:"flex",flexDirection:"column",position:"relative"}}>
+        <StatusBar/>
+        <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
+          {renderScreen()}
+        </div>
+        <div style={{background:"#fff",borderTop:"1px solid #EFEFEF",display:"flex",padding:"10px 8px 24px",flexShrink:0}}>
+          {tabs.map(({id,label,Ic})=>{
+            const isActive=activeTab===id;
+            return (
+              <button key={id} onClick={()=>navigate(id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",padding:"4px 0",position:"relative"}}>
+                {isActive&&<div style={{position:"absolute",top:-10,left:"50%",transform:"translateX(-50%)",width:28,height:3,background:"#111",borderRadius:"0 0 4px 4px"}}/>}
+                <div style={{position:"relative"}}>
+                  <Ic active={isActive}/>
+                  {id==="menu"&&unreadCount>0&&<div style={{position:"absolute",top:-3,right:-3,width:8,height:8,borderRadius:"50%",background:"#E53935",border:"1.5px solid #fff"}}/>}
+                </div>
+                <span style={{fontSize:10,fontWeight:isActive?700:500,color:isActive?"#111":"#bbb"}}>{label}</span>
+              </button>
+            );
+          })}
+        </div>
+        {showQR&&<QRSheet pass={activePass} onClose={()=>setShowQR(false)}/>}
+        {/* Option 2: E-KYC modal on app open */}
+        {showKYC&&!kycDone&&(
+          <EKYCModal
+            onComplete={()=>{ setKycDone(true); setShowKYC(false); }}
+            onSkip={()=>setShowKYC(false)}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<BhiveApp />);
+  </script>
+</body>
+</html>
